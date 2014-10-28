@@ -157,18 +157,20 @@ def ball (packagename):
 
 #@+node:maphew.20100223163802.3721: *3* download
 def download (packagename):
-    '''download package'''
-    # print sys.argv[0], ": in download() with", packagename
-
-    # # deadweight, not used; equiv feedback should be given by parameter checking earlier
-    # if not packagename:
-        # sys.stderr.write ('No package specified. Try running "apt available"')
-
-    do_download (packagename)
-    ball (packagename)
-    print
-    md5 (packagename)
+    '''Download the package(s) from mirror and save in local cache folder:
     
+        apt download shell iconv gdal ...etc.
+        
+    Use `apt available` to see what is on the mirror for downloading.
+    '''
+    if packagename:
+        for p in packagename:
+            do_download (p)
+            ball (p)
+            print
+            md5 (p)
+    else:
+        print 'No package(s) specified. Try running `apt available`'
 #@+node:maphew.20100223163802.3722: *3* find
 def find ():
     '''package containing file (from installed packages)'''

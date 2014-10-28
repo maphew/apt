@@ -180,7 +180,7 @@ def find(p):
             regexp = re.sub ('^%s/' % root, '/', pattern)
             hits = []
             for pattern in sorted (installed[0].keys ()):
-                for i in get_filelist ():
+                for i in get_filelist(pattern):
                     if re.search (regexp, '/%s' % i, re.IGNORECASE):
                         hits.append ('%s: /%s' % (pattern, i))
             print (string.join (hits, '\n'))
@@ -638,7 +638,7 @@ def get_field (field, default=''):
 
 #@+node:maphew.20100223163802.3745: *3* get_filelist
 def get_filelist (packagename):
-    # ''' Retrieve list of files installed for package X from manifest (/etc/setup/package.lst.gz)'''
+    ''' Retrieve list of files installed for package X from manifest (/etc/setup/package.lst.gz)'''
     os.chdir (config)
     pipe = gzip.open (config + packagename + '.lst.gz', 'r')
     lst = map (string.strip, pipe.readlines ())

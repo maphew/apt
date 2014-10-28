@@ -152,6 +152,23 @@ This might mean waiting until after I can figure out the argparse etc. conundrum
         return location
     ImportError: <module 'apt' from 'b:\code\maphew\apt\apt.py'> has no 'main' attribute
 <!--@+node:maphew.20130122175214.1532: *3* fixed-->
+<!--@+node:maphew.20141028132242.2: *4* Parent SHA-1 not present in Gitrepo-->
+    "Parent SHA-1 not present in Gitrepo"
+
+got this error when I tried to push today's changes from TortoiseHg Workbench to Github. Finally resolved by cloning new repo with Hg from Github and then merging into that from local messed up copy. I think SourceTree may have messed up the repo because it doesn't know which to use, git or hg. Going to stay from SourceTree as much as possible.
+
+    hg clone --verbose git+ssh://git@github.com:maphew/apt.git B:\code\apt-clone
+    pushd b:\code\apt-clone
+    hg pull b:\code\apt
+    hg merge
+    
+    
+Command line examples given, but I did most from Workbench.
+
+
+Also see
+https://bitbucket.org/durin42/hg-git/issue/75/parent-sha-1-not-present-in-gitrepo
+
 <!--@+node:maphew.20141002090256.2026: *4* IOError: invalid data stream-->
     B:\o4w>python b:\code\maphew\apt\apt.py update
     ...100%  Traceback (most recent call last):

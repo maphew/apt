@@ -1,15 +1,18 @@
-#@+leo-ver=5-thin
-#@+node:maphew.20121011215813.1567: * @file Notes.txt
-The biggest thing learned from the "a2" experiment is that we can import apt as
-a module and then experiment in the wrapper. Leaving the original pretty much as
-is and still functional.
+<!--@+leo-ver=5-thin-->
+<!--@+node:maphew.20121011215813.1567: * @file Notes.txt-->
+<!--@@language md-->
 
-Plac was very useful in coming to this understanding but I think it's too niche
-to base my efforts on going forward. Click may well end up in the discard heap
-in the same way, but what other useful things will I learn in the attempt?
+On deck: Get ready for release. 
 
-#@+others
-#@+node:maphew.20121113004545.1578: ** a2
+- Make sure every advertised function either works or exits gracefully.
+- As each function is touched, update the docstring.
+
+
+
+
+
+<!--@+others-->
+<!--@+node:maphew.20121113004545.1578: ** a2-->
 2013-Jan-21
 
 Next thing I'd like to do is make it easier to test install of packages, either by passing a particular tarball on the command line or by pointing to an alternate local cache directory. I think the tarball route might be easier.
@@ -32,14 +35,14 @@ sigh.
 This may mean the end of moving apt furniture about. We've tidied things up, there's some organization, but to go any further means ripping some walls out and moving structural elements. It could all come crashing down next, but hey! that's why we're using version control with smart and easy merging and branching, right? 
 
 (now if only I knew how to use it! :)
-#@+node:maphew.20140905201312.1893: ** Research
+<!--@+node:maphew.20140905201312.1893: ** Research-->
 new magic bullet discovered: click
 @url http://click.pocoo.org/3/quickstart
 
 Just discovered a 2nd copy of original cyg-apt:
 http://lilypond.org/cygwin/cyg-apt-gub
 investigate what if any diff from one I started with.
-#@+node:maphew.20140905022205.1895: ** Too many apts
+<!--@+node:maphew.20140905022205.1895: ** Too many apts-->
     B:\code\apt\r183\gis\o4w_extras\bin\apt.py
     B:\code\apt\r262\apt\apt.py
     B:\code\apt\r262\gis\o4w_extras\bin\apt.py
@@ -58,8 +61,8 @@ By date of commit messages, `maphew-apt` is most current (Spring 2013).
 apt-r### are largely experimental and near duplicates. I seem to recall something about them being an attempt to sort out and fix a broken branching operation. (Fall 2012) DELETED
 
 apt-hg is Osgeo4w, using hg-subversion plugin. So most out of date (but matching current .exe release). RENAMED to `o4w-apt-hg`.
-#@+node:maphew.20141005121657.7064: ** Todo
-#@+node:maphew.20141005121657.7065: *3* Restore docstrings
+<!--@+node:maphew.20141005121657.7064: ** Todo-->
+<!--@+node:maphew.20141005121657.7065: *3* Restore docstrings-->
 Currently the docstrings of all functions which are not Commands are hidden behind remarks (#).
 
 This is because currently docstrings are used to drive the console help screen. It's too much to have _all_ functions listed there.
@@ -79,29 +82,31 @@ Next step is rewrite usage() so that it:
 
     a) has shortlist of Commands (instead of all functions)
     b) only shows first x characters of docstring (and then help() is used for the whole docstring).
-#@+node:maphew.20141005143559.6904: *4* print docstrings for all
-#@@language python
+<!--@+node:maphew.20141005143559.6904: *4* print docstrings for all-->
+<!--@@language python-->
 '''Print the docstrings for all functions with defined docstrings'''
 
-#@+at
-# This was the original method in cyg-apt for
-#  displaying usage help. Clever, but not flexible enough for us here.
-# https://code.google.com/p/maphew/source/browse/other/cyg-apt.py#78
-#@@c
+<!--@+at-->
+<!--
+This was the original method in cyg-apt for
+ displaying usage help. Clever, but not flexible enough for us here.
+https://code.google.com/p/maphew/source/browse/other/cyg-apt.py#78
+-->
+<!--@@c-->
 d = __main__.__dict__
 commands = filter (lambda x:
    type (d[x]) == type (usage) and d[x].__doc__, d)
 sys.stdout.writelines (map (lambda x:
     "    %s - %s\n" % (x, d[x].__doc__), sorted (commands)))
-#@+node:maphew.20141010024515.2076: *3* Setup.ini has new fields
+<!--@+node:maphew.20141010024515.2076: *3* Setup.ini has new fields-->
 New fields in setup.ini which we aren't capturing or doing anything with yet:
 
     arch: x86
     setup-timestamp: 1412665633
 
 (There are also [prev] and "source:", for wich there is some legacy code. I'm doubtful that it does anything useful though.) 
-#@+node:maphew.20130122175214.1530: ** bugs
-#@+node:maphew.20141002090256.2028: *3* Access denied to .pyd
+<!--@+node:maphew.20130122175214.1530: ** bugs-->
+<!--@+node:maphew.20141002090256.2028: *3* Access denied to .pyd-->
 We should exit with a graceful error in the case where Apt is trying to upgrade
 the python in active use.
 
@@ -119,7 +124,7 @@ the python in active use.
       File "b:\code\maphew\apt\apt.py", line 551, in do_uninstall
         os.remove (file)
     WindowsError: [Error 5] Access is denied: 'B:\\o4w\\apps\\Python27\\DLLs\\bz2.pyd'
-#@+node:maphew.20141006093411.2071: *3* ...\Scripts\apt.exe broken
+<!--@+node:maphew.20141006093411.2071: *3* ...\Scripts\apt.exe broken-->
 After installing apt to python Scripts folder using `pip install --editable .` apt errors out. And then after changing setup.py as per thread[0] it breaks differently, because it's absolutely right, there is no main(). So I think this means in order to work completely we have to create a main wrapper around (at least) `< <run the commands>>`.
 
 This might mean waiting until after I can figure out the argparse etc. conundrum. Or, maybe solving this will make the conundrum easier to solve(?)
@@ -146,8 +151,8 @@ This might mean waiting until after I can figure out the argparse etc. conundrum
       File "build\bdist.win32\egg\pkg_resources.py", line 2113, in load
         return location
     ImportError: <module 'apt' from 'b:\code\maphew\apt\apt.py'> has no 'main' attribute
-#@+node:maphew.20130122175214.1532: *3* fixed
-#@+node:maphew.20141002090256.2026: *4* IOError: invalid data stream
+<!--@+node:maphew.20130122175214.1532: *3* fixed-->
+<!--@+node:maphew.20141002090256.2026: *4* IOError: invalid data stream-->
     B:\o4w>python b:\code\maphew\apt\apt.py update
     ...100%  Traceback (most recent call last):
       File "b:\code\maphew\apt\apt.py", line 1190, in <module>
@@ -163,7 +168,7 @@ Fix with
     copy etc\setup\setup.bak etc\setup\setup.ini
     
 hunch: has something to with mirror settings, .../x86/...
-#@+node:maphew.20130122175214.1531: *4* a2 install bad-pkg-name
+<!--@+node:maphew.20130122175214.1531: *4* a2 install bad-pkg-name-->
 todo: Have apt report nicely when the packagename is not recognized
 
 B:\code\maphew\apt>a2 install iconvcurl
@@ -187,7 +192,7 @@ me
   File "B:\code\maphew\apt\apt.py", line 913, in no_package
     sys.stderr.write ("%s: %s not in [%s]\n" % (s, packagename, distname))
 NameError: global name 'packagename' is not defined
-#@+node:maphew.20141002090256.2027: *4* TypeError: exceptions must be...
+<!--@+node:maphew.20141002090256.2027: *4* TypeError: exceptions must be...-->
 B:\o4w>apt-dev install python-shapely
 
 ...
@@ -204,15 +209,15 @@ Traceback (most recent call last):
   File "B:\o4w\bin\apt-dev.py", line 238, in md5
     raise 'file md5 does not match for ' + ball
 TypeError: exceptions must be old-style classes or derived from BaseException, not str
-#@+node:maphew.20121011215813.1569: ** Expected test results
-#@+node:maphew.20121113004545.1562: *3* apt setup
+<!--@+node:maphew.20121011215813.1569: ** Expected test results-->
+<!--@+node:maphew.20121113004545.1562: *3* apt setup-->
 B:\code\maphew\apt>apt setup
 Root dir not found, creating d:/temp/o4w_2012-nov-11
 creating d:/temp/o4w_2012-nov-11/etc/setup/
 creating d:/temp/o4w_2012-nov-11/etc/setup//installed.db
 getting d:/temp/o4w_2012-nov-11/etc/setup//setup.ini
 ...100%
-#@+node:maphew.20121113004545.1561: *3* a2 setup
+<!--@+node:maphew.20121113004545.1561: *3* a2 setup-->
 B:\code\maphew\apt>a2 setup path\as\param\not\yet\working
 Error retreiving installed package info. Has "apt setup" been run yet?
 
@@ -222,14 +227,14 @@ creating d:\temp\o4w_2012-nov-11/etc/setup/
 creating d:\temp\o4w_2012-nov-11/etc/setup//installed.db
 getting d:\temp\o4w_2012-nov-11/etc/setup//setup.ini
 ...100%  ----------setup
-#@+node:maphew.20121011215813.1573: *3* apt update
+<!--@+node:maphew.20121011215813.1573: *3* apt update-->
 B:\code\maphew\apt>apt update
 ...100%
-#@+node:maphew.20121011215813.1574: *3* a2 update
+<!--@+node:maphew.20121011215813.1574: *3* a2 update-->
 B:\code\maphew\apt>a2 update
 ---------- running apt update None
 ...100%  ----------Update finished
-#@+node:maphew.20121011215813.1568: *3* apt install iconv curl
+<!--@+node:maphew.20121011215813.1568: *3* apt install iconv curl-->
 B:\code\maphew\apt>apt install iconv curl
 to install:
     iconv curl
@@ -247,7 +252,7 @@ se/curl/curl-7.15.1-2.tar.bz2
 97327843d4f00ec70bd08739336083c9  curl-7.15.1-2.tar.bz2 - local
 installing iconv 1.9.1-1
 installing curl 7.15.1-2
-#@+node:maphew.20121011215813.1571: *3* a2 install iconv curl
+<!--@+node:maphew.20121011215813.1571: *3* a2 install iconv curl-->
 B:\code\maphew\apt>a2 install iconv curl
 ---------- running apt install iconv curl
 to install:
@@ -267,7 +272,7 @@ se/curl/curl-7.15.1-2.tar.bz2
 installing iconv 1.9.1-1
 installing curl 7.15.1-2
 ---------- Install complete
-#@+node:maphew.20121011215813.1570: *3* apt remove iconv curl
+<!--@+node:maphew.20121011215813.1570: *3* apt remove iconv curl-->
 B:\code\maphew\apt>apt remove iconv curl
 iconv
 removing iconv 1.9.1-1
@@ -287,7 +292,7 @@ removed: O:\include\curl\multi.h
 removed: O:\include\curl\stdcheaders.h
 removed: O:\include\curl\types.h
 removed: O:\lib\libcurl_imp.lib
-#@+node:maphew.20121011215813.1572: *3* a2 remove iconv curl
+<!--@+node:maphew.20121011215813.1572: *3* a2 remove iconv curl-->
 B:\code\maphew\apt>a2 remove iconv curl
 ---------- running apt remove iconv curl
 iconv
@@ -309,5 +314,14 @@ removed: O:\include\curl\stdcheaders.h
 removed: O:\include\curl\types.h
 removed: O:\lib\libcurl_imp.lib
 ---------- Remove complete
-#@-others
-#@-leo
+<!--@-others-->
+
+
+The biggest thing learned from the "a2" experiment is that we can import apt as
+a module and then experiment in the wrapper. Leaving the original pretty much as
+is and still functional.
+
+Plac was very useful in coming to this understanding but I think it's too niche
+to base my efforts on going forward. Click may well end up in the discard heap
+in the same way, but what other useful things will I learn in the attempt?
+<!--@-leo-->

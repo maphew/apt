@@ -111,10 +111,10 @@ def check_setup(installed_db, setup_ini):
 def available(foo):
     '''Show packages available to be installed
 
-    TODO: this function requires a parameter only because of the command calling
-     structure of the module. The parameter is not used. When the command
-     structure is fixed remove the parameter (or perhaps make it useful by
-     saying (available(at_url_of_package_mirror_x)`
+    TODO: this function requires a parameter only because of the command 
+    calling structure of the module. The parameter is not used. When the 
+    command structure is fixed remove the parameter (or perhaps make it 
+    useful by saying (available(at_url_of_package_mirror_x)`
 
     courtesy of Aaron Digulla,
     http://stackoverflow.com/questions/1524126/how-to-print-a-list-more-nicely
@@ -140,14 +140,15 @@ def available(foo):
 
 #@+node:maphew.20100223163802.3720: *3* ball
 def ball (packagename):
-    '''print full path name of package archive'''
+    '''Print full local path name of package archive
 
-    # FIXME: really need to find a better name for this command. Not so many
-    # understand 'ball' refers to 'tarball', a onetime common moniker for an
-    # archive file
+    FIXME: really need to find a better name for this command. Not so many
+    understand 'ball' refers to 'tarball', a onetime common moniker for an
+    archive file
 
-    # when called as a command, e.g. "apt ball iconv", pkg is a list
-    # when called from another function pkg is a string
+    When called as a command, e.g. "apt ball iconv", pkg is a list
+    when called from another function pkg is a string
+    '''
     if type(packagename) == str:
         print "\n%s = %s" % (packagename, get_ball (packagename))
     else:
@@ -156,18 +157,20 @@ def ball (packagename):
 
 #@+node:maphew.20100223163802.3721: *3* download
 def download (packagename):
-    '''download package'''
-    # print sys.argv[0], ": in download() with", packagename
-
-    # # deadweight, not used; equiv feedback should be given by parameter checking earlier
-    # if not packagename:
-        # sys.stderr.write ('No package specified. Try running "apt available"')
-
-    do_download (packagename)
-    ball (packagename)
-    print
-    md5 (packagename)
+    '''Download the package(s) from mirror and save in local cache folder:
     
+        apt download shell iconv gdal ...etc.
+        
+    Use `apt available` to see what is on the mirror for downloading.
+    '''
+    if packagename:
+        for p in packagename:
+            do_download (p)
+            ball (p)
+            print
+            md5 (p)
+    else:
+        print 'No package(s) specified. Try running `apt available`'
 #@+node:maphew.20100223163802.3722: *3* find
 def find ():
     '''package containing file (from installed packages)'''

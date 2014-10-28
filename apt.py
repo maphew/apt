@@ -183,9 +183,14 @@ def find(p):
                 for i in get_filelist(pattern):
                     if re.search (regexp, '/%s' % i, re.IGNORECASE):
                         hits.append ('%s: /%s' % (pattern, i))
-            print (string.join (hits, '\n'))
+            results = (string.join (hits, '\n'))
+        if results:
+            print results
+        else:
+            print 'No files matching "%s" were found in the installed files list' % '" or "'.join(p)
     else:
         sys.stderr.write ('Find what? Enter a filename to look for (partial is ok).')
+        
 #@+node:maphew.20100223163802.3723: *3* help
 def help ():
     '''show help for COMMAND'''

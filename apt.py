@@ -172,21 +172,20 @@ def download (packagename):
     else:
         print 'No package(s) specified. Try running `apt available`'
 #@+node:maphew.20100223163802.3722: *3* find
-def find ():
-    '''package containing file (from installed packages)'''
-    global packagename
-    if not packagename:
+def find(p):
+    '''Search installed packages for files matching the specified pattern.
+    '''
+    if p:
+        for pattern in p:
+            regexp = re.sub ('^%s/' % root, '/', pattern)
+            hits = []
+            for pattern in sorted (installed[0].keys ()):
+                for i in get_filelist ():
+                    if re.search (regexp, '/%s' % i, re.IGNORECASE):
+                        hits.append ('%s: /%s' % (pattern, i))
+            print (string.join (hits, '\n'))
+    else:
         sys.stderr.write ('Find what? Enter a filename to look for (partial is ok).')
-        return
-
-    regexp = re.sub ('^%s/' % root, '/', packagename)
-    hits = []
-    for packagename in sorted (installed[0].keys ()):
-        for i in get_filelist ():
-            if re.search (regexp, '/%s' % i, re.IGNORECASE):
-                hits.append ('%s: /%s' % (packagename, i))
-    print (string.join (hits, '\n'))
-
 #@+node:maphew.20100223163802.3723: *3* help
 def help ():
     '''show help for COMMAND'''

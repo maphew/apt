@@ -192,7 +192,7 @@ def find(p):
         sys.stderr.write ('Find what? Enter a filename to look for (partial is ok).')
         
 #@+node:maphew.20100223163802.3723: *3* help
-def help ():
+def help():
     '''show help for COMMAND'''
         
     # if "help for..." not present then just show general help.
@@ -204,8 +204,8 @@ def help ():
     print  "\n    " + __main__.__dict__[action].__doc__
 
 #@+node:maphew.20100223163802.3724: *3* install
-def install (packages):
-    '''download and install packages, including dependencies'''
+def install(packages):
+    '''Download and install packages, including dependencies'''
     missing = {}
     # print '=== pkgs:', packages # debug
     for packagename in packages:
@@ -254,8 +254,8 @@ def install_next (missing_packages, resolved, seen):
         do_install (packagename)
         resolved.add(miss_package)
 #@+node:maphew.20100223163802.3725: *3* list
-def list (foo):
-    '''installed packages'''
+def list(foo):
+    '''List installed packages'''
     # fixme: once again, 'foo' defined but not used. fix after calling structure is refactored
     ## global packagename
     for packagename in sorted (installed[0].keys ()):
@@ -270,15 +270,20 @@ def list (foo):
         print s
 
 #@+node:mhw.20120404170129.1475: *3* listfiles
-def listfiles ():
-    '''installed with package X'''
-    if not packagename:
-        sys.stderr.write ('No package specified. Try running "apt list"')
+def listfiles(package):
+    '''List files installed with package X.
+    
+    Multiple packages can be specified. 
+    '''
+    if not package:
+        sys.stderr.write ('No package(s) specified. Use "apt list" to see installed packages.')
         return
 
-    for i in get_filelist():
-        print i
-
+    for p in package:
+        print "\n----- %s -----" % p
+        for i in get_filelist(p):
+            print i
+    
 #@+node:maphew.20100223163802.3726: *3* md5
 def md5 (packagename):
     '''check md5 sum'''

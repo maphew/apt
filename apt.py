@@ -194,7 +194,6 @@ def find(p):
 #@+node:maphew.20100223163802.3723: *3* help
 def help ():
     '''show help for COMMAND'''
-    # FIXME: only shows regular help, should show *additional* help
         
     # if "help for..." not present then just show general help.
     if len (params) < 2:
@@ -202,7 +201,7 @@ def help ():
         sys.exit (0)
 
     action = params[1]
-    print  __main__.__dict__[action].__doc__
+    print  "\n    " + __main__.__dict__[action].__doc__
 
 #@+node:maphew.20100223163802.3724: *3* install
 def install (packages):

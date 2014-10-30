@@ -285,24 +285,29 @@ def listfiles(package):
             print i
     
 #@+node:maphew.20100223163802.3726: *3* md5
-def md5 (packagename):
-    '''check md5 sum'''
-    if not packagename:
-        sys.stderr.write ('No package specified. Try running "apt list"')
+def md5(packages):
+    '''Check if the md5 sum for package(s) matches mirror
+    
+        apt md5 shell iconv                    
+    '''
+    if not packages:
+        sys.stderr.write('Please specify package(s) to calculate md5 value for.')
         return
 
-    url, md5 = get_url (packagename)
-    ball = os.path.basename (url)
-    print '%s  %s - remote' % (md5, ball)
+    for p in packages:
+        url, md5 = get_url(p)
+        ball = os.path.basename(url)
+        print 'remote:  %s  %s' % (md5, ball)
 
-    # make sure we md5 the *file* not the *filename*
-    # kudos to http://www.peterbe.com/plog/using-md5-to-check-equality-between-files
-    localFile = file(get_ball(packagename), 'rb')
-    my_md5 = hashlib.md5(localFile.read()).hexdigest()
+        try:
+            localFile = file(get_ball(p), 'rb') #we md5 the *file* not the *filename*
+            my_md5 = hashlib.md5(localFile.read()).hexdigest()
+            print 'local:   %s  %s' % (my_md5, ball)
+            if md5 != my_md5:
+                raise TypeError('file md5 does not match for ' + ball)
 
-    print '%s  %s - local' % (my_md5, ball)
-    if md5 != my_md5:
-        raise TypeError('file md5 does not match for ' + ball)
+        except IOError:
+           sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
 
 #@+node:maphew.20100223163802.3727: *3* missing
 def missing ():

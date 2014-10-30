@@ -227,6 +227,14 @@ Traceback (most recent call last):
     raise 'file md5 does not match for ' + ball
 TypeError: exceptions must be old-style classes or derived from BaseException, not str
 <!--@+node:maphew.20121011215813.1569: ** Expected test results-->
+<!--@+node:maphew.20141029173246.3: *3* apt md5-->
+B:\code\apt>apt md5 shell iconv gdal
+remote:  c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2
+local:   c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2
+remote:  b9f7db00b8fd33a5fe821788b1029791  iconv-1.9.1-1.tar.bz2
+local:   b9f7db00b8fd33a5fe821788b1029791  iconv-1.9.1-1.tar.bz2
+remote:  2fa14222f8d67dd9b670412fe2f600f5  gdal-1.11.1-1.tar.bz2
+local:                                     *** gdal's .bz2 not found ***
 <!--@+node:maphew.20121113004545.1562: *3* apt setup-->
 B:\code\maphew\apt>apt setup
 Root dir not found, creating d:/temp/o4w_2012-nov-11

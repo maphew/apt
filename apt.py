@@ -335,22 +335,20 @@ def new (dummy):
                       version_to_string (get_version (packagename)))
 
 #@+node:maphew.20100223163802.3729: *3* remove
-def remove (packages):
-    '''uninstall packages'''
-##    global packagename
+def remove(packages):
+    '''Uninstall listed packages'''
     if not packages:
-        sys.stderr.write ('No package(s) specified. Run "apt list" to see installed packages')
+        sys.stderr.write('No packages specified. Run "apt list" to see installed packages')
         return
 
-    for packagename in packages:
-        print packagename
-        if not installed[0].has_key (packagename):
-            sys.stderr.write ('warning: %s not installed\n' % packagename)
+    for p in packages:
+        print p
+        if not installed[0].has_key(p):
+            sys.stderr.write ('warning: %s not installed\n' % p)
             continue
-        sys.stderr.write ('removing %s %s\n' \
-                  % (packagename,
-                     version_to_string (get_installed_version (packagename))))
-        do_uninstall (packagename)
+        sys.stderr.write('removing %s %s\n' % \
+                        (p, version_to_string(get_installed_version(p))))
+        do_uninstall(p)
 
 #@+node:maphew.20100223163802.3730: *3* requires
 def requires ():

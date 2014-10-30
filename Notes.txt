@@ -227,6 +227,10 @@ Traceback (most recent call last):
     raise 'file md5 does not match for ' + ball
 TypeError: exceptions must be old-style classes or derived from BaseException, not str
 <!--@+node:maphew.20121011215813.1569: ** Expected test results-->
+<!--@+node:maphew.20141029173246.4: *3* apt missing-->
+B:\code\apt>apt missing libtiff-devel
+libtiff-devel
+
 <!--@+node:maphew.20141029173246.3: *3* apt md5-->
 B:\code\apt>apt md5 shell iconv gdal
 remote:  c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2

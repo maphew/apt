@@ -310,15 +310,20 @@ def md5(packages):
            sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
 
 #@+node:maphew.20100223163802.3727: *3* missing
-def missing ():
-    '''print missing dependencies for X'''
-    # FIXME: this would be more useful if it found missing for everything,
-    # not just the named package
-    if not packagename:
-        sys.stderr.write ('No package specified. Try running "apt list"')
+def missing(packages):
+    '''Display missing dependencies for {packages}
+    
+        apt missing gdal saga
+    
+    FIXME: this would be more useful if it found missing for everything,
+    not just the named packages.
+    '''
+    if not packages:
+        sys.stderr.write('No package specified. Try running "apt list"')
         return
 
-    print string.join (get_missing (), '\n')
+    for p in packages:
+        print string.join(get_missing(p), '\n')
 
 #@+node:maphew.20100223163802.3728: *3* new
 def new (dummy):

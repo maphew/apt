@@ -207,17 +207,20 @@ def help():
 def install(packages):
     '''Download and install packages, including dependencies'''
     missing = {}
-    # print '=== pkgs:', packages # debug
-    for packagename in packages:
-        # print packagename
-        missing.update (dict (map (lambda x: (x, 0), get_missing (packagename))))
+    print '=== pkgs:', packages # debug
+    for p in packages:
+        print p
+        m = get_missing(p)
+        print m, missing
+        missing.update (dict (map (lambda x: (x, 0), get_missing (p))))
     if len (missing) > 1:
         sys.stderr.write ('to install: \n')
         sys.stderr.write ('    %s' % string.join (missing.keys ()))
         sys.stderr.write ('\n')
 
-    for packagename in missing.keys (): # FIXME: re-use of `packagename` for different purpose is confusing
-        download (packagename)
+    for packages in missing.keys (): # FIXME: re-use of `packagename` for different purpose is confusing
+        print packages
+        download (p)
 
     if download_p:  # quit if download only flag is set
         sys.exit (0)

@@ -504,10 +504,22 @@ def update():
 
     save_config('last-mirror', mirror)
 #@+node:maphew.20100223163802.3734: *3* upgrade
-def upgrade (dummy):
-    '''all installed packages'''
-    packages = get_new ()
-    install (packages)
+def upgrade(packages):
+    '''Upgrade named packages.
+    
+        apt upgrade all
+        apt upgrade gdal-filegdb qgis-grass-plugin
+    '''
+    if not packages:
+        sys.stderr.write('No packages specified. Use "apt new" and "apt list" for ideas.')
+        return
+
+    if type(packages) is str: packages = [packages]
+
+    if packages[0] == 'all':
+        packages = get_new()
+    
+    install(packages)
 
 #@+node:maphew.20100223163802.3735: *3* url
 def url ():
@@ -566,20 +578,19 @@ def debug (s):
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download (packagename):
-    # CHANGED: pythonized tar
-    #        : only print % downloaded if > than last time (lpinner)
-    
-    # print sys.argv[0], ": in do_download() with", packagename
-
     url, md5 = get_url (packagename)   # md5 is retrieved but not used, remove from function?
 
     dir = '%s/%s' % (downloads, os.path.split (url)[0])
     srcFile = os.path.join (mirror + '/' + url)
     dstFile = os.path.join (downloads + '/' + url)
 
+    a = urllib.urlopen(srcFile)
+    if not a.getcode() is 200:
+        msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
+        sys.exit(msg)
+
     if not os.path.exists (get_ball (packagename)): #or not check_md5 ():
         print '\nFetching %s' % srcFile
-
         if not os.path.exists (dir):
             os.makedirs (dir)
         status = urllib.urlretrieve(srcFile, dstFile, down_stat)

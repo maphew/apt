@@ -455,10 +455,10 @@ def setup():
         update()
 
 #@+node:maphew.20100223163802.3733: *3* update
-def update ():
+def update():
     '''Fetch updated package list from mirror'''
-    if not os.path.exists (downloads):
-        os.makedirs (downloads)
+    if not os.path.exists(downloads):
+        os.makedirs(downloads)
 
     source = mirror + '/setup.ini.bz2'
     archive = downloads + 'setup.ini.bz2'
@@ -479,7 +479,7 @@ def update ():
        raise IOError('\n*** Error decompressing: %s' % archive)
 
     # backup existing setup config
-    if os.path.exists (setup_ini):
+    if os.path.exists(setup_ini):
         shutil.copy(setup_ini, setup_bak)
 
     # save uncompressed ini to setup dir
@@ -790,7 +790,7 @@ def get_menu_links(bat):
 #@+node:maphew.20100223163802.3751: *3* get_mirror
 def get_mirror():
     if last_mirror == None:
-        mirror = 'http://download.osgeo.org/osgeo4w'
+        mirror = 'http://download.osgeo.org/osgeo4w/x86'
     else:
         mirror = last_mirror
     return mirror

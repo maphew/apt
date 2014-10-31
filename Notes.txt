@@ -227,6 +227,18 @@ Traceback (most recent call last):
     raise 'file md5 does not match for ' + ball
 TypeError: exceptions must be old-style classes or derived from BaseException, not str
 <!--@+node:maphew.20121011215813.1569: ** Expected test results-->
+<!--@+node:maphew.20141031121809.3: *3* apt requires-->
+B:\code\apt>apt requires python
+----- "python" requires the following to work -----
+msvcrt
+python-core
+python-help
+python-tcltk
+python-testsuite
+python-tools
+setup
+shell
+sqlite3
 <!--@+node:maphew.20141029173246.5: *3* apt remove-->
 B:\code\apt>apt remove szip six
 szip

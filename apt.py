@@ -384,7 +384,7 @@ def requires(packages):
         print string.join(depends, '\n')
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):
-    '''search available packages list for X
+    '''Search available packages list for X
     
     (doesn't search descriptions yet)'''
     
@@ -411,48 +411,48 @@ def search(pattern):
     
     if distname in dists:
         # build list of packagenames
-        keys = dists[distname].keys ()
+        keys = dists[distname].keys()
         ##print('---keys:', keys)
     else:
         print('this "else:" does not get used???')
-        for i in dists.keys ():
-            for j in dists[i].keys ():
+        for i in dists.keys():
+            for j in dists[i].keys():
                 if not j in keys:
-                    keys.append (j)
+                    keys.append(j)
     
     #search for the regexp pattern
     #fixme: change to search desciption as well
     for i in keys:
-        if not pattern or re.search (pattern, i):
+        if not pattern or re.search(pattern, i):
             if distname in dists:
-                if dists[distname][i].has_key (INSTALL):
-                    packages.append (i)
+                if dists[distname][i].has_key(INSTALL):
+                    packages.append(i)
             else:
-                packages.append (i)
+                packages.append(i)
     
-    for packagename in sorted (packages):
+    for packagename in sorted(packages):
         s = packagename
-        d = get_field ('sdesc')
+        d = get_field('sdesc')
         if d:
             s += ' - %s' % d[1:-1]
         print s
 #@+node:maphew.20100223163802.3732: *3* setup
-def setup ():
-    '''skeleton installed packages environment'''
-    if not os.path.isdir (root):
-        sys.stderr.write ('Root dir not found, creating %s\n' % root)
-        os.makedirs (root)
-    if not os.path.isdir (config):
-        sys.stderr.write ('creating %s\n' % config)
-        os.makedirs (config)
-    if not os.path.isfile (installed_db):
-        sys.stderr.write ('creating %s\n' % installed_db)
+def setup():
+    '''Create skeleton Osgeo4W folders and setup database environment'''
+    if not os.path.isdir(root):
+        sys.stderr.write('Root dir not found, creating %s\n' % root)
+        os.makedirs(root)
+    if not os.path.isdir(config):
+        sys.stderr.write('creating %s\n' % config)
+        os.makedirs(config)
+    if not os.path.isfile(installed_db):
+        sys.stderr.write('creating %s\n' % installed_db)
         global installed
         installed = {0:{}}
-        write_installed ()
-    if not os.path.isfile (setup_ini):
-        sys.stderr.write ('getting %s\n' % setup_ini)
-        update ()
+        write_installed()
+    if not os.path.isfile(setup_ini):
+        sys.stderr.write('getting %s\n' % setup_ini)
+        update()
 
 #@+node:maphew.20100223163802.3733: *3* update
 def update ():

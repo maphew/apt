@@ -354,6 +354,7 @@ def remove(packages):
     if not packages:
         sys.stderr.write('No packages specified. Run "apt list" to see installed packages')
         return
+    if type(packages) is str: packages = [packages]
 
     for p in packages:
         print p
@@ -1250,6 +1251,9 @@ if __name__ == '__main__':
 
     # and all following are package names
     packages = params[1:]
+
+    #command aliases
+    uninstall = remove
 
     ##packagename = 0
     ##if packages:

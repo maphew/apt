@@ -617,6 +617,9 @@ def do_install (packagename):
     # retrieve local package (ball) and check md5
     ball = get_ball (packagename)
 
+    if not os.path.exists(ball):
+        sys.exit('Local archive %s not found' % ball)
+
     # unpack
     os.chdir (root)
 	# very strange, on some files opening the tarfile with bz2 argument doesn't work
@@ -818,7 +821,7 @@ def get_menu_links(bat):
 #@+node:maphew.20100223163802.3751: *3* get_mirror
 def get_mirror():
     if last_mirror == None:
-        mirror = 'http://download.osgeo.org/osgeo4w/x86'
+        mirror = 'http://download.osgeo.org/osgeo4w/'
     else:
         mirror = last_mirror
     return mirror

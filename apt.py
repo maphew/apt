@@ -258,9 +258,9 @@ def install_next(missing_packages, resolved, seen):
         do_install(packagename)
         resolved.add(miss_package)
 #@+node:maphew.20100223163802.3725: *3* list
-def list(foo):
+def list(dummy):
     '''List installed packages'''
-    # fixme: once again, 'foo' defined but not used. fix after calling structure is refactored
+    # fixme: once again, 'dummy' defined but not used. fix after calling structure is refactored
     ## global packagename
     s = '%-20s%-15s' % ('Package', 'Version')
     print s

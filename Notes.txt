@@ -12,7 +12,14 @@ On deck: Get ready for release.
 
 
 <!--@+others-->
-<!--@+node:maphew.20121113004545.1578: ** a2-->
+<!--@+node:maphew.20140905201312.1893: ** Research-->
+new magic bullet discovered: click
+@url http://click.pocoo.org/3/quickstart
+
+Just discovered a 2nd copy of original cyg-apt:
+http://lilypond.org/cygwin/cyg-apt-gub
+investigate what if any diff from one I started with.
+<!--@+node:maphew.20121113004545.1578: *3* a2-->
 2013-Jan-21
 
 Next thing I'd like to do is make it easier to test install of packages, either by passing a particular tarball on the command line or by pointing to an alternate local cache directory. I think the tarball route might be easier.
@@ -35,13 +42,6 @@ sigh.
 This may mean the end of moving apt furniture about. We've tidied things up, there's some organization, but to go any further means ripping some walls out and moving structural elements. It could all come crashing down next, but hey! that's why we're using version control with smart and easy merging and branching, right? 
 
 (now if only I knew how to use it! :)
-<!--@+node:maphew.20140905201312.1893: ** Research-->
-new magic bullet discovered: click
-@url http://click.pocoo.org/3/quickstart
-
-Just discovered a 2nd copy of original cyg-apt:
-http://lilypond.org/cygwin/cyg-apt-gub
-investigate what if any diff from one I started with.
 <!--@+node:maphew.20140905022205.1895: ** Too many apts-->
     B:\code\apt\r183\gis\o4w_extras\bin\apt.py
     B:\code\apt\r262\apt\apt.py
@@ -377,6 +377,25 @@ removed: O:\include\curl\stdcheaders.h
 removed: O:\include\curl\types.h
 removed: O:\lib\libcurl_imp.lib
 ---------- Remove complete
+<!--@+node:maphew.20141030225015.5: ** Snippets-->
+<!--@@language python-->
+
+# convert a bare string to single item list
+if type(pkg) is str:
+    pkg = [pkg]
+
+<!--@+at `isinstance(pkg, basestring)` seems to be the official way, but it's very noisy compared to above. However above will not do anything if `pkg` is any other kind of object. That should be okay with apt (famous last words?)-->
+<!--
+
+We got in this circumsance by allowing all functions to take multiple inputs. Perhaps it cleaner in long run to enforce all functions to assume single input. Or enforce always passing as a list.
+
+Needs more thinking.
+
+http://stackoverflow.com/questions/922774/check-if-input-is-a-list-tuple-of-strings-or-a-single-string
+http://stackoverflow.com/questions/6710834/iterating-over-list-or-single-element-in-python
+http://stackoverflow.com/questions/836387/how-can-i-tell-if-a-python-variable-is-a-string-or-a-list
+-->
+<!--@@c-->
 <!--@-others-->
 
 

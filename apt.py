@@ -150,7 +150,8 @@ def ball (packagename):
     when called from another function pkg is a string
     '''
     if type(packagename) == str:
-        print "\n%s = %s" % (packagename, get_ball (packagename))
+        #print "\n%s = %s" % (packagename, get_ball (packagename))
+        packagename = [packagename]
     else:
         for p in packagename:
             print "\n%s = %s" % (p, get_ball (p))
@@ -163,6 +164,10 @@ def download (packagename):
         
     Use `apt available` to see what is on the mirror for downloading.
     '''
+    print "download()", packagename
+    if type(packagename) is str:
+        packagename = [packagename]
+        print packagename, 'was string, now a list'
     if packagename:
         for p in packagename:
             do_download (p)
@@ -211,14 +216,17 @@ def install(packages):
     for p in packages:
         print p
         m = get_missing(p)
-        print m, missing
+        print 'get_missing', m, missing
         missing.update (dict (map (lambda x: (x, 0), get_missing (p))))
+        print 'missing.updated', missing
     if len (missing) > 1:
+        print 'missing > 1'
         sys.stderr.write ('to install: \n')
         sys.stderr.write ('    %s' % string.join (missing.keys ()))
         sys.stderr.write ('\n')
 
-    for packages in missing.keys (): # FIXME: re-use of `packagename` for different purpose is confusing
+    for packages in missing.keys ():
+        print "packages in missing.keys"
         print packages
         download (p)
 
@@ -297,6 +305,8 @@ def md5(packages):
         sys.stderr.write('Please specify package(s) to calculate md5 value for.')
         return
 
+    if type(packages) is str:
+        packages = [packages]
     for p in packages:
         url, md5 = get_url(p)
         ball = os.path.basename(url)

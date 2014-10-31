@@ -208,9 +208,8 @@ def install(packages):
     #print '=== pkgs:', packages # debug
     
     if not packages:
-        sys.stderr.write('No package(s) specified. Use "apt available" for ideas.')
+        sys.stderr.write('No packages specified. Use "apt available" for ideas.')
         return
-
 
     #identify which pkgs are not yet installed
     missing = {}
@@ -263,17 +262,20 @@ def list(foo):
     '''List installed packages'''
     # fixme: once again, 'foo' defined but not used. fix after calling structure is refactored
     ## global packagename
-    for packagename in sorted (installed[0].keys ()):
-        ins = get_installed_version (packagename)
+    s = '%-20s%-15s' % ('Program', 'Version')
+    print s
+    s = '%-20s%-15s' % ('-------', '-------')
+    print s
+    for p in sorted (installed[0].keys()):
+        ins = get_installed_version(p)
         new = 0
-        if dists[distname].has_key (packagename) \
-           and dists[distname][packagename].has_key (INSTALL):
-            new = get_version (packagename)
-        s = '%-20s%-15s' % (packagename, version_to_string (ins))
+        if dists[distname].has_key(p) \
+           and dists[distname][p].has_key(INSTALL):
+            new = get_version(p)
+        s = '%-20s%-15s' % (p, version_to_string(ins))
         if new and new != ins:
-            s += '(%s)' % version_to_string (new)
+            s += '(%s)' % version_to_string(new)
         print s
-
 #@+node:mhw.20120404170129.1475: *3* listfiles
 def listfiles(package):
     '''List files installed with package X.

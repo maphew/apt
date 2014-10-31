@@ -139,22 +139,17 @@ def available(foo):
         print '%-20s\t\t%s' % (key, value)
 
 #@+node:maphew.20100223163802.3720: *3* ball
-def ball (packagename):
+def ball(packages):
     '''Print full local path name of package archive
 
     FIXME: really need to find a better name for this command. Not so many
     understand 'ball' refers to 'tarball', a onetime common moniker for an
     archive file
-
-    When called as a command, e.g. "apt ball iconv", pkg is a list
-    when called from another function pkg is a string
     '''
-    if type(packagename) == str:
-        #print "\n%s = %s" % (packagename, get_ball (packagename))
-        packagename = [packagename]
-    else:
-        for p in packagename:
-            print "\n%s = %s" % (p, get_ball (p))
+    if type(packages) is str: packages = [packages]
+
+    for p in packages:
+        print "\n%s = %s" % (p, get_ball(p))
 
 #@+node:maphew.20100223163802.3721: *3* download
 def download(packages):

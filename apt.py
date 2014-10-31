@@ -209,29 +209,25 @@ def help():
 #@+node:maphew.20100223163802.3724: *3* install
 def install(packages):
     '''Download and install packages, including dependencies'''
+    if type(packages) is str: packages = [packages]
+    #print '=== pkgs:', packages # debug
+    
+    #identify which pkgs are not yet installed
     missing = {}
-    print '=== pkgs:', packages # debug
     for p in packages:
-        print p
-        m = get_missing(p)
-        print 'get_missing', m, missing
-        missing.update (dict (map (lambda x: (x, 0), get_missing (p))))
-        print 'missing.updated', missing
-    if len (missing) > 1:
-        print 'missing > 1'
-        sys.stderr.write ('to install: \n')
-        sys.stderr.write ('    %s' % string.join (missing.keys ()))
+        missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
+    if len(missing) > 0:
+        sys.stderr.write ('to install:')
+        sys.stderr.write ('    %s' % string.join(missing.keys()))
         sys.stderr.write ('\n')
 
-    for packages in missing.keys ():
-        print "packages in missing.keys"
-        print packages
-        download (p)
+    for packages in missing.keys():
+        download(p)
 
     if download_p:  # quit if download only flag is set
-        sys.exit (0)
+        sys.exit(0)
 
-    install_next(missing.keys (), set([]), set([]))
+    install_next(missing.keys(), set([]), set([]))
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
 def install_next (missing_packages, resolved, seen):
 ##    global packagename

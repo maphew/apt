@@ -262,9 +262,9 @@ def list(foo):
     '''List installed packages'''
     # fixme: once again, 'foo' defined but not used. fix after calling structure is refactored
     ## global packagename
-    s = '%-20s%-15s' % ('Program', 'Version')
+    s = '%-20s%-15s' % ('Package', 'Version')
     print s
-    s = '%-20s%-15s' % ('-------', '-------')
+    s = '%-20s%-15s' % ('-'*18, '-'*10)
     print s
     for p in sorted (installed[0].keys()):
         ins = get_installed_version(p)
@@ -301,8 +301,8 @@ def md5(packages):
         sys.stderr.write('Please specify package(s) to calculate md5 value for.')
         return
 
-    if type(packages) is str:
-        packages = [packages]
+    if type(packages) is str: packages = [packages]
+
     for p in packages:
         url, md5 = get_url(p)
         ball = os.path.basename(url)
@@ -335,13 +335,16 @@ def missing(packages):
         print string.join(get_missing(p), '\n')
 
 #@+node:maphew.20100223163802.3728: *3* new
-def new (dummy):
-    '''list available upgrades to currently installed packages'''
-    print '\nThe following packages are newer than the installed version:'
-    global packagename
-    for packagename in sorted (get_new ()):
-        print '%-20s%-12s' % (packagename,
-                      version_to_string (get_version (packagename)))
+def new(dummy):
+    '''List available upgrades to currently installed packages'''
+    
+    print '%-20s%-12s%s' % ('Package', 'Installed', 'Available')
+    print '%-20s%-12s%s' % ('-'*17, '-'*9, '-'*10)    
+    for p in sorted(get_new()):
+        print '%-20s%-12s(%s)' % (p, 
+                version_to_string(get_installed_version(p)),
+                version_to_string(get_version(p)),
+                )
 
 #@+node:maphew.20100223163802.3729: *3* remove
 def remove(packages):

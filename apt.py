@@ -229,7 +229,7 @@ def install(packages):
 
     install_next(missing.keys(), set([]), set([]))
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
-def install_next (missing_packages, resolved, seen):
+def install_next(missing_packages, resolved, seen):
 ##    global packagename
     for miss_package in missing_packages:
         if miss_package in resolved:
@@ -248,15 +248,15 @@ def install_next (missing_packages, resolved, seen):
                 )
             install_next(dependences, resolved, seen)
         packagename = miss_package
-        if installed[0].has_key (miss_package):
-            sys.stderr.write ('preparing to replace %s %s\n' \
+        if installed[0].has_key(miss_package):
+            sys.stderr.write('preparing to replace %s %s\n' \
                       % (miss_package,
-                         version_to_string (get_installed_version (packagename))))
-            do_uninstall (packagename)
-        sys.stderr.write ('installing %s %s\n' \
+                         version_to_string(get_installed_version(packagename))))
+            do_uninstall(packagename)
+        sys.stderr.write('installing %s %s\n' \
                   % (miss_package,
-                     version_to_string (get_version (packagename))))
-        do_install (packagename)
+                     version_to_string(get_version(packagename))))
+        do_install(packagename)
         resolved.add(miss_package)
 #@+node:maphew.20100223163802.3725: *3* list
 def list(foo):

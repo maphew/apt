@@ -522,9 +522,12 @@ def upgrade(packages):
     install(packages)
 
 #@+node:maphew.20100223163802.3735: *3* url
-def url ():
-    '''print package archive path, relative to mirror root'''
-    print get_url ()[0]
+def url(packages):
+    '''Print package archive path, relative to mirror root'''
+    if type(packages) is str: packages = [packages]
+    print mirror
+    for p in packages:
+        print '\t%s' % get_url(p)[0]
 
 #@+node:maphew.20100223163802.3736: *3* version
 def version ():

@@ -456,19 +456,34 @@ def setup():
 
 #@+node:maphew.20100223163802.3733: *3* update
 def update():
-    '''Fetch updated package list from mirror'''
+    '''Fetch updated package list from mirror.
+    
+    Use same mirror as last time:
+        
+        apt update  
+    
+    Specify mirror:
+        
+        apt --mirror=http://example.com/...  update
+        apt --mirror=file:////server/share/...  update
+        apt --mirror=file://D:/downloads/cache/...  update
+
+    '''
     if not os.path.exists(downloads):
         os.makedirs(downloads)
 
     source = mirror + '/setup.ini.bz2'
     archive = downloads + 'setup.ini.bz2'
+        
+    a = urllib.urlopen(source)
+    if not a.getcode() is 200:
+        print 'Problem getting %s\nServer returned "%s"' % (source, a.getcode())
+        return IOError
 
    # remove cached ini archive
     if os.path.exists(archive):
         shutil.copy(archive, archive + '.bak')
-        
-    #FIXME: we should check for valid url
-    # most common cause for corrupted .bz2 is 404 not found
+
     print('Fetching %s' % source)
     f = urllib.urlretrieve(source, archive, down_stat)
     print('')        
@@ -486,6 +501,8 @@ def update():
     ini = open(setup_ini, 'w')
     ini.write(uncompressedData)
     ini.close
+
+    save_config('last-mirror', mirror)
 #@+node:maphew.20100223163802.3734: *3* upgrade
 def upgrade (dummy):
     '''all installed packages'''

@@ -207,6 +207,11 @@ def install(packages):
     if type(packages) is str: packages = [packages]
     #print '=== pkgs:', packages # debug
     
+    if not packages:
+        sys.stderr.write('No package(s) specified. Use "apt available" for ideas.')
+        return
+
+
     #identify which pkgs are not yet installed
     missing = {}
     for p in packages:

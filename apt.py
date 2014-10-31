@@ -277,16 +277,18 @@ def list(dummy):
             s += '(%s)' % version_to_string(new)
         print s
 #@+node:mhw.20120404170129.1475: *3* listfiles
-def listfiles(package):
+def listfiles(packages):
     '''List files installed with package X.
     
     Multiple packages can be specified. 
     '''
-    if not package:
-        sys.stderr.write ('No package(s) specified. Use "apt list" to see installed packages.')
+    if not packages:
+        sys.stderr.write ('No packages specified. Use "apt list" to see installed packages.')
         return
 
-    for p in package:
+    if type(packages) is str: packages = [packages]
+
+    for p in packages:
         print "\n----- %s -----" % p
         for i in get_filelist(p):
             print i

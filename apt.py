@@ -366,18 +366,22 @@ def remove(packages):
         do_uninstall(p)
 
 #@+node:maphew.20100223163802.3730: *3* requires
-def requires ():
-    '''report package dependencies'''
-    if not packagename:
-        sys.stderr.write ('Please specify a package name.')
+def requires(packages):
+    '''What packages does X rely on?'''
+    #TODO: return results dictionary so can be used by other functions.
+    
+    if not packages:
+        sys.stderr.write('Please specify package names to list dependencies for.')
         return
 
-    depends = get_requires()
-    depends.sort()
-    # display as vertical list, one item per line.
-    print string.join(depends, '\n')
-    ## display as horizontal list, all on one line
-    #print string.join (depends)
+    if type(packages) is str: packages = [packages]
+    
+    for p in packages:
+        print '----- "%s" requires the following to work -----' % p
+        depends = get_requires(p)
+        depends.remove(p) # don't need to list self ;-)
+        depends.sort()
+        print string.join(depends, '\n')
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):
     '''search available packages list for X

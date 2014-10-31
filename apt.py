@@ -157,23 +157,21 @@ def ball (packagename):
             print "\n%s = %s" % (p, get_ball (p))
 
 #@+node:maphew.20100223163802.3721: *3* download
-def download (packagename):
+def download(packages):
     '''Download the package(s) from mirror and save in local cache folder:
     
         apt download shell iconv gdal ...etc.
         
     Use `apt available` to see what is on the mirror for downloading.
     '''
-    print "download()", packagename
-    if type(packagename) is str:
-        packagename = [packagename]
-        print packagename, 'was string, now a list'
-    if packagename:
-        for p in packagename:
-            do_download (p)
-            ball (p)
+    if type(packages) is str: packages = [packages]
+    
+    if packages:
+        for p in packages:
+            do_download(p)
+            ball(p)
             print
-            md5 (p)
+            md5(p)
     else:
         print 'No package(s) specified. Try running `apt available`'
 #@+node:maphew.20100223163802.3722: *3* find

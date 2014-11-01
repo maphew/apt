@@ -524,21 +524,22 @@ def upgrade(packages):
 #@+node:maphew.20100223163802.3735: *3* url
 def url(packages):
     '''Print package archive path, relative to mirror root'''
-    if type(packages) is str: packages = [packages]
     print mirror
     for p in packages:
         print '\t%s' % get_url(p)[0]
 
 #@+node:maphew.20100223163802.3736: *3* version
-def version ():
-    '''print installed version of X'''
-    global packagename
-    if not packagename:
-        sys.stderr.write ('No package specified. Try running "apt list"')
+def version(packages):
+    '''Report installed version of X'''
+    if type(packages) is str: packages = [packages]
+
+    if not packages:
+        sys.stderr.write('No package specified. Try running "apt list"')
         return
 
-    print '%-20s%-12s' % (packagename,
-             version_to_string (get_installed_version ()))
+    for p in packages:
+        print '%-20s%-12s' % (packagename,
+                 version_to_string(get_installed_version()))
 
 #@+node:mhw.20120404170129.1476: *3* versions
 def versions ():

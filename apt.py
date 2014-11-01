@@ -634,35 +634,34 @@ def do_install(packagename):
     installed[0][packagename] = os.path.basename(ball)
     write_installed()
 #@+node:maphew.20100223163802.3741: *3* do_uninstall
-def do_uninstall (packagename):
-    # ''' For package X: delete installed files & remove from manifest, remove from installed.db '''
+def do_uninstall(packagename):
+    ''' For package X: delete installed files & remove from manifest, remove from installed.db'''
     # TODO: remove empty dirs?
     do_run_preremove(root, packagename)
 
     # retrieve list of installed files
-    lst = get_filelist (packagename)
+    lst = get_filelist(packagename)
 
     # delete files
     for i in lst:
-        file = os.path.abspath (os.path.join(root,i))
-        if not os.path.exists (file):
-            sys.stderr.write ('warning: %s no such file\n' % file)
-        elif not os.path.isdir (file):
+        file = os.path.abspath(os.path.join(root,i))
+        if not os.path.exists(file):
+            sys.stderr.write('warning: %s no such file\n' % file)
+        elif not os.path.isdir(file):
             try:
                 os.remove(file)
             except WindowsError:
                 os.chmod(file, 0777) # remove readonly flag and try again
-                os.remove (file)
+                os.remove(file)
             else:
                 sys.stdout.write('removed: %s\n' % file)
 
     # clear from manifest
-    write_filelist (packagename, [])
+    write_filelist(packagename, [])
 
     # remove package details from installed.db
-    del (installed[0][packagename])
-    write_installed ()
-
+    del(installed[0][packagename])
+    write_installed()
 #@+node:maphew.20120222135111.1873: *3* do_run_preremove
 def do_run_preremove(root, packagename):
     # ''' Run the etc/preremove batch files for this package '''

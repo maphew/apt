@@ -603,41 +603,36 @@ def down_stat(count, blockSize, totalSize):
         sys.stdout.flush()
     down_stat.last_percent=percent
 #@+node:maphew.20100223163802.3740: *3* do_install
-def do_install (packagename):
-    # ''' Unpack the package in appropriate locations, write file list to installed manifest, run postinstall confguration. '''
+def do_install(packagename):
+    ''' Unpack the package in appropriate locations, write file list to installed manifest, run postinstall confguration.'''
 
     # retrieve local package (ball) and check md5
-    ball = get_ball (packagename)
+    ball = get_ball(packagename)
 
     if not os.path.exists(ball):
         sys.exit('Local archive %s not found' % ball)
 
     # unpack
     os.chdir (root)
-	# very strange, on some files opening the tarfile with bz2 argument doesn't work
-	# http://lists.osgeo.org/pipermail/osgeo4w-dev/2011-January/001202.html
-	# in any case the docs say transparent decompression via plain 'r' is recommended.
-	#   http://docs.python.org/library/tarfile.html
-    #pipe = tarfile.open (ball,'r:bz2')
     pipe = tarfile.open(ball,'r')
     lst = pipe.getnames()
     pipe.extractall()
     pipe.close()
-    if pipe.close ():
+    if pipe.close():
         raise TypeError('urg')
 
    # record list of files installed
-    write_filelist (packagename, lst)
+    write_filelist(packagename, lst)
 
-    # configure...
-    if os.path.isdir ('%s/etc/postinstall' % root):
-        post = glob.glob ('%s/etc/postinstall/*.bat' % root)
+    # run post installation scripts
+    if os.path.isdir('%s/etc/postinstall' % root):
+        post = glob.glob('%s/etc/postinstall/*.bat' % root)
         if post:
-            post_install (packagename)
+            post_install(packagename)
 
     #update package details in installed.db
-    installed[0][packagename] = os.path.basename (ball)
-    write_installed ()
+    installed[0][packagename] = os.path.basename(ball)
+    write_installed()
 #@+node:maphew.20100223163802.3741: *3* do_uninstall
 def do_uninstall (packagename):
     # ''' For package X: delete installed files & remove from manifest, remove from installed.db '''

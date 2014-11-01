@@ -71,7 +71,6 @@ Commands:
     upgrade - all installed packages
     url - print package archive path, relative to mirror root
     version - print installed version of X
-    versions - print versions of all installed packages
 
 Options:
     -d,--download          download only
@@ -194,9 +193,9 @@ def help():
     '''show help for COMMAND'''
         
     # if "help for..." not present then just show general help.
-    if len (params) < 2:
-        usage ()
-        sys.exit (0)
+    if len(params) < 2:
+        usage()
+        sys.exit(0)
 
     action = params[1]
     print  "\n    " + __main__.__dict__[action].__doc__
@@ -541,19 +540,6 @@ def version(packages):
         print '%-20s%-12s' % (packagename,
                  version_to_string(get_installed_version()))
 
-#@+node:mhw.20120404170129.1476: *3* versions
-def versions ():
-    '''print versions of all installed packages'''
-    global packagename
-
-    for packagename in sorted (installed[0].keys ()):
-        if not installed[0].has_key (packagename):
-            global distname
-            distname = 'installed'
-            no_package ()
-            sys.exit (1)
-        print '%-20s%-12s' % (packagename,
-                 version_to_string (get_installed_version ()))
 #@+node:maphew.20100302221232.1485: ** Helper functions
 ###########################
 #Helper functions

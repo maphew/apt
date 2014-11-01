@@ -635,7 +635,7 @@ def do_install(packagename):
     write_installed()
 #@+node:maphew.20100223163802.3741: *3* do_uninstall
 def do_uninstall(packagename):
-    ''' For package X: delete installed files & remove from manifest, remove from installed.db'''
+    '''For package X: delete installed files & remove from manifest, remove from installed.db'''
     # TODO: remove empty dirs?
     do_run_preremove(root, packagename)
 
@@ -664,13 +664,12 @@ def do_uninstall(packagename):
     write_installed()
 #@+node:maphew.20120222135111.1873: *3* do_run_preremove
 def do_run_preremove(root, packagename):
-    # ''' Run the etc/preremove batch files for this package '''
-    for bat in glob.glob ('%s/etc/remove/%s.bat' % (root, packagename)):
+    '''Run the etc/preremove batch files for this package'''
+    for bat in glob.glob('%s/etc/remove/%s.bat' % (root, packagename)):
         try:
-            retcode = subprocess.call (bat, shell=True)
+            retcode = subprocess.call(bat, shell=True)
             if retcode < 0:
                 print >>sys.stderr, "Child was terminated by signal", retcode
-
             print >>sys.stderr, "Post_install complete, return code", retcode
 
         except OSError, e:

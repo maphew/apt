@@ -588,13 +588,13 @@ def do_download (packagename):
         status = urllib.urlretrieve(srcFile, dstFile, down_stat)
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
-    # ''' Report download progress '''
+    '''Report download progress'''
     #courtesy of http://stackoverflow.com/questions/51212/how-to-write-a-download-progress-indicator-in-python
     percent = int(count*blockSize*100/totalSize+0.5)#Round percentage
 
     if not 'last_percent' in vars(down_stat):down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
 
-    if percent > 100:    # filesize usually doesn't correspond to blocksize multiple, so flatten overrun
+    if percent > 100: # filesize usually doesn't correspond to blocksize multiple, so flatten overrun
         percent = 100
         down_stat.last_percent=0
 

@@ -1244,17 +1244,14 @@ if __name__ == '__main__':
     #@+<<globals>>
     #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
     #@+node:maphew.20100307230644.3841: *3* <<globals>>
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'setup':
-            print len(sys.argv)
-            if len(sys.argv) < 1:
-                help('setup')
-                sys.exit(1)
-            OSGEO4W_ROOT = sys.argv[2]
-            OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/')
-        else:
-            OSGEO4W_ROOT = check_env() # look for root in environment
-            
+    # #disabled pending argparse/whatever implementation
+    # if sys.argv[1] == 'setup':
+        # OSGEO4W_ROOT = sys.argv[2]
+        # OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/')
+    # else:
+        # OSGEO4W_ROOT = check_env() # look for root in environment
+        
+    OSGEO4W_ROOT = check_env() # look for root in environment
     CWD = os.getcwd ()
     INSTALL = 'install'
     installed = 0

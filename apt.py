@@ -452,7 +452,7 @@ def setup(target):
     if not os.path.isfile(setup_ini):
         sys.stderr.write('getting %s\n' % setup_ini)
         update()
-
+    print '\nFolders and setup config exists, nothing more to do.'
 #@+node:maphew.20100223163802.3733: *3* update
 def update():
     '''Fetch updated package list from mirror.
@@ -471,7 +471,9 @@ def update():
     if not os.path.exists(downloads):
         os.makedirs(downloads)
 
-    source = mirror + '/setup.ini.bz2'
+    bits = 'x86'
+    #bits = 'x86_64'
+    source = '%s/%s/%s' % (mirror, bits, '/setup.ini.bz2')
     archive = downloads + 'setup.ini.bz2'
         
     a = urllib.urlopen(source)

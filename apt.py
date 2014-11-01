@@ -57,6 +57,7 @@ Commands:
     download - download package
     find - package containing file (from installed packages)
     help - show help for COMMAND
+    info - report name, version, category etc. for specified packages
     install - download and install packages, including dependencies
     list - installed packages
     listfiles - installed with package X
@@ -168,6 +169,44 @@ def download(packages):
             md5(p)
     else:
         print 'No package(s) specified. Try running `apt available`'
+#@+node:maphew.20141101125304.3: *3* info
+def info(packages):
+    '''info - report name, version, category, etc. about the package(s)
+        
+    B:\> apt info shell
+    
+    name     : shell
+    version  : 1.0.0-13
+    sdesc    : "OSGeo4W Command Shell"
+    ldesc    : "Menu and Desktop icon launch OSGeo4W command shell"
+    category : Commandline_Utilities
+    requires : msvcrt setup
+    zip_path : x86/release/shell/shell-1.0.0-13.tar.bz2
+    zip_size : 3763
+    md5      : c38f03d2b7160f891fc36ec776ca4685
+    local_zip: d:/temp/o4w-cache/setup/http%3.../shell-1.0.0-13.tar.bz2
+        
+    Note: "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
+    '''
+    if type(packages) is str: packages = [packages]
+
+    if not packages:
+        sys.stderr.write("\n*** Can't show info, no package names specified. ***\n")
+        help('info')
+
+    if packages:
+        for p in packages:
+            d = get_info(p)
+            print('')
+            # NB: only prints fields we know about, if something is added
+            # upstream we'll miss it here
+            for k in 'name, version, sdesc, ldesc, category, requires, zip_path, zip_size, md5, local_zip'.split(', '):
+                print('{0:9}: {1}'.format(k,d[k]))
+                
+            # This guaranteed to print entire dict contents,
+            # but not in a logical order.
+            # for k in d.keys():
+                # print('{0:8}:\t{1}'.format(k,d[k]))
 #@+node:maphew.20100223163802.3722: *3* find
 def find(p):
     '''Search installed packages for files matching the specified pattern.
@@ -189,15 +228,19 @@ def find(p):
         sys.stderr.write ('Find what? Enter a filename to look for (partial is ok).')
         
 #@+node:maphew.20100223163802.3723: *3* help
-def help():
+def help(arg):
     '''show help for COMMAND'''
         
     # if "help for..." not present then just show general help.
-    if len(params) < 2:
+    if len(params) < 1:
         usage()
         sys.exit(0)
 
-    action = params[1]
+    if not arg:
+        action = params[1]
+    else:
+        action = arg
+        
     print  "\n    " + __main__.__dict__[action].__doc__
 
 #@+node:maphew.20100223163802.3724: *3* install
@@ -700,28 +743,10 @@ def get_filelist (packagename):
 
 #@+node:maphew.20141008125017.2075: *3* get_info
 def get_info(packagename):
-    ''' Retrieve details for package X.
+    '''Retrieve details for package X.
     
     Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
-    
-    Note: "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
-    
-    When invoked as command prints the info to console:
-        
-    B:\> apt get_info shell
-    
-    name     : shell
-    version  : 1.0.0-13
-    sdesc    : "OSGeo4W Command Shell"
-    ldesc    : "Menu and Desktop icon launch OSGeo4W command shell"
-    category : Commandline_Utilities
-    requires : msvcrt setup
-    zip_path : x86/release/shell/shell-1.0.0-13.tar.bz2
-    zip_size : 3763
-    md5      : c38f03d2b7160f891fc36ec776ca4685
-    local_zip: d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2...
-        '''
-    packagename = ' '.join(packagename)
+    '''
     d = dists[distname][packagename]
     d['name'] = packagename
     
@@ -729,18 +754,9 @@ def get_info(packagename):
     d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
     del d['install']
     
+    #based on current mirror, which might be different from when downloaded
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
-    
-    if command == 'get_info':
-        print('')
-        for k in 'name, version, sdesc, ldesc, category, requires, zip_path, zip_size, md5, local_zip'.split(', '):
-            print('{0:9}: {1}'.format(k,d[k]))
-            
-        # This guaranteed to print entire dict contents,
-        # but not in a logical order.
-        # for k in d.keys():
-            # print('{0:8}:\t{1}'.format(k,d[k]))
-    
+        
     return d
 #@+node:maphew.20100223163802.3746: *3* get_installed
 def get_installed ():

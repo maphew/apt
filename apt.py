@@ -83,15 +83,15 @@ Options:
 ''' % {'setup_ini':setup_ini,'mirror':mirror,'root':root}) #As they were just printing as "%(setup_ini)s" etc...
 #@+node:maphew.20121113004545.1577: ** check_env
 def check_env():
-    #'''Verify we're runnining in an Osgeo4W ready shell'''
-    OSGEO4W_ROOT = ''
-    if 'OSGEO4W_ROOT' in os.environ.keys ():
+    '''Verify we're running in an Osgeo4W-ready shell'''
+    #OSGEO4W_ROOT = ''
+    if 'OSGEO4W_ROOT' in os.environ.keys():
         OSGEO4W_ROOT = os.environ['OSGEO4W_ROOT']
         os.putenv('OSGEO4W_ROOT_MSYS', OSGEO4W_ROOT) # textreplace.exe needs this (post_install)
         OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/') # convert 2x backslash to foreslash
     else:
-       sys.stderr.write ('error: Please set OSGEO4W_ROOT\n')
-       sys.exit (2)
+       sys.stderr.write('error: Please set OSGEO4W_ROOT\n')
+       sys.exit(2)
        
     return OSGEO4W_ROOT
 #@+node:maphew.20121111221942.1497: ** check_setup

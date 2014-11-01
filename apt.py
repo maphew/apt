@@ -96,12 +96,12 @@ def check_env():
     return OSGEO4W_ROOT
 #@+node:maphew.20121111221942.1497: ** check_setup
 def check_setup(installed_db, setup_ini):
-    #'''Look to see if the installed packages db and setup.ini are avialable'''
+    '''Look to see if the installed packages db and setup.ini are available'''
     for i in (installed_db, setup_ini):
-        if not os.path.isfile (i):
-            sys.stderr.write ('error: %s no such file\n' % i)
-            sys.stderr.write ('error: set OSGEO4W_ROOT and run "apt setup"\n')
-            sys.exit (2)
+        if not os.path.isfile(i):
+            sys.stderr.write('error: %s no such file\n' % i)
+            sys.stderr.write('error: set OSGEO4W_ROOT and run "apt setup"\n')
+            sys.exit(2)
 #@+node:maphew.20100302221232.1487: ** Commands
 ###########################
 #COMMANDS
@@ -436,7 +436,7 @@ def search(pattern):
             s += ' - %s' % d[1:-1]
         print s
 #@+node:maphew.20100223163802.3732: *3* setup
-def setup():
+def setup(target):
     '''Create skeleton Osgeo4W folders and setup database environment'''
     if not os.path.isdir(root):
         sys.stderr.write('Root dir not found, creating %s\n' % root)
@@ -1234,6 +1234,7 @@ def source ():
         sys.exit (0)
 
 
+#@+node:maphew.20141031145131.3: ** __name__  __main__ runner
 #@-others
 ###########################
 #Main
@@ -1241,8 +1242,13 @@ def source ():
 if __name__ == '__main__':
 
     #@+<<globals>>
-    #@+node:maphew.20100307230644.3841: ** <<globals>>
-    OSGEO4W_ROOT = check_env() # verify OSGEO4W_ROOT is set
+    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+node:maphew.20100307230644.3841: *3* <<globals>>
+    if sys.argv[1] == 'setup':
+        OSGEO4W_ROOT = sys.argv[2]
+        OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/') # convert 2x backslash to foreslash
+    else:
+        OSGEO4W_ROOT = check_env() # look for root in environment
         
     CWD = os.getcwd ()
     INSTALL = 'install'
@@ -1256,7 +1262,8 @@ if __name__ == '__main__':
     installed_db_magic = 'INSTALLED.DB 2\n'
     #@-<<globals>>
     #@+<<parse command line>>
-    #@+node:maphew.20100307230644.3842: ** <<parse command line>>
+    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+node:maphew.20100307230644.3842: *3* <<parse command line>>
     # FIXME: 'files' for a var name here is a misnomer, as the 1st element is actually
     # the command (install, remove, etc.), consequently everywhere the list of package
     # names from cmdline is needed the cumbersome `files[1:]` is used.
@@ -1330,7 +1337,8 @@ if __name__ == '__main__':
     distnames = ('curr', 'test', 'prev')
     #@-<<parse command line>>
     #@+<<post-parse globals>>
-    #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>
+    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+node:maphew.20100307230644.3844: *3* <<post-parse globals>>
     last_mirror = get_config('last-mirror')
     last_cache = get_config('last-cache')
 
@@ -1353,10 +1361,11 @@ if __name__ == '__main__':
     #print "Saving to:\t%s" % (cache_dir)
     #@-<<post-parse globals>>
     #@+<<run the commands>>
-    #@+node:maphew.20100307230644.3843: ** <<run the commands>>
+    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+node:maphew.20100307230644.3843: *3* <<run the commands>>
     if command == 'setup':
-        setup ()
-        sys.exit (0)
+        setup(OSGEO4W_ROOT)
+        sys.exit(0)
 
     elif command == 'update':
         update ()
@@ -1366,6 +1375,7 @@ if __name__ == '__main__':
         help ()
 
     else:
+        print 'check_setup reached'
         check_setup(installed_db, setup_ini)
 
         #fixme: these setup more globals like dists-which-is-really-installed-list
@@ -1379,7 +1389,8 @@ if __name__ == '__main__':
             print '"%s" not understood, please run "apt help"' % command
     #@-<<run the commands>>
     #@+<<wrap up>>
-    #@+node:maphew.20100307230644.3845: ** <<wrap up>>
+    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+node:maphew.20100307230644.3845: *3* <<wrap up>>
     save_config('last-mirror', mirror)
     save_config('last-cache', cache_dir)
     #@-<<wrap up>>

@@ -9,6 +9,21 @@ setup_ini = config + '/setup.ini'
 #@+others
 #@+node:maphew.20141101232552.4: ** parse_setup
 def parse_setup(fname):
+    chunks = string.split(open(fname).read(), '\n\n@ ') #record delimiter
+    
+    # first one is header
+    print '--- Chunk %s ---\n%s' % (0, chunks[0])
+
+    for i in range(1,5):
+        print '--- Chunk %s ---\n%s' % (i, chunks[i])
+        pkg_to_dict(chunks[i])
+    
+    # print    
+    # record = chunks[3].split('\n')
+    # #print record, '\n'
+    # name = record[0]
+    
+#@+node:maphew.20141101232552.7: *3* @
 #@+at
 #     # build a list of dictionaries
 #     packages = []
@@ -17,21 +32,25 @@ def parse_setup(fname):
 #         packages.append(program)
 # 
 # also http://stackoverflow.com/questions/26697475/name-a-dictionary-from-a-variable-value
-#@@c        
-
-    chunks = string.split(open(fname).read(), '\n\n@ ') #record delimiter
-    for i in range(0,5):
-        print '--- Chunk %s ---\n%s' % (i, chunks[i])
-    
-    print    
-    record = chunks[3].split('\n')
-    print record, '\n'
+#@@c
+#@+node:maphew.20141101232552.8: *3* @
+#@+at
+# for i in chunks[1:]:
+#     name = string.strip(lines[0])
+#     debug('package: ' + name)
+#     lines = string.split(i, '\n')
+#     packages = dists['curr']
+#     records = {'sdesc': name}
+#@+node:maphew.20141101232552.6: ** pkg_to_dict
+def pkg_to_dict(chunk):
+    print '----- pkg_to_dict -----'
+    record = chunk.split('\n')
     name = record[0]
-    
     d = {}
     d['name'] = name
-    for i in range(1,15):
-        if record[i][0] == '[':
+    for i in range(1, len(record)):
+        print record[i]
+        if record[i][0] == '[':             # stop on [prev], [test], etc.
             break
         key, value = record[i].split(':')
         d[key] = string.strip(value)
@@ -40,16 +59,6 @@ def parse_setup(fname):
     # name it the same as our package name
     globals()[name] = d
     print name, eval(name)
-    
-    
-#@+at    
-#     for i in chunks[1:]:
-#         lines = string.split(i, '\n')
-#         name = string.strip(lines[0])
-#         debug('package: ' + name)
-#         packages = dists['curr']
-#         records = {'sdesc': name}
-#     
 #@+node:maphew.20141101232552.3: ** get_info
 def get_info(packagename):
     '''Retrieve details for package X.

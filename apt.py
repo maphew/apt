@@ -973,8 +973,8 @@ def write_filelist (packagename, lst):
         raise TypeError('urg')
 #@+node:maphew.20100308085005.1382: ** Parsers
 #@+node:maphew.20100223163802.3754: *3* get_setup_ini
-def get_setup_ini ():
-    # '''Parse setup.ini into package name, description, version, dependencies, etc.'''
+def get_setup_ini():
+    '''Parse setup.ini into package name, description, version, dependencies, etc.'''
     global dists
     if dists:
        # best I can figure, this is to skip redundant parsing,
@@ -983,37 +983,37 @@ def get_setup_ini ():
        print 'dists defined, skipping parse of setup.ini'
        return
     dists = {'test': {}, 'curr': {}, 'prev' : {}}
-    chunks = string.split (open (setup_ini).read (), '\n\n@ ')
+    chunks = string.split(open(setup_ini).read(), '\n\n@ ')
     for i in chunks[1:]:
-        lines = string.split (i, '\n')
-        name = string.strip (lines[0])
-        debug ('package: ' + name)
+        lines = string.split(i, '\n')
+        name = string.strip(lines[0])
+        debug('package: ' + name)
         packages = dists['curr']
         records = {'sdesc': name}
         j = 1
-        while j < len (lines) and string.strip (lines[j]):
-            debug ('raw: ' + lines[j])
+        while j < len(lines) and string.strip(lines[j]):
+            debug('raw: ' + lines[j])
             if lines[j][0] == '#':
                 j = j + 1
                 continue
             elif lines[j][0] == '[':
-                debug ('dist: ' + lines[j][1:5])
-                packages[name] = records.copy ()
+                debug('dist: ' + lines[j][1:5])
+                packages[name] = records.copy()
                 packages = dists[lines[j][1:5]]
                 j = j + 1
                 continue
 
             try:
-                key, value = map (string.strip,
-                      string.split (lines[j], ': ', 1))
+                key, value = map(string.strip,
+                      string.split(lines[j], ': ', 1))
             except:
                 print lines[j]
                 raise TypeError('urg')
-            if value[0] == '"' and value.find ('"', 1) == -1:
+            if value[0] == '"' and value.find('"', 1) == -1:
                 while 1:
                     j = j + 1
                     value += lines[j]
-                    if lines[j].find ('"') != -1:
+                    if lines[j].find('"') != -1:
                         break
             records[key] = value
             j = j + 1

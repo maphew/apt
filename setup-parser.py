@@ -16,7 +16,9 @@ def parse_setup(fname):
 
     for i in range(1,5):
         print '--- Chunk %s ---\n%s' % (i, chunks[i])
-        pkg_to_dict(chunks[i])
+        pkg_d = pkg_to_dict(chunks[i])
+        print '\t--- Out ---'
+        print '\t%s' % pkg_d
     
     # print    
     # record = chunks[3].split('\n')
@@ -43,23 +45,43 @@ def parse_setup(fname):
 #     records = {'sdesc': name}
 #@+node:maphew.20141101232552.6: ** pkg_to_dict
 def pkg_to_dict(chunk):
-    print '----- pkg_to_dict -----'
+    ''' Take one package record from setup.ini and parse into nested dictionary.
+    
+    ------ ini record -----
+        @apache
+        sdesc: "Apache Web Server"
+        ldesc: "Apache Web Server"
+        category: Web
+        requires: shell php
+        version: 2.2.14-4
+        install: x86/release/apache/apache-2.2.14-4.tar.bz2 2453154 dcc24008f878e26084be298c09e6c9b3
+        [prev]
+        version: 2.2.14-3
+        install: x86/release/apache/apache-2.2.14-3.tar.bz2 2453132 78f5c2e707af63a6a77763eec0080433
+        
+    ----- Dictionary returned (just keys listed below) -----
+        Package dict ['apache']
+        Values dict ['category', 'name', 'sdesc', 'ldesc', 'version', 'install', 'requires']            
+        
+    All lines after [prev]/[test]/[...] are ignored at the moment.
+    '''
+    #print '----- pkg_to_dict -----'
     lines = chunk.split('\n')
     name = lines[0]
-    ini_d,pkg_d = {},{}
-    pkg_d['name'] = name
-    print ini_d,pkg_d
+    pkg_d,val_d = {},{}
+    val_d['name'] = name
     for i in range(1, len(lines)):
-        print lines[i]
-        if lines[i][0] == '[':             # stop on [prev], [test], etc.
+        #print lines[i]
+        if lines[i][0] == '[':  # stop on [prev], [test], etc.
             break
         key, value = lines[i].split(':')
-        pkg_d[key] = string.strip(value)
+        val_d[key] = string.strip(value)
         
-    ini_d[pkg_d['name']] = pkg_d
+    pkg_d[val_d['name']] = val_d
     
-    print 'Master dict', ini_d.keys()
-    print 'Inner dict', pkg_d.keys()
+    #print 'Package dict', pkg_d.keys()
+    #print 'Values dict', val_d.keys()
+    return pkg_d
 #@+node:maphew.20141101232552.3: ** get_info
 def get_info(packagename):
     '''Retrieve details for package X.

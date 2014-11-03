@@ -12,19 +12,18 @@ def parse_setup(fname):
     chunks = string.split(open(fname).read(), '\n\n@ ') #record delimiter
     
     # first one is header
-    print '--- Chunk %s ---\n%s' % (0, chunks[0])
+   # print '--- Chunk %s ---\n%s' % (0, chunks[0])
 
+    ini_d = {}
     for i in range(1,5):
-        print '--- Chunk %s ---\n%s' % (i, chunks[i])
+        #print '--- Chunk %s ---\n%s' % (i, chunks[i])
         pkg_d = pkg_to_dict(chunks[i])
-        print '\t--- Out ---'
-        print '\t%s' % pkg_d
+        ini_d.update(pkg_d)
+        #print '\t--- Out ---'
+        #print '\t%s' % pkg_d
     
-    # print    
-    # record = chunks[3].split('\n')
-    # #print record, '\n'
-    # name = record[0]
-    
+    print ini_d.keys()
+    #print ini_d.values()
 #@+node:maphew.20141101232552.7: *3* @
 #@+at
 #     # build a list of dictionaries

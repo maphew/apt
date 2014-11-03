@@ -9,8 +9,6 @@ On deck: Get ready for release.
 
 
 
-
-
 <!--@+others-->
 <!--@+node:maphew.20140905201312.1893: ** Research-->
 new magic bullet discovered: click
@@ -408,6 +406,12 @@ http://stackoverflow.com/questions/6710834/iterating-over-list-or-single-element
 http://stackoverflow.com/questions/836387/how-can-i-tell-if-a-python-variable-is-a-string-or-a-list
 -->
 <!--@@c-->
+<!--@+node:maphew.20141102234146.3: ** 2014-Nov-02-->
+Oh. I've just spent many hours over the last few days recreating something that already exists: a dict of setup.ini. I am disappointed at the wasted effort, but at the same time glad. You see I learned things by recreating that I wouldn't have understood by just blindly using the existing code.
+
+It also points to a problem with the presentation or structure of what's there now: I didn't see it -- even though my very own comment from many moons ago says "a dict of setup.ini". There is a bug here, not in the code, but in it's accessibility, in it's (re)discoverability.
+
+So, what do I need to do to ensure I don't do this again? How can I help my memory and understanding of what all these little bits and pieces do, without have to step through and reparse the code line by line in each new round?
 <!--@-others-->
 
 

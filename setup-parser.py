@@ -24,16 +24,6 @@ def parse_setup(fname):
     
     print ini_d.keys()
     #print ini_d.values()
-#@+node:maphew.20141101232552.7: *3* @
-#@+at
-#     # build a list of dictionaries
-#     packages = []
-#     for r in records:
-#         program = {"name":"apache", "category":"web"}
-#         packages.append(program)
-# 
-# also http://stackoverflow.com/questions/26697475/name-a-dictionary-from-a-variable-value
-#@@c
 #@+node:maphew.20141101232552.8: *3* @
 #@+at
 # for i in chunks[1:]:
@@ -148,4 +138,5 @@ def get_setup_ini():
 
 if __name__ == '__main__':
     parse_setup(setup_ini)
+    get_setup_ini()
 #@-leo

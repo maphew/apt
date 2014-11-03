@@ -44,21 +44,22 @@ def parse_setup(fname):
 #@+node:maphew.20141101232552.6: ** pkg_to_dict
 def pkg_to_dict(chunk):
     print '----- pkg_to_dict -----'
-    record = chunk.split('\n')
-    name = record[0]
-    d = {}
-    d['name'] = name
-    for i in range(1, len(record)):
-        print record[i]
-        if record[i][0] == '[':             # stop on [prev], [test], etc.
+    lines = chunk.split('\n')
+    name = lines[0]
+    ini_d,pkg_d = {},{}
+    pkg_d['name'] = name
+    print ini_d,pkg_d
+    for i in range(1, len(lines)):
+        print lines[i]
+        if lines[i][0] == '[':             # stop on [prev], [test], etc.
             break
-        key, value = record[i].split(':')
-        d[key] = string.strip(value)
+        key, value = lines[i].split(':')
+        pkg_d[key] = string.strip(value)
         
-    # now we take our internal-to-function dict, make it global, and
-    # name it the same as our package name
-    globals()[name] = d
-    print name, eval(name)
+    ini_d[pkg_d['name']] = pkg_d
+    
+    print 'Master dict', ini_d.keys()
+    print 'Inner dict', pkg_d.keys()
 #@+node:maphew.20141101232552.3: ** get_info
 def get_info(packagename):
     '''Retrieve details for package X.

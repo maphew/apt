@@ -705,25 +705,25 @@ def do_run_preremove(root, packagename):
             print >>sys.stderr, "Execution failed:", e
 #@+node:maphew.20100308085005.1380: ** Getters
 #@+node:maphew.20100223163802.3743: *3* get_ball
-def get_ball (packagename):
-    url, md5 = get_url (packagename)
+def get_ball(packagename):
+    url, md5 = get_url(packagename)
     return '%s/%s' % (downloads, url)
 
 #@+node:maphew.20100223163802.3744: *3* get_field
-def get_field (field, default=''):
+def get_field(field, default=''):
     for d in (distname,) + distnames:
         if dists[d].has_key (packagename) \
-           and dists[d][packagename].has_key (field):
+           and dists[d][packagename].has_key(field):
             return dists[d][packagename][field]
     return default
 
 #@+node:maphew.20100223163802.3745: *3* get_filelist
-def get_filelist (packagename):
+def get_filelist(packagename):
     ''' Retrieve list of files installed for package X from manifest (/etc/setup/package.lst.gz)'''
-    os.chdir (config)
-    pipe = gzip.open (config + packagename + '.lst.gz', 'r')
-    lst = map (string.strip, pipe.readlines ())
-    if pipe.close ():
+    os.chdir(config)
+    pipe = gzip.open(config + packagename + '.lst.gz', 'r')
+    lst = map(string.strip, pipe.readlines())
+    if pipe.close():
         raise TypeError('urg')
     return lst
 
@@ -773,36 +773,36 @@ def get_installed ():
     return installed
 
 #@+node:maphew.20100223163802.3747: *3* get_installed_version
-def get_installed_version (packagename):
-    return split_ball (installed[0][packagename])[1]
+def get_installed_version(packagename):
+    return split_ball(installed[0][packagename])[1]
 
 #@+node:maphew.20100223163802.3749: *3* get_config
 def get_config(fname):
-    # open /etc/setup/fname and return contents
-    # e.g. /etc/setup/last-cache
+    '''Open /etc/setup/fname and return contents, e.g. /etc/setup/last-cache
+    '''
     f = os.path.join(config, fname)
     if not os.path.exists(f):
         return None
     else:
         value = file(f).read().strip()
         return value
-
 #@+node:maphew.20100307230644.3848: *3* get_menu_links
 def get_menu_links(bat):
-    # '''Parse postinstall batch file for menu and desktop links'''
-    #
-    # from 'xxmklink' lines grab first parameter, which is the link path
+    '''Parse postinstall batch file for menu and desktop links.
+    
+    Relies on shlex module which splits on spaces, yet preserves
+    spaces within quotes (http://stackoverflow.com/questions/79968)
+    '''
+    # From 'xxmklink' lines grab first parameter, which is the link path
     # and interpret known variables.
-    # Relies on shlex module which splits on spaces, yet preserves
-    # spaces within quotes (http://stackoverflow.com/questions/79968)
     links = []
     for line in open(bat,'r'):
         if 'xxmklink' in line:
             link = shlex.split(line)[1]
-            link = link.replace ('%OSGEO4W_ROOT%',OSGEO4W_ROOT)
-            link = link.replace ('%OSGEO4W_STARTMENU%',OSGEO4W_STARTMENU)
-            link = link.replace ('%ALLUSERSPROFILE%',os.environ['ALLUSERSPROFILE'])
-            link = link.replace ('%USERPROFILE%',os.environ['USERPROFILE'])
+            link = link.replace('%OSGEO4W_ROOT%',OSGEO4W_ROOT)
+            link = link.replace('%OSGEO4W_STARTMENU%',OSGEO4W_STARTMENU)
+            link = link.replace('%ALLUSERSPROFILE%',os.environ['ALLUSERSPROFILE'])
+            link = link.replace('%USERPROFILE%',os.environ['USERPROFILE'])
             links.append(link)
     return links
 #@+node:maphew.20100223163802.3751: *3* get_mirror
@@ -814,44 +814,45 @@ def get_mirror():
     return mirror
 
 #@+node:maphew.20100223163802.3752: *3* get_missing
-def get_missing (packagename):
+def get_missing(packagename):
     # print sys.argv[0], ": in get_missing with", packagename
-    reqs = get_requires (packagename)
+    reqs = get_requires(packagename)
     lst = []
     for i in reqs:
-        if not installed[0].has_key (i):
-            lst.append (i)
+        if not installed[0].has_key(i):
+            lst.append(i)
     if lst and packagename not in lst:
-        sys.stderr.write ('warning: missing packages: %s\n' % string.join (lst))
-    elif installed[0].has_key (packagename):
-        ins = get_installed_version (packagename)
-        new = get_version (packagename)
+        sys.stderr.write('warning: missing packages: %s\n' % string.join(lst))
+    elif installed[0].has_key(packagename):
+        ins = get_installed_version(packagename)
+        new = get_version(packagename)
         if ins >= new:
-            sys.stderr.write ('%s is already the newest version\n' % packagename)
-            #lst.remove (packagename)
+            sys.stderr.write('%s is already the newest version\n' % packagename)
+            #lst.remove(packagename)
         elif packagename not in lst:
-            lst.append (packagename)
+            lst.append(packagename)
     return lst
-
 #@+node:maphew.20100223163802.3753: *3* get_new
-def get_new ():
-    # '''get available upgrades '''
+def get_new():
+    '''get available upgrades '''
     global packagename
     lst = []
-    for packagename in installed[0].keys ():
-        new = get_version (packagename)
-        ins = get_installed_version (packagename)
+    for packagename in installed[0].keys():
+        new = get_version(packagename)
+        ins = get_installed_version(packagename)
         if new > ins:
             debug (" %s > %s" % (new, ins))
-            lst.append (packagename)
+            lst.append(packagename)
     return lst
 
 #@+node:maphew.20100223163802.3755: *3* get_special_folder
 def get_special_folder(intFolder):
-    # ''' Fetch paths of Windows special folders: Program Files, Desktop, Startmenu, etc. '''
-    #Written by Luke Pinner, 2010. Code is public domain, do with it what you will...
-    # todo: look at replacing with WinShell module by Tim Golden,
-    # http://winshell.readthedocs.org/en/latest/special-folders.html
+    ''' Fetch paths of Windows special folders: Program Files, Desktop, Startmenu, etc.
+
+    Written by Luke Pinner, 2010. Code is public domain, do with it what you will...
+    todo: look at replacing with WinShell module by Tim Golden,
+    http://winshell.readthedocs.org/en/latest/special-folders.html
+    '''
     import ctypes
     from ctypes.wintypes import HWND , HANDLE ,DWORD ,LPCWSTR ,MAX_PATH , create_unicode_buffer
     SHGetFolderPath = ctypes.windll.shell32.SHGetFolderPathW
@@ -859,72 +860,70 @@ def get_special_folder(intFolder):
     auPathBuffer = create_unicode_buffer(MAX_PATH)
     exit_code=SHGetFolderPath(0, intFolder, 0, 0, auPathBuffer)
     return auPathBuffer.value
-
 #@+node:maphew.20100223163802.3756: *3* get_url
-def get_url (packagename):
-    if not dists[distname].has_key (packagename) \
-       or not dists[distname][packagename].has_key (INSTALL):
+def get_url(packagename):
+    if not dists[distname].has_key(packagename) \
+       or not dists[distname][packagename].has_key(INSTALL):
  ##       no_package ()
         # moved here from no_package(), part of remove-globals refactoring
-        sys.stderr.write ("%s: %s not in [%s]\n" % ('error', packagename, distname))
+        sys.stderr.write("%s: %s not in [%s]\n" % ('error', packagename, distname))
 
         install = 0
         for d in distnames:
-            if dists[d].has_key (packagename) \
-               and dists[d][packagename].has_key (INSTALL):
+            if dists[d].has_key(packagename) \
+               and dists[d][packagename].has_key(INSTALL):
                 install = dists[d][packagename][INSTALL]
-                sys.stderr.write ("warning: using [%s]\n" % d)
+                sys.stderr.write("warning: using [%s]\n" % d)
                 break
         if not install:
-            sys.stderr.write ("error: %s not installed\n" % packagename)
-            sys.exit (1)
+            sys.stderr.write("error: %s not installed\n" % packagename)
+            sys.exit(1)
     else:
         install = dists[distname][packagename][INSTALL]
-    filename, size, md5 = string.split (install)
+    filename, size, md5 = string.split(install)
     return filename, md5
-
 #@+node:maphew.20100223163802.3757: *3* get_version
-def get_version (packagename):
-    if not dists[distname].has_key (packagename) \
-       or not dists[distname][packagename].has_key (INSTALL):
-        no_package ()
+def get_version(packagename):
+    if not dists[distname].has_key(packagename) \
+       or not dists[distname][packagename].has_key(INSTALL):
+        no_package()
         return (0, 0)
 
     package = dists[distname][packagename]
-    if not package.has_key ('ver'):
-        file = string.split (package[INSTALL])[0]
-        ball = os.path.split (file)[1]
-        package['ver'] = split_ball (ball)[1]
+    if not package.has_key('ver'):
+        file = string.split(package[INSTALL])[0]
+        ball = os.path.split(file)[1]
+        package['ver'] = split_ball(ball)[1]
     return package['ver']
 
 #@+node:maphew.20100223163802.3759: *3* get_requires
-def get_requires (packagename):
-    # ''' identify dependencies of package'''
+def get_requires(packagename):
+    ''' identify dependencies of package'''
     dist = dists[distname]
-    if not dists[distname].has_key (packagename):
-        no_package (packagename, distname)
+    if not dists[distname].has_key(packagename):
+        no_package(packagename, distname)
         #return []
-        sys.exit (1)
+        sys.exit(1)
     if depend_p:
         return [packagename]
     reqs = {packagename:0}
     n = 0
-    while len (reqs) > n:
-        n = len (reqs)
-        for i in reqs.keys ():
-            if not dist.has_key (i):
-                sys.stderr.write ("error: %s not in [%s]\n" \
+    while len(reqs) > n:
+        n = len(reqs)
+        for i in reqs.keys():
+            if not dist.has_key(i):
+                sys.stderr.write("error: %s not in [%s]\n" \
                           % (i, distname))
                 if i != packagename:
                     del reqs[i]
                 continue
             reqs[i] = '0'
             p = dist[i]
-            if not p.has_key ('requires'):
+            if not p.has_key('requires'):
                 continue
-            reqs.update (dict (map (lambda x: (x, 0),
+            reqs.update (dict(map(lambda x: (x, 0),
                         string.split (p['requires']))))
-    return reqs.keys ()
+    return reqs.keys()
 #@+node:maphew.20100308085005.1381: ** Writers
 #@+node:maphew.20100223163802.3750: *3* save_config
 def save_config(fname,values):

@@ -16,7 +16,7 @@
   beginning July 2008
 
 '''
-apt_version = 'Dev - 2014-Oct'
+apt_version = 'Dev - 2014-Nov'
 #@-<<docstring>>
 #@@language python
 #@@tabwidth -4
@@ -38,16 +38,8 @@ import shlex
 #@-<<imports>>
 #@+others
 #@+node:maphew.20100223163802.3718: ** usage
-###########################
-#Usage
-###########################
 def usage ():
-    # global setup_ini
-    # global mirror
-    # global root
     print('-={ %s }=-\n'% apt_version)
-    # FIXME: list only usable command line parameters, not all functions
-    # SOLVED: omit '''comment''' after function name, only those are listed
       # better:  use parsopt instead, #53 http://trac.osgeo.org/osgeo4w/ticket/53
     sys.stdout.write ('''apt [OPTION]... COMMAND [PACKAGE]...
 
@@ -104,9 +96,6 @@ def check_setup(installed_db, setup_ini):
             sys.stderr.write('error: set OSGEO4W_ROOT and run "apt setup"\n')
             sys.exit(2)
 #@+node:maphew.20100302221232.1487: ** Commands
-###########################
-#COMMANDS
-###########################
 #@+node:maphew.20100223163802.3719: *3* available
 def available(foo):
     '''Show packages available to be installed
@@ -240,9 +229,10 @@ def help(args):
     if len(args) < 2:
         usage()
         sys.exit(0)
-    
-    # display the docstring for the named action
-    action = args[1]
+    else:
+        # display the docstring for the named action
+        action = args[0]
+    print action
     print  "\n    " + __main__.__dict__[action].__doc__
 
 #@+node:maphew.20100223163802.3724: *3* install
@@ -437,12 +427,6 @@ def search(pattern):
     packages = []
     keys = []
     
-    # # reverse engineering the globals...
-    # # 'dists' is actually contents of setup.ini in a dict
-    # # 'distname' is always 'current' (at present)
-    # # 
-    # print type(dists)
-    # print(distname)
     # print(pattern)
     
     #pattern comes in as a list, we need bare string
@@ -450,7 +434,7 @@ def search(pattern):
     
     if not pattern:
         print("--- Missing what to search for")
-        #help(search) #stub for when help takes a parameter (print a usage message)
+        #help('search') #stub for when help takes a parameter (print a usage message)
         sys.exit()
     
     if distname in dists:
@@ -1255,9 +1239,7 @@ def source ():
 
 #@+node:maphew.20141031145131.3: ** __name__ __main__ runner
 #@-others
-###########################
-#Main
-###########################
+
 if __name__ == '__main__':
     #@+<<globals>>
     #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
@@ -1279,9 +1261,17 @@ if __name__ == '__main__':
     setup_bak = config + '/setup.bak'
     installed_db = config + '/installed.db'
     installed_db_magic = 'INSTALLED.DB 2\n'
+
     dists = 0
     distnames = ('curr', 'test', 'prev')
     distname = 'curr'
+    # # reverse engineering the globals...
+    # # after parse_setup_ini() 'dists' is actually contents of setup.ini in a dict
+    # # 'distname' is always 'current' (at present)
+    # # 
+    # print type(dists)
+    # print(distname)
+
     depend_p = 0
     download_p = 0
     start_menu_name = 'OSGeo4W'

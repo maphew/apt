@@ -973,17 +973,22 @@ def write_filelist (packagename, lst):
         raise TypeError('urg')
 #@+node:maphew.20100308085005.1382: ** Parsers
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
-def parse_setup_ini(setup_ini):
-    '''Parse setup.ini into package name, description, version, dependencies, etc.'''
-    global dists
-    # if dists:
-       # # best I can figure, this is to skip redundant parsing,
-       # # however I don't see anywhere get_setup_ini() is
-       # # called more than once; candidate for removal
-       # print 'dists defined, skipping parse of setup.ini'
-       # return
+def parse_setup_ini(fname):
+    '''Parse setup.ini into package name, description, version, dependencies, etc.
+    
+    Returns a nested dictionary: {Distribution{Program_name{program attributes}}}
+    
+        {curr {
+            'gdal' {
+                'name': 'gdal',
+                'version': '1.11.1-4',
+                'category': 'Libs Commandline_Utilities',
+                etc... }
+            }}
+    '''
+    # global dists
     dists = {'test': {}, 'curr': {}, 'prev' : {}}
-    chunks = string.split(open(setup_ini).read(), '\n\n@ ')
+    chunks = string.split(open(fname).read(), '\n\n@ ')
     for i in chunks[1:]:
         lines = string.split(i, '\n')
         name = string.strip(lines[0])
@@ -1018,6 +1023,7 @@ def parse_setup_ini(setup_ini):
             records[key] = value
             j = j + 1
         packages[name] = records
+    return dists
 #@+node:maphew.20100223163802.3760: *3* join_ball
 def join_ball (t):
     return t[0] + '-' + version_to_string (t[1])
@@ -1392,7 +1398,7 @@ if __name__ == '__main__':
 
         #fixme: these setup more globals like dists-which-is-really-installed-list
         #that are hard to track later. Should change to "thing = get_thing()"
-        parse_setup_ini(setup_ini)
+        dists = parse_setup_ini(setup_ini)
         get_installed()
 
         if command and command in __main__.__dict__:

@@ -1273,33 +1273,38 @@ if __name__ == '__main__':
     CWD = os.getcwd ()
     INSTALL = 'install'
     installed = 0
-
     root = OSGEO4W_ROOT
     config = root + '/etc/setup/'
     setup_ini = config + '/setup.ini'
     setup_bak = config + '/setup.bak'
     installed_db = config + '/installed.db'
     installed_db_magic = 'INSTALLED.DB 2\n'
+    dists = 0
+    distnames = ('curr', 'test', 'prev')
+    distname = 'curr'
+    depend_p = 0
+    download_p = 0
+    start_menu_name = 'OSGeo4W'
+
+    # Thank you Luke Pinner for answering how to get path of "Start > Programs"
+    # http://stackoverflow.com/questions/2216173
+    #PROGRAMS=2
+    ALLUSERSPROGRAMS=23
+    OSGEO4W_STARTMENU = get_special_folder(ALLUSERSPROGRAMS) + "\\" + start_menu_name
+    os.putenv('OSGEO4W_STARTMENU', OSGEO4W_STARTMENU)
     #@-<<globals>>
     #@+<<parse command line>>
     #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
     #@+node:maphew.20100307230644.3842: *3* <<parse command line>>
-    # FIXME: 'files' for a var name here is a misnomer, as the 1st element is actually
-    # the command (install, remove, etc.), consequently everywhere the list of package
-    # names from cmdline is needed the cumbersome `files[1:]` is used.
-    #
     (options, params) = getopt.getopt (sys.argv[1:],
                       'dhi:m:r:t:s:x',
                       ('download', 'help', 'mirror=', 'root='
                        'ini=', 't=', 'start-menu=', 'no-deps'))
-
-    # we start with assumption help is the action to take,
-    # and switch to something else only if instructed so
-    command = 'help'
-
     # the first parameter is our action
-    if len (params) > 0:
+    if len(params) > 0:
         command = params[0]
+    else:
+        command = 'help'
 
     # and all following are package names
     packages = params[1:]
@@ -1307,18 +1312,6 @@ if __name__ == '__main__':
     #command aliases
     uninstall = remove
 
-    ##packagename = 0
-    ##if packages:
-    ##    packagename = packages[0]
-    # if len (params) > 1:
-        # packagename = params[1]
-
-
-    distname = 'curr'
-
-    depend_p = 0
-    download_p = 0
-    start_menu_name = 'OSGeo4W'
     for i in options:
         o = i[0]
         a = i[1]
@@ -1345,16 +1338,6 @@ if __name__ == '__main__':
             depend_p = 1
         elif o == '--start-menu' or o == '-s':
             start_menu_name = a
-
-    # Thank you Luke Pinner for answering how to get path of "Start > Programs"
-    # http://stackoverflow.com/questions/2216173
-    #PROGRAMS=2
-    ALLUSERSPROGRAMS=23
-    OSGEO4W_STARTMENU = get_special_folder(ALLUSERSPROGRAMS) + "\\" + start_menu_name
-    os.putenv('OSGEO4W_STARTMENU', OSGEO4W_STARTMENU)
-
-    dists = 0
-    distnames = ('curr', 'test', 'prev')
     #@-<<parse command line>>
     #@+<<post-parse globals>>
     #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner

@@ -1011,36 +1011,30 @@ def parse_setup_ini(fname):
         packages[name] = records
     return dists
 #@+node:maphew.20100223163802.3760: *3* join_ball
-def join_ball (t):
-    return t[0] + '-' + version_to_string (t[1])
+def join_ball(t):
+    return t[0] + '-' + version_to_string(t[1])
 
 #@+node:maphew.20100223163802.3761: *3* split_ball
 def split_ball (filename):
-#    ''' Parse package archive name into a) package name and b) version numbers tuple (to feed into version_to_string)
-#
-#    mc-4.6.0a-20030721-12.tar.bz2
-#
-#      mc              --> package name
-#      4.6.0a-20030721 --> upstream application version
-#      12              --> package version
-#
-#    python-numpy-2.7-1.5.1-1.tar.bz2
-#
-#      python-numpy  --> package name
-#      2.7-1.5.1     --> upstream application version
-#      1             --> package version
-#
-#      returns:
-#
-#           ('mc', (4, 6, 0a, 20030721, 12))
-#           ('python-numpy', (2, 7, 1, 5, 1, 1))
-#
-#      '''
-
-    ##m = re.match ('^([^.]*)-([0-9][^-/]*-[0-9][0-9]*)(.tar.bz2)?$', filename)    # original regex from cyg-apt
-    ##m = re.match ('^([^.]*)-([0-9].*-[0-9][0-9]*)(.tar.bz2)?$', filename)        # accept dash in app ver num
-
-    # this regex pattern should be functionally identical to the line immediately above
+    '''Parse package archive name into a) package name and b) version numbers tuple (to feed into version_to_string)
+    
+    mc-4.6.0a-20030721-12.tar.bz2
+    
+        mc              --> package name
+        4.6.0a-20030721 --> upstream application version
+        12              --> package version
+        
+    python-numpy-2.7-1.5.1-1.tar.bz2
+    
+        python-numpy  --> package name
+        2.7-1.5.1     --> upstream application version
+        1             --> package version
+        
+    returns:
+    
+      ('mc', (4, 6, 0a, 20030721, 12))
+      ('python-numpy', (2, 7, 1, 5, 1, 1))
+    '''
     regex = re.compile('''
        ^       	    # beginning of line
        ([^.]*) 	    # package name: any char except period, and any amount of them, "python-numpy"
@@ -1058,27 +1052,26 @@ def split_ball (filename):
         print '\n\n*** Error parsing version number from "%s"\n%s\n' % (filename, m)
     return (m.group(1), string_to_version(m.group (2)))
 #@+node:maphew.20100223163802.3762: *3* string_to_version
-def string_to_version (s):
+def string_to_version(s):
     # bash-2.05b-9
     # return map (string.atoi, (string.split (re.sub ('[.-]', ' ', s))))
-    s = re.sub ('([^0-9][^0-9]*)', ' \\1 ', s)
-    s = re.sub ('[ .-][ .-]*', ' ', s)
-    def try_atoi (x):
-        if re.match ('^[0-9]*$', x):
-            return string.atoi (x)
+    s = re.sub('([^0-9][^0-9]*)', ' \\1 ', s)
+    s = re.sub('[ .-][ .-]*', ' ', s)
+    def try_atoi(x):
+        if re.match('^[0-9]*$', x):
+            return string.atoi(x)
         return x
-    return tuple (map (try_atoi, (string.split (s))))
+    return tuple(map(try_atoi,(string.split(s))))
 
 #@+node:maphew.20100223163802.3763: *3* version_to_string
-def version_to_string (t):
+def version_to_string(t):
     #return '%s-%s' % (string.join (map (lambda x: "%d" % x, t[:-1]), '.'),
     #         t[-1])
-    def try_itoa (x):
-        if type (x) == int:
+    def try_itoa(x):
+        if type(x) == int:
             return "%d" % x
         return x
-    return '%s-%s' % (string.join (map (try_itoa, t[:-1]), '.'),
-              t[-1])
+    return '%s-%s' % (string.join(map(try_itoa, t[:-1]), '.'), t[-1])
 
 #@+node:maphew.20100223163802.3758: ** no_package
 def no_package (packagename, distname, s='error'):

@@ -972,16 +972,16 @@ def write_filelist (packagename, lst):
     if pipe.close ():
         raise TypeError('urg')
 #@+node:maphew.20100308085005.1382: ** Parsers
-#@+node:maphew.20100223163802.3754: *3* get_setup_ini
-def get_setup_ini():
+#@+node:maphew.20100223163802.3754: *3* parse_setup_ini
+def parse_setup_ini(setup_ini):
     '''Parse setup.ini into package name, description, version, dependencies, etc.'''
     global dists
-    if dists:
-       # best I can figure, this is to skip redundant parsing,
-       # however I don't see anywhere get_setup_ini() is
-       # called more than once; candidate for removal
-       print 'dists defined, skipping parse of setup.ini'
-       return
+    # if dists:
+       # # best I can figure, this is to skip redundant parsing,
+       # # however I don't see anywhere get_setup_ini() is
+       # # called more than once; candidate for removal
+       # print 'dists defined, skipping parse of setup.ini'
+       # return
     dists = {'test': {}, 'curr': {}, 'prev' : {}}
     chunks = string.split(open(setup_ini).read(), '\n\n@ ')
     for i in chunks[1:]:
@@ -1245,15 +1245,14 @@ def source ():
         sys.exit (0)
 
 
-#@+node:maphew.20141031145131.3: ** __name__  __main__ runner
+#@+node:maphew.20141031145131.3: ** __name__ __main__ runner
 #@-others
 ###########################
 #Main
 ###########################
 if __name__ == '__main__':
-
     #@+<<globals>>
-    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
     #@+node:maphew.20100307230644.3841: *3* <<globals>>
     # #disabled pending argparse/whatever implementation
     # if sys.argv[1] == 'setup':
@@ -1275,7 +1274,7 @@ if __name__ == '__main__':
     installed_db_magic = 'INSTALLED.DB 2\n'
     #@-<<globals>>
     #@+<<parse command line>>
-    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
     #@+node:maphew.20100307230644.3842: *3* <<parse command line>>
     # FIXME: 'files' for a var name here is a misnomer, as the 1st element is actually
     # the command (install, remove, etc.), consequently everywhere the list of package
@@ -1350,7 +1349,7 @@ if __name__ == '__main__':
     distnames = ('curr', 'test', 'prev')
     #@-<<parse command line>>
     #@+<<post-parse globals>>
-    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
     #@+node:maphew.20100307230644.3844: *3* <<post-parse globals>>
     last_mirror = get_config('last-mirror')
     last_cache = get_config('last-cache')
@@ -1374,7 +1373,7 @@ if __name__ == '__main__':
     #print "Saving to:\t%s" % (cache_dir)
     #@-<<post-parse globals>>
     #@+<<run the commands>>
-    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
     #@+node:maphew.20100307230644.3843: *3* <<run the commands>>
     if command == 'setup':
         setup(OSGEO4W_ROOT)
@@ -1393,8 +1392,8 @@ if __name__ == '__main__':
 
         #fixme: these setup more globals like dists-which-is-really-installed-list
         #that are hard to track later. Should change to "thing = get_thing()"
-        get_setup_ini ()
-        get_installed ()
+        parse_setup_ini(setup_ini)
+        get_installed()
 
         if command and command in __main__.__dict__:
             __main__.__dict__[command] (packages)
@@ -1402,7 +1401,7 @@ if __name__ == '__main__':
             print '"%s" not understood, please run "apt help"' % command
     #@-<<run the commands>>
     #@+<<wrap up>>
-    #@+middle:maphew.20141031145131.3: ** __name__  __main__ runner
+    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
     #@+node:maphew.20100307230644.3845: *3* <<wrap up>>
     save_config('last-mirror', mirror)
     save_config('last-cache', cache_dir)

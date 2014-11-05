@@ -228,19 +228,21 @@ def find(p):
         sys.stderr.write ('Find what? Enter a filename to look for (partial is ok).')
         
 #@+node:maphew.20100223163802.3723: *3* help
-def help(arg):
-    '''show help for COMMAND'''
+def help(args):
+    '''show help for COMMAND
+    
+        C:\> apt help update
         
+            Fetch updated package list from mirror.
+            ...
+    '''    
     # if "help for..." not present then just show general help.
-    if len(params) < 1:
+    if len(args) < 2:
         usage()
         sys.exit(0)
-
-    if not arg:
-        action = params[1]
-    else:
-        action = arg
-        
+    
+    # display the docstring for the named action
+    action = args[1]
     print  "\n    " + __main__.__dict__[action].__doc__
 
 #@+node:maphew.20100223163802.3724: *3* install
@@ -1386,11 +1388,11 @@ if __name__ == '__main__':
         sys.exit(0)
 
     elif command == 'update':
-        update ()
-        sys.exit (0)
+        update()
+        sys.exit(0)
 
     elif command == 'help':
-        help ()
+        help(params)
 
     else:
         print 'check_setup reached'

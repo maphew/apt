@@ -1082,22 +1082,24 @@ def no_package (packagename, distname, s='error'):
 #    plist.sort (lst)
 #    return lst
 #@+node:maphew.20100223163802.3765: ** post_install
-def post_install (packagename):
-    # ''' Run postinstall batch files and update package manifest
-    #     to catch those files not included in the package archive.
-    #     (manifest = etc/setup/pkg-foo.lst.gz) '''
-    # adapted from "17.1.3.3 Replacing os.system()"
-    # http://www.python.org/doc/2.5.2/lib/node536.html
+def post_install(packagename):
+    ''' Run postinstall batch files and update package manifest
+        to catch those files not included in the package archive.
+        (manifest = etc/setup/pkg-foo.lst.gz)
+
+    adapted from "17.1.3.3 Replacing os.system()"
+    http://www.python.org/doc/2.5.2/lib/node536.html
+    '''
 
     os.chdir(root)
 
     # necessary for textreplace, xxmklink
     os.putenv('PATH', '%s\\bin' % os.path.normpath(OSGEO4W_ROOT))
 
-    for bat in glob.glob ('%s/etc/postinstall/*.bat' % root):
+    for bat in glob.glob('%s/etc/postinstall/*.bat' % root):
         try:
             # run the postinstall batch files
-            retcode = subprocess.call (bat, shell=True)
+            retcode = subprocess.call(bat, shell=True)
             if retcode < 0:
                 print >>sys.stderr, "Child was terminated by signal", -retcode
 
@@ -1111,9 +1113,9 @@ def post_install (packagename):
 
                 # harmonize path conventions
                 # TODO: Move/merge this to cyg_path helper function
-                bat = bat.replace (root, '')         # strip C:\osgeo4w
-                bat = bat.replace ('\\','/')         # backslash to foreslash
-                bat = bat.replace ('/etc/', 'etc/')  # strip leading slash
+                bat = bat.replace(root, '')         # strip C:\osgeo4w
+                bat = bat.replace('\\','/')         # backslash to foreslash
+                bat = bat.replace('/etc/', 'etc/')  # strip leading slash
 
                 # foo.bat --> foo.bat.done in manifest
                 lst = get_filelist(packagename)
@@ -1142,7 +1144,7 @@ def post_install (packagename):
                         out = p.sub(r'bin/\1.bat', s)
                         lst.append(out)
 
-                write_filelist (packagename, lst)
+                write_filelist(packagename, lst)
 
                 print >>sys.stderr, "Post_install complete, return code", retcode
 

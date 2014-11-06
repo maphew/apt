@@ -742,6 +742,10 @@ def get_info(packagename):
     
     #based on current mirror, which might be different from when downloaded
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
+
+    url, md5 = get_url(packagename)
+    return '%s/%s' % (downloads, url)
+
         
     return d
 #@+node:maphew.20100223163802.3746: *3* get_installed
@@ -862,6 +866,10 @@ def get_special_folder(intFolder):
     return auPathBuffer.value
 #@+node:maphew.20100223163802.3756: *3* get_url
 def get_url(packagename):
+    # FIXME: This looks more complicated than it needs to be.
+    # If all we're after is the local url, why does the install status matter?
+    # Just construct what path should be and look if file is there.
+    # Or maybe the func name just doesn't accurately reflect actual purpose(?)
     if not dists[distname].has_key(packagename) \
        or not dists[distname][packagename].has_key(INSTALL):
  ##       no_package ()

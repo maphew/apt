@@ -722,13 +722,12 @@ def get_info(packagename):
         {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
     '''
     d = dists[distname][packagename]
-    print d
     d['name'] = packagename
+    #print d    # debug peek at incoming dict
     
-    # 'install' key has compound values, atomize it. Source:
+    # 'install' and 'source keys have compound values, atomize them
     d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
     del d['install']
-    # ditto 'source' key
     if 'source' in d.keys():
         d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
         del d['source']
@@ -737,7 +736,6 @@ def get_info(packagename):
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
     d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
     
-    print d.keys()
     return d
 #@+node:maphew.20100223163802.3747: *3* get_installed_version
 def get_installed_version(packagename):

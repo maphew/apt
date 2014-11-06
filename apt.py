@@ -557,7 +557,8 @@ def url(packages):
     '''Print package archive path, relative to mirror root'''
     print mirror
     for p in packages:
-        print '\t%s' % get_url(p)[0]
+        d = get_info(p)
+        print '\t%s' % d['zip_path']
 
 #@+node:maphew.20100223163802.3736: *3* version
 def version(packages):
@@ -976,7 +977,7 @@ def write_filelist (packagename, lst):
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
     
-    Returns a nested dictionary: {Distribution{Program_name{['category', 'source', 'ldesc', 'version', 'install', 'sdesc', 'requires']}}}
+    Returns a nested dictionary: {Distribution {Program_name{['category', 'source', 'ldesc', 'version', 'install', 'sdesc', 'requires']}}}
     
         {curr {
             'gdal' {

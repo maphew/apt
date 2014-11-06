@@ -190,13 +190,13 @@ def info(packages):
             print('')
             # NB: only prints fields we know about, if something is added
             # upstream we'll miss it here
-            for k in 'name, version, sdesc, ldesc, category, requires, zip_path, zip_size, md5, local_zip'.split(', '):
-                print('{0:9}: {1}'.format(k,d[k]))
+            # for k in 'name, version, sdesc, ldesc, category, requires, zip_path, zip_size, md5, local_zip'.split(', '):
+                # print('{0:9}: {1}'.format(k,d[k]))
                 
             # This guaranteed to print entire dict contents,
             # but not in a logical order.
-            # for k in d.keys():
-                # print('{0:8}:\t{1}'.format(k,d[k]))
+            for k in d.keys():
+                print('{0:8}:\t{1}'.format(k,d[k]))
 #@+node:maphew.20100223163802.3722: *3* find
 def find(p):
     '''Search installed packages for files matching the specified pattern.
@@ -705,12 +705,30 @@ def do_run_preremove(root, packagename):
         except OSError, e:
             print >>sys.stderr, "Execution failed:", e
 #@+node:maphew.20100308085005.1380: ** Getters
-#@+node:maphew.20100223163802.3743: *3* get_ball
-def get_ball(packagename):
-    print '*** skipping get_ball...'
-    return
-    url, md5 = get_url(packagename)
-    return '%s/%s' % (downloads, url)
+#@+node:maphew.20141008125017.2075: *3* get_info
+def get_info(packagename):
+    '''Retrieve details for package X.
+    
+    Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
+    '''
+    d = dists[distname][packagename]
+    d['name'] = packagename
+    
+    # 'install' key has compound values, atomize it. Source:
+    # install: x86/release/agg/agg-devel/agg-devel-2.4-1.tar.bz2 379815 8ef010bafbb234ed1f9372e9b50767f6
+    d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+    del d['install']
+    
+    #based on current mirror, might be different from when downloaded and/or installed
+    d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
+    
+    # installed version number, smelly complicated, but works.
+    print version_to_string(split_ball(installed[0][packagename])[1])
+    print d    
+    return d
+#@+node:maphew.20100223163802.3747: *3* get_installed_version
+def get_installed_version(packagename):
+    return split_ball(installed[0][packagename])[1]
 
 #@+node:maphew.20100223163802.3744: *3* get_field
 def get_field(field, default=''):
@@ -730,23 +748,6 @@ def get_filelist(packagename):
         raise TypeError('urg')
     return lst
 
-#@+node:maphew.20141008125017.2075: *3* get_info
-def get_info(packagename):
-    '''Retrieve details for package X.
-    
-    Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
-    '''
-    d = dists[distname][packagename]
-    d['name'] = packagename
-    
-    # 'install' key has compound values, atomize it.
-    d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-    del d['install']
-    
-    #based on current mirror, might be different from when downloaded and/or installed
-    d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
-        
-    return d
 #@+node:maphew.20100223163802.3746: *3* get_installed
 def get_installed ():
     ''' Get list of installed packages from ./etc/setup/installed.db.
@@ -774,10 +775,6 @@ def get_installed ():
         name, ball, status = string.split (i)
         installed[int (status)][name] = ball
     return installed
-
-#@+node:maphew.20100223163802.3747: *3* get_installed_version
-def get_installed_version(packagename):
-    return split_ball(installed[0][packagename])[1]
 
 #@+node:maphew.20100223163802.3749: *3* get_config
 def get_config(fname):
@@ -1021,7 +1018,7 @@ def join_ball(t):
     return t[0] + '-' + version_to_string(t[1])
 
 #@+node:maphew.20100223163802.3761: *3* split_ball
-def split_ball (filename):
+def split_ball(filename):
     '''Parse package archive name into a) package name and b) version numbers tuple (to feed into version_to_string)
     
     mc-4.6.0a-20030721-12.tar.bz2
@@ -1056,7 +1053,7 @@ def split_ball (filename):
     m = re.match(regex, filename)
     if not m:
         print '\n\n*** Error parsing version number from "%s"\n%s\n' % (filename, m)
-    return (m.group(1), string_to_version(m.group (2)))
+    return (m.group(1), string_to_version(m.group(2)))
 #@+node:maphew.20100223163802.3762: *3* string_to_version
 def string_to_version(s):
     # bash-2.05b-9

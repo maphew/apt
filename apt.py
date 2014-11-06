@@ -735,6 +735,7 @@ def get_info(packagename):
         
     #based on current mirror, might be different from when downloaded and/or installed
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
+    d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
     
     print d.keys()
     return d

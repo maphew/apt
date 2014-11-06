@@ -710,13 +710,22 @@ def get_info(packagename):
     '''Retrieve details for package X.
     
     Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
+    
+    Incoming packagename dict duplicates the original key names and values. Here we further parse the compound record values into constituent parts.
+    
+        {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
+    
+    becomes:
+        
+        {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
+        {'zip_size':'5430991'}
+        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
     '''
     d = dists[distname][packagename]
     print d
     d['name'] = packagename
     
     # 'install' key has compound values, atomize it. Source:
-    # install: x86/release/agg/agg-devel/agg-devel-2.4-1.tar.bz2 379815 8ef010bafbb234ed1f9372e9b50767f6
     d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
     del d['install']
     # ditto 'source' key
@@ -727,8 +736,6 @@ def get_info(packagename):
     #based on current mirror, might be different from when downloaded and/or installed
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
     
-    # installed version number, smelly complicated, but works.
-    print version_to_string(split_ball(installed[0][packagename])[1])
     print d.keys()
     return d
 #@+node:maphew.20100223163802.3747: *3* get_installed_version

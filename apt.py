@@ -138,8 +138,9 @@ def ball(packages):
     if type(packages) is str: packages = [packages]
 
     for p in packages:
-        print "\n%s = %s" % (p, get_ball(p))
-
+        #print "\n%s = %s" % (p, get_ball(p))
+        d = get_info(p)
+        print "\n%s = %s" % (p, d['local_zip'])
 #@+node:maphew.20100223163802.3721: *3* download
 def download(packages):
     '''Download the package(s) from mirror and save in local cache folder:
@@ -706,6 +707,8 @@ def do_run_preremove(root, packagename):
 #@+node:maphew.20100308085005.1380: ** Getters
 #@+node:maphew.20100223163802.3743: *3* get_ball
 def get_ball(packagename):
+    print '*** skipping get_ball...'
+    return
     url, md5 = get_url(packagename)
     return '%s/%s' % (downloads, url)
 
@@ -740,12 +743,8 @@ def get_info(packagename):
     d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
     del d['install']
     
-    #based on current mirror, which might be different from when downloaded
+    #based on current mirror, might be different from when downloaded and/or installed
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
-
-    url, md5 = get_url(packagename)
-    return '%s/%s' % (downloads, url)
-
         
     return d
 #@+node:maphew.20100223163802.3746: *3* get_installed
@@ -1239,13 +1238,11 @@ def source ():
         sys.exit (0)
 
 
-#@+node:maphew.20141031145131.3: ** __name__ __main__ runner
 #@-others
 
 if __name__ == '__main__':
     #@+<<globals>>
-    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
-    #@+node:maphew.20100307230644.3841: *3* <<globals>>
+    #@+node:maphew.20100307230644.3841: ** <<globals>>
     # #disabled pending argparse/whatever implementation
     # if sys.argv[1] == 'setup':
         # OSGEO4W_ROOT = sys.argv[2]
@@ -1286,8 +1283,7 @@ if __name__ == '__main__':
     os.putenv('OSGEO4W_STARTMENU', OSGEO4W_STARTMENU)
     #@-<<globals>>
     #@+<<parse command line>>
-    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
-    #@+node:maphew.20100307230644.3842: *3* <<parse command line>>
+    #@+node:maphew.20100307230644.3842: ** <<parse command line>>
     (options, params) = getopt.getopt (sys.argv[1:],
                       'dhi:m:r:t:s:x',
                       ('download', 'help', 'mirror=', 'root='
@@ -1332,8 +1328,7 @@ if __name__ == '__main__':
             start_menu_name = a
     #@-<<parse command line>>
     #@+<<post-parse globals>>
-    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
-    #@+node:maphew.20100307230644.3844: *3* <<post-parse globals>>
+    #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>
     last_mirror = get_config('last-mirror')
     last_cache = get_config('last-cache')
 
@@ -1356,8 +1351,7 @@ if __name__ == '__main__':
     #print "Saving to:\t%s" % (cache_dir)
     #@-<<post-parse globals>>
     #@+<<run the commands>>
-    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
-    #@+node:maphew.20100307230644.3843: *3* <<run the commands>>
+    #@+node:maphew.20100307230644.3843: ** <<run the commands>>
     if command == 'setup':
         setup(OSGEO4W_ROOT)
         sys.exit(0)
@@ -1384,8 +1378,7 @@ if __name__ == '__main__':
             print '"%s" not understood, please run "apt help"' % command
     #@-<<run the commands>>
     #@+<<wrap up>>
-    #@+middle:maphew.20141031145131.3: ** __name__ __main__ runner
-    #@+node:maphew.20100307230644.3845: *3* <<wrap up>>
+    #@+node:maphew.20100307230644.3845: ** <<wrap up>>
     save_config('last-mirror', mirror)
     save_config('last-cache', cache_dir)
     #@-<<wrap up>>

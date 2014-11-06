@@ -719,7 +719,11 @@ def get_info(packagename):
     # install: x86/release/agg/agg-devel/agg-devel-2.4-1.tar.bz2 379815 8ef010bafbb234ed1f9372e9b50767f6
     d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
     del d['install']
-    
+    # ditto 'source' key
+    if 'source' in d.keys():
+        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
+        del d['source']
+        
     #based on current mirror, might be different from when downloaded and/or installed
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
     
@@ -978,6 +982,7 @@ def parse_setup_ini(fname):
     '''
     # global dists
     dists = {'test': {}, 'curr': {}, 'prev' : {}}
+    
     chunks = string.split(open(fname).read(), '\n\n@ ')
     for i in chunks[1:]:
         lines = string.split(i, '\n')
@@ -997,19 +1002,24 @@ def parse_setup_ini(fname):
                 packages = dists[lines[j][1:5]]
                 j = j + 1
                 continue
-
+            # split "field: value record for field" into dict record
+            # e.g. "category: Libs Commandline_Utilities" 
+            #   --> {'category': 'Libs Commandline_Utilities'}
             try:
                 key, value = map(string.strip,
                       string.split(lines[j], ': ', 1))
             except:
                 print lines[j]
                 raise TypeError('urg')
+            
+            #strip outer quotes?
             if value[0] == '"' and value.find('"', 1) == -1:
                 while 1:
                     j = j + 1
                     value += lines[j]
                     if lines[j].find('"') != -1:
                         break
+            
             records[key] = value
             j = j + 1
         packages[name] = records

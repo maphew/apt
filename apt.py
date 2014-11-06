@@ -712,6 +712,7 @@ def get_info(packagename):
     Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
     '''
     d = dists[distname][packagename]
+    print d
     d['name'] = packagename
     
     # 'install' key has compound values, atomize it. Source:
@@ -724,7 +725,7 @@ def get_info(packagename):
     
     # installed version number, smelly complicated, but works.
     print version_to_string(split_ball(installed[0][packagename])[1])
-    print d    
+    print d.keys()
     return d
 #@+node:maphew.20100223163802.3747: *3* get_installed_version
 def get_installed_version(packagename):
@@ -965,7 +966,7 @@ def write_filelist (packagename, lst):
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
     
-    Returns a nested dictionary: {Distribution{Program_name{program attributes}}}
+    Returns a nested dictionary: {Distribution{Program_name{['category', 'source', 'ldesc', 'version', 'install', 'sdesc', 'requires']}}}
     
         {curr {
             'gdal' {
@@ -1012,6 +1013,8 @@ def parse_setup_ini(fname):
             records[key] = value
             j = j + 1
         packages[name] = records
+    
+    #print dists[distname]['gdal'].keys()
     return dists
 #@+node:maphew.20100223163802.3760: *3* join_ball
 def join_ball(t):

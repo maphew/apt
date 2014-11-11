@@ -603,10 +603,10 @@ def debug (s):
 
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
-def do_download (packagename):
-    url, md5 = get_url (packagename)   # md5 is retrieved but not used, remove from function?
+def do_download(packagename):
+    url, md5 = get_url(packagename) # md5 is retrieved but not used, remove from function?
 
-    dir = '%s/%s' % (downloads, os.path.split (url)[0])
+    dir = '%s/%s' % (downloads, os.path.split(url)[0])
     srcFile = os.path.join (mirror + '/' + url)
     dstFile = os.path.join (downloads + '/' + url)
 
@@ -615,10 +615,10 @@ def do_download (packagename):
         msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
         sys.exit(msg)
 
-    if not os.path.exists (get_ball (packagename)): #or not check_md5 ():
+    if not os.path.exists (get_ball(packagename)): #or not check_md5 ():
         print '\nFetching %s' % srcFile
-        if not os.path.exists (dir):
-            os.makedirs (dir)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
         status = urllib.urlretrieve(srcFile, dstFile, down_stat)
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):

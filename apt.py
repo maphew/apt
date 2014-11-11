@@ -136,8 +136,10 @@ def ball(packages):
     archive file
     '''
     if type(packages) is str: packages = [packages]
+    if not packages:
+        help(['ball'])
 
-    for p in packages:
+    for p in packages:            
         #print "\n%s = %s" % (p, get_ball(p))
         d = get_info(p)
         print "\n%s = %s" % (p, d['local_zip'])
@@ -219,23 +221,21 @@ def find(p):
         
 #@+node:maphew.20100223163802.3723: *3* help
 def help(args):
-    '''show help for COMMAND
-    
-        C:\> apt help update
-        
-            Fetch updated package list from mirror.
-            ...
-    '''    
-    # if "help for..." not present then just show general help.
-    if len(args) < 2:
+    '''Show help for COMMAND'''
+    if args:
+        action = args[0]
+    else:
+        # if "command" not present then just show general help.
         usage()
         sys.exit(0)
-    else:
-        # display the docstring for the named action
-        action = args[0]
-    print action
-    print  "\n    " + __main__.__dict__[action].__doc__
 
+    # display the function's docstring
+    d = __main__.__dict__
+    if action in d.keys():
+        print "\n\t" + d[action].__doc__
+    else:
+        print 'Sorry, that function not found in __main__'
+        
 #@+node:maphew.20100223163802.3724: *3* install
 def install(packages):
     '''Download and install packages, including dependencies'''

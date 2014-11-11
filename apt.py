@@ -136,9 +136,11 @@ def ball(packages):
     archive file
     '''
     if type(packages) is str: packages = [packages]
-    if not packages:
-        help(['ball'])
 
+    if not packages:
+        help('ball')
+        return
+ 
     for p in packages:            
         #print "\n%s = %s" % (p, get_ball(p))
         d = get_info(p)
@@ -152,15 +154,16 @@ def download(packages):
     Use `apt available` to see what is on the mirror for downloading.
     '''
     if type(packages) is str: packages = [packages]
-    
-    if packages:
+
+    if not packages:
+        help('download')
+        return
+    else:        
         for p in packages:
             do_download(p)
             ball(p)
             print
             md5(p)
-    else:
-        print 'No package(s) specified. Try running `apt available`'
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
     '''info - report name, version, category, etc. about the package(s)
@@ -220,7 +223,7 @@ def find(p):
         sys.stderr.write ('Find what? Enter a filename to look for (partial is ok).')
         
 #@+node:maphew.20100223163802.3723: *3* help
-def help(args):
+def help(*args):
     '''Show help for COMMAND'''
     if args:
         action = args[0]
@@ -1381,7 +1384,7 @@ if __name__ == '__main__':
         help(params)
 
     else:
-        print 'check_setup reached'
+        # print 'check_setup reached'
         check_setup(installed_db, setup_ini)
 
         #fixme: these setup more globals like dists-which-is-really-installed-list

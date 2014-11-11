@@ -576,10 +576,18 @@ def version(packages):
         print '%-20s%-12s' % (packagename,
                  version_to_string(get_installed_version()))
 
-#@+node:maphew.20100302221232.1485: ** Helper functions
-###########################
-#Helper functions
-###########################
+#@+node:maphew.20100302221232.1485: ** Helpers
+#@+node:maphew.20141110231213.3: *3* class AttrDict
+class AttrDict(dict):
+    '''Access a dictionary by attributes, like using javascript dotted notation.
+    
+        dict.mykey  <--- same as --->   dict['mykey']
+    
+    From http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python
+    '''
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
 #@+node:maphew.20100223163802.3737: *3* cygpath
 def cygpath(path):
     # change dos path to unix style path, plus add cygwin prefix
@@ -615,7 +623,11 @@ def do_download(packagename):
         msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
         sys.exit(msg)
 
-    if not os.path.exists (get_ball(packagename)): #or not check_md5 ():
+    d = get_info(packagename)
+    ad = AttrDict(d)
+    #print ad.local_zip
+
+    if not os.path.exists (ad.local_zip): #or not check_md5 ():
         print '\nFetching %s' % srcFile
         if not os.path.exists(dir):
             os.makedirs(dir)

@@ -138,6 +138,7 @@ def ball(packages):
     if type(packages) is str: packages = [packages]
 
     if not packages:
+        sys.stderr.write("\n*** No package names specified. ***\n")
         help('ball')
         return
  
@@ -156,14 +157,14 @@ def download(packages):
     if type(packages) is str: packages = [packages]
 
     if not packages:
+        sys.stderr.write("\n*** No package names specified. ***\n")
         help('download')
         return
-    else:
-        for p in packages:
-            do_download(p)
-            ball(p)
-            print ' fini ball'
-            md5(p)
+
+    for p in packages:
+        do_download(p)
+        ball(p)
+        md5(p)
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
     '''info - report name, version, category, etc. about the package(s)
@@ -188,20 +189,20 @@ def info(packages):
     if not packages:
         sys.stderr.write("\n*** Can't show info, no package names specified. ***\n")
         help('info')
+        return
 
-    if packages:
-        for p in packages:
-            d = get_info(p)
-            print('')
-            # NB: only prints fields we know about, if something is added
-            # upstream we'll miss it here
-            # for k in 'name, version, sdesc, ldesc, category, requires, zip_path, zip_size, md5, local_zip'.split(', '):
-                # print('{0:9}: {1}'.format(k,d[k]))
-                
-            # This guaranteed to print entire dict contents,
-            # but not in a logical order.
-            for k in d.keys():
-                print('{0:8}:\t{1}'.format(k,d[k]))
+    for p in packages:
+        d = get_info(p)
+        print('')
+        # NB: only prints fields we know about, if something is added
+        # upstream we'll miss it here
+        # for k in 'name, version, sdesc, ldesc, category, requires, zip_path, zip_size, md5, local_zip'.split(', '):
+            # print('{0:9}: {1}'.format(k,d[k]))
+            
+        # This guaranteed to print entire dict contents,
+        # but not in a logical order.
+        for k in d.keys():
+            print('{0:8}:\t{1}'.format(k,d[k]))
 #@+node:maphew.20100223163802.3722: *3* find
 def find(p):
     '''Search installed packages for files matching the specified pattern.
@@ -241,12 +242,16 @@ def help(*args):
         
 #@+node:maphew.20100223163802.3724: *3* install
 def install(packages):
-    '''Download and install packages, including dependencies'''
+    '''Download and install packages, including dependencies
+    
+        C:\> apt install shell gdal
+    '''
     if type(packages) is str: packages = [packages]
     #print '=== pkgs:', packages # debug
     
     if not packages:
-        sys.stderr.write('No packages specified. Use "apt available" for ideas.')
+        sys.stderr.write('\n*** No packages specified. Use "apt available" for ideas. ***\n')
+        help('install')
         return
 
     #identify which pkgs are not yet installed

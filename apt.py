@@ -158,11 +158,11 @@ def download(packages):
     if not packages:
         help('download')
         return
-    else:        
+    else:
         for p in packages:
             do_download(p)
             ball(p)
-            print
+            print ' fini ball'
             md5(p)
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
@@ -349,7 +349,8 @@ def md5(packages):
         print 'remote:  %s  %s' % (md5, ball)
 
         try:
-            localFile = file(get_ball(p), 'rb') #we md5 the *file* not the *filename*
+            ad = AttrDict(get_info(p))
+            localFile = file(ad.local_zip, 'rb') #we md5 the *file* not the *filename*
             my_md5 = hashlib.md5(localFile.read()).hexdigest()
             print 'local:   %s  %s' % (my_md5, ball)
             if md5 != my_md5:
@@ -743,7 +744,7 @@ def get_info(packagename):
     
     # 'install' and 'source keys have compound values, atomize them
     d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-    del d['install']
+    # del d['install']
     if 'source' in d.keys():
         d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
         del d['source']

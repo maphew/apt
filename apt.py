@@ -152,6 +152,12 @@ def ball(packages):
         #print "\n%s = %s" % (p, get_ball(p))
         d = get_info(p)
         print "\n%s = %s" % (p, d['local_zip'])
+        
+        print dists.curr.shell.keys()
+        print dists.curr.shell.ldesc
+        print dists.curr.shell.sdesc
+        print dists.curr.shell['md5']
+        print dists.curr.shell.md5
 #@+node:maphew.20100223163802.3721: *3* download
 def download(packages):
     '''Download the package(s) from mirror and save in local cache folder:
@@ -753,38 +759,6 @@ def do_run_preremove(root, packagename):
         except OSError, e:
             print >>sys.stderr, "Execution failed:", e
 #@+node:maphew.20100308085005.1380: ** Getters
-#@+node:maphew.20141008125017.2075: *3* get_info
-def get_info(packagename):
-    '''Retrieve details for package X.
-    
-    Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
-    
-    Incoming packagename dict duplicates the original key names and values. Here we further parse the compound record values into constituent parts.
-    
-        {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
-    
-    becomes:
-        
-        {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
-        {'zip_size':'5430991'}
-        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
-    '''
-    d = dists[distname][packagename]
-    d['name'] = packagename
-    #print d    # debug peek at incoming dict
-    
-    # 'install' and 'source keys have compound values, atomize them
-    d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-    # del d['install']
-    if 'source' in d.keys():
-        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-        del d['source']
-        
-    #based on current mirror, might be different from when downloaded and/or installed
-    d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
-    d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
-    
-    return d
 #@+node:maphew.20100223163802.3747: *3* get_installed_version
 def get_installed_version(packagename):
     return split_ball(installed[0][packagename])[1]
@@ -1020,6 +994,38 @@ def write_filelist (packagename, lst):
     if pipe.close ():
         raise TypeError('urg')
 #@+node:maphew.20100308085005.1382: ** Parsers
+#@+node:maphew.20141111130056.4: *3* get_info
+def get_info(packagename):
+    '''Retrieve details for package X.
+    
+    Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
+    
+    Incoming packagename dict duplicates the original key names and values. Here we further parse the compound record values into constituent parts.
+    
+        {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
+    
+    becomes:
+        
+        {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
+        {'zip_size':'5430991'}
+        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
+    '''
+    d = dists[distname][packagename]
+    d['name'] = packagename
+    #print d    # debug peek at incoming dict
+    
+    # 'install' and 'source keys have compound values, atomize them
+    d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+    # del d['install']
+    if 'source' in d.keys():
+        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
+        del d['source']
+        
+    #based on current mirror, might be different from when downloaded and/or installed
+    d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
+    d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
+    
+    return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
@@ -1039,7 +1045,7 @@ def parse_setup_ini(fname):
             }}
     '''
     # global dists
-    dists = {'test': {}, 'curr': {}, 'prev' : {}}
+    dists = {'test': {}, 'curr': {}, 'prev': {}}
     
     chunks = string.split(open(fname).read(), '\n\n@ ')
     for i in chunks[1:]:
@@ -1081,10 +1087,32 @@ def parse_setup_ini(fname):
             records[key] = value
             j = j + 1
         packages[name] = records
-    
+
+    for p in packages:
+        # print p
+        # print dists[distname][p]['install']
+        d = dists[distname][p]
+        d['name'] = p
+        #print d    # debug peek at incoming dict
+        
+        # 'install' and 'source keys have compound values, atomize them
+        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+        # del d['install']
+        if 'source' in d.keys():
+            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
+            del d['source']
+            
+        #based on current mirror, might be different from when downloaded and/or installed
+        d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
+        d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
+        
+        # insert the parsed fields back into parent dict
+        dists[distname][p] = d
+        
     # print dists[distname]['gdal'].keys()
     dists = AttrDict(dists) # allow using dotted notation, e.g. print dists.curr.gdal
     # print dists.curr.gdal
+    
     return dists
 #@+node:maphew.20100223163802.3760: *3* join_ball
 def join_ball(t):

@@ -153,11 +153,9 @@ def ball(packages):
         d = get_info(p)
         print "\n%s = %s" % (p, d['local_zip'])
         
-        print dists.curr.shell.keys()
-        print dists.curr.shell.ldesc
-        print dists.curr.shell.sdesc
-        print dists.curr.shell['md5']
-        print dists.curr.shell.md5
+        # won't work, it looks for `distname` and not distname's value, `curr`
+        print "\n%s = %s" % (p, dists.distname.p.local_zip)
+        #print dists.curr.shell.local_zip
 #@+node:maphew.20100223163802.3721: *3* download
 def download(packages):
     '''Download the package(s) from mirror and save in local cache folder:

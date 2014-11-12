@@ -161,7 +161,6 @@ def ball(packages):
         # I don't think attrdict will work for this project.
         print dists(distname)(p).local_zip
         print dists[distname][p]['local_zip']
-        
     
         
 #@+node:maphew.20100223163802.3721: *3* download
@@ -232,23 +231,27 @@ def info(packages):
 #@+node:maphew.20100223163802.3722: *3* find
 def find(p):
     '''Search installed packages for files matching the specified pattern.
+    
+    Note: the last parameter wins. `apt find sax conn` will only find "conn".
     '''
-    if p:
-        for pattern in p:
-            regexp = re.sub ('^%s/' % root, '/', pattern)
-            hits = []
-            for pattern in sorted (installed[0].keys ()):
-                for i in get_filelist(pattern):
-                    if re.search (regexp, '/%s' % i, re.IGNORECASE):
-                        hits.append ('%s: /%s' % (pattern, i))
-            results = (string.join (hits, '\n'))
-        if results:
-            print results
-        else:
-            print 'No files matching "%s" were found in the installed files list' % '" or "'.join(p)
-    else:
-        sys.stderr.write ('Find what? Enter a filename to look for (partial is ok).')
+    if not p:
+        sys.stderr.write('\nFind what? Enter a filename to look for (partial is ok).\n')
+        return
         
+    for pattern in p:
+        regexp = re.sub ('^%s/' % root, '/', pattern)
+        hits = []
+        for pattern in sorted(installed[0].keys()):
+            for i in get_filelist(pattern):
+                if re.search(regexp, '/%s' % i, re.IGNORECASE):
+                    hits.append('%s: /%s' % (pattern, i))
+        results = (string.join(hits, '\n'))
+    if results:
+        print results
+    else:
+        print '\nNo files matching "%s" were found in the installed files list' % '" or "'.join(p)
+        
+    return results
 #@+node:maphew.20100223163802.3723: *3* help
 def help(*args):
     '''Show help for COMMAND'''

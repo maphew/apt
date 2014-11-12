@@ -237,15 +237,14 @@ def find(patterns):
         
     for p in patterns:
         print '--- %s:' % p
-        regexp = re.sub ('^%s/' % root, '/', p)
         hits = []
         for package in sorted(installed[0].keys()):
-            for i in get_filelist(package):
-                if re.search(regexp, '/%s' % i, re.IGNORECASE):
-                    hits.append('%s: /%s' % (package, i))
+            for line in get_filelist(package):
+                if p.lower() in line.lower():
+                    hits.append('%s: /%s' % (package, line))
         results = (string.join(hits, '\n'))
         if results:
-            print results
+            print results            
                         
     return results
 #@+node:maphew.20100223163802.3723: *3* help

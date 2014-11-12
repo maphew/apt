@@ -130,16 +130,17 @@ def available(foo):
 #@+node:maphew.20100223163802.3720: *3* ball
 def ball(packages):
     '''Print full local path name of package archive
-
-    FIXME: really need to find a better name for this command. Not so many
-    understand 'ball' refers to 'tarball', a onetime common moniker for an
-    archive file
+    
+    C:\> apt ball shell
+    
+    shell = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86
+/release/shell/shell-1.0.0-13.tar.bz2
     '''
     if type(packages) is str: packages = [packages]
 
     if not packages:
-        sys.stderr.write("\n*** No package names specified. ***\n")
         help('ball')
+        sys.stderr.write("\n*** No package names specified. ***\n")
         return
  
     for p in packages:            
@@ -150,15 +151,23 @@ def ball(packages):
 def download(packages):
     '''Download the package(s) from mirror and save in local cache folder:
     
-        apt download shell iconv gdal ...etc.
+    C:\> apt download shell gdal {...etc}
+        
+    shell = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/shell/shell-1.0.0-13.tar.bz2
+    remote:  c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2
+    local:   c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2
+    
+    gdal = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/gdal/gdal-1.11.1-4.tar.bz2
+    remote:  3b60f036f0d29c401d0927a9ae000f0c  gdal-1.11.1-4.tar.bz2
+    local:   3b60f036f0d29c401d0927a9ae000f0c  gdal-1.11.1-4.tar.bz2    
         
     Use `apt available` to see what is on the mirror for downloading.
     '''
     if type(packages) is str: packages = [packages]
 
     if not packages:
-        sys.stderr.write("\n*** No package names specified. ***\n")
         help('download')
+        sys.stderr.write("\n*** No package names specified. ***\n")
         return
 
     for p in packages:
@@ -187,8 +196,8 @@ def info(packages):
     if type(packages) is str: packages = [packages]
 
     if not packages:
-        sys.stderr.write("\n*** Can't show info, no package names specified. ***\n")
         help('info')
+        sys.stderr.write("\n*** Can't show info, no package names specified. ***\n")
         return
 
     for p in packages:
@@ -236,7 +245,7 @@ def help(*args):
     # display the function's docstring
     d = __main__.__dict__
     if action in d.keys():
-        print "\n\t" + d[action].__doc__
+        print "\n" + d[action].__doc__
     else:
         print 'Sorry, that function not found in __main__'
         
@@ -321,15 +330,27 @@ def list(dummy):
         print s
 #@+node:mhw.20120404170129.1475: *3* listfiles
 def listfiles(packages):
-    '''List files installed with package X.
+    '''List files installed with package X. Multiple packages can be specified. 
     
-    Multiple packages can be specified. 
-    '''
-    if not packages:
-        sys.stderr.write ('No packages specified. Use "apt list" to see installed packages.')
-        return
+        C:\> apt listfiles shell gdal
+        
+        ----- shell -----
+        OSGeo4W.bat
+        OSGeo4W.ico
+        bin
+        ...etc
 
+        ----- gdal -----
+        bin
+        bin/gdal111.dll
+        bin/gdaladdo.exe
+        ...etc
+    '''
     if type(packages) is str: packages = [packages]
+    if not packages:
+        help('listfiles')
+        sys.stderr.write ('\n*** No packages specified. Use "apt list" to see installed packages.***\n')
+        return
 
     for p in packages:
         print "\n----- %s -----" % p

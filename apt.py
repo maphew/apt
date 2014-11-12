@@ -229,20 +229,20 @@ def info(packages):
         for k in d.keys():
             print('{0:8}:\t{1}'.format(k,d[k]))
 #@+node:maphew.20100223163802.3722: *3* find
-def find(p):
+def find(patterns):
     '''Search installed packages for filenames matching the specified text string.'''
-    if not p:
+    if not patterns:
         sys.stderr.write('\nFind what? Enter a filename to look for (partial is ok).\n')
         return
         
-    for pattern in p:
-        print '--- %s:' % pattern
-        regexp = re.sub ('^%s/' % root, '/', pattern)
+    for p in patterns:
+        print '--- %s:' % p
+        regexp = re.sub ('^%s/' % root, '/', p)
         hits = []
-        for pattern2 in sorted(installed[0].keys()):
-            for i in get_filelist(pattern2):
+        for package in sorted(installed[0].keys()):
+            for i in get_filelist(package):
                 if re.search(regexp, '/%s' % i, re.IGNORECASE):
-                    hits.append('%s: /%s' % (pattern2, i))
+                    hits.append('%s: /%s' % (package, i))
         results = (string.join(hits, '\n'))
         if results:
             print results

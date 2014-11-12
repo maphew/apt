@@ -97,16 +97,19 @@ def check_setup(installed_db, setup_ini):
             sys.exit(2)
 #@+node:maphew.20100302221232.1487: ** Commands
 #@+node:maphew.20100223163802.3719: *3* available
-def available(foo):
-    '''Show packages available to be installed
+def available(dummy):
+    '''Show packages available to be installed from the package mirror.
+    
+    Specify an alternate source with `--mirror=...`
+    '''
+    '''
+    Args:
+        dummy: required but not used.
 
-    TODO: this function requires a parameter only because of the command 
+    This function requires a parameter only because of the command 
     calling structure of the module. The parameter is not used. When the 
     command structure is fixed remove the parameter (or perhaps make it 
     useful by saying (available(at_url_of_package_mirror_x)`
-
-    courtesy of Aaron Digulla,
-    http://stackoverflow.com/questions/1524126/how-to-print-a-list-more-nicely
     '''
 
     # All packages mentioned in setup.ini
@@ -119,6 +122,8 @@ def available(foo):
         list.append('%s*' % pkg)
 
     # Report to user
+    # courtesy of Aaron Digulla,
+    # http://stackoverflow.com/questions/1524126/how-to-print-a-list-more-nicely
     print '\n Packages available to install (* = already installed)\n'
     list = sorted(list)
     split = len(list)/2
@@ -126,7 +131,6 @@ def available(foo):
     col2 = list[split:]
     for key, value in zip(col1,col2):
         print '%-20s\t\t%s' % (key, value)
-
 #@+node:maphew.20100223163802.3720: *3* ball
 def ball(packages):
     '''Print full local path name of package archive

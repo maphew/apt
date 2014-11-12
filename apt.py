@@ -1023,7 +1023,11 @@ def write_filelist (packagename, lst):
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
     
-    Returns a nested dictionary: {Distribution {Program_name{['category', 'source', 'ldesc', 'version', 'install', 'sdesc', 'requires']}}}
+    Args:
+        fname: full path to setup.ini
+            
+    Returns:
+        A nested dictionary: {Distribution {Program_name{['category', 'source', 'ldesc', 'version', 'install', 'sdesc', 'requires']}}}
     
         {curr {
             'gdal' {

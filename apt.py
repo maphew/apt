@@ -35,6 +35,7 @@ import gzip, tarfile, bz2
 import hashlib
 import subprocess
 import shlex
+from attrdict import AttrDict
 #@-<<imports>>
 #@+others
 #@+node:maphew.20100223163802.3718: ** usage
@@ -609,7 +610,7 @@ def version(packages):
 
 #@+node:maphew.20100302221232.1485: ** Helpers
 #@+node:maphew.20141110231213.3: *3* class AttrDict
-class AttrDict(dict):
+class xAttrDict(dict):
     '''Access a dictionary by attributes, like using javascript dotted notation.
     
         dict.mykey  <--- same as --->   dict['mykey']
@@ -1081,7 +1082,9 @@ def parse_setup_ini(fname):
             j = j + 1
         packages[name] = records
     
-    #print dists[distname]['gdal'].keys()
+    # print dists[distname]['gdal'].keys()
+    dists = AttrDict(dists) # allow using dotted notation, e.g. print dists.curr.gdal
+    # print dists.curr.gdal
     return dists
 #@+node:maphew.20100223163802.3760: *3* join_ball
 def join_ball(t):

@@ -250,19 +250,20 @@ def find(patterns):
 #@+node:maphew.20100223163802.3723: *3* help
 def help(*args):
     '''Show help for COMMAND'''
-    if args:
-        action = args[0]
-    else:
-        # if "command" not present then just show general help.
+    action = args[-1] # ([],) --> []
+    if not action:
+        # if no action just show general usage help.
         usage()
         sys.exit(0)
+
+    action = action[-1] # ['help','remove'] --> 'remove'
 
     # display the function's docstring
     d = __main__.__dict__
     if action in d.keys():
         print "\n" + d[action].__doc__
     else:
-        print 'Sorry, that function not found in __main__'
+        print 'Sorry, function "%s" not found in __main__' % action
         
 #@+node:maphew.20100223163802.3724: *3* install
 def install(packages):

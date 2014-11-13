@@ -697,7 +697,10 @@ def do_install(packagename):
     ''' Unpack the package in appropriate locations, write file list to installed manifest, run postinstall confguration.'''
 
     # retrieve local package (ball) and check md5
-    ball = get_ball(packagename)
+    ## these are all functionaly equivalent. Which is preferred for maintenance?
+    ball = dists(distname)(packagename).local_zip
+    ball = dists[distname][packagename]['local_zip']
+    ball = get_zipfile(packagename)
 
     if not os.path.exists(ball):
         sys.exit('Local archive %s not found' % ball)
@@ -765,6 +768,10 @@ def do_run_preremove(root, packagename):
         except OSError, e:
             print >>sys.stderr, "Execution failed:", e
 #@+node:maphew.20100308085005.1380: ** Getters
+#@+node:maphew.20141112222311.3: *3* get_zipfile
+def get_zipfile(packagename):
+    '''Return full path name of locally downloaded package archive.'''
+    return dists[distname][packagename]['local_zip']
 #@+node:maphew.20100223163802.3747: *3* get_installed_version
 def get_installed_version(packagename):
     return split_ball(installed[0][packagename])[1]

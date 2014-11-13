@@ -251,6 +251,7 @@ def find(patterns):
 def help(*args):
     '''Show help for COMMAND'''
     action = args[-1] # ([],) --> []
+    if type(action) is str: action = [action]
     if not action:
         # if no action just show general usage help.
         usage()

@@ -622,12 +622,18 @@ def upgrade(packages):
 
 #@+node:maphew.20100223163802.3735: *3* url
 def url(packages):
-    '''Print package archive path, relative to mirror root'''
+    '''Print remote package archive path, relative to mirror root'''
+    if type(packages) is str: packages = [packages]
+
+    if not packages:
+        help('url')
+        sys.stderr.write('No package specified. Try running "apt available"')
+        return
+
     print mirror
     for p in packages:
         d = get_info(p)
         print '\t%s' % d['zip_path']
-
 #@+node:maphew.20100223163802.3736: *3* version
 def version(packages):
     '''Report installed version of X'''

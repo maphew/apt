@@ -634,12 +634,12 @@ def version(packages):
     if type(packages) is str: packages = [packages]
 
     if not packages:
+        help('version')
         sys.stderr.write('No package specified. Try running "apt list"')
         return
 
     for p in packages:
-        print '%-20s%-12s' % (packagename,
-                 version_to_string(get_installed_version()))
+        print '%-20s%-12s' % (p, version_to_string(get_installed_version(p)))
 
 #@+node:maphew.20100302221232.1485: ** Helpers
 #@+node:maphew.20141110231213.3: *3* class AttrDict

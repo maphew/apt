@@ -412,7 +412,8 @@ def missing(packages):
     not just the named packages.
     '''
     if not packages:
-        sys.stderr.write('No package specified. Try running "apt list"')
+        help('missing')
+        sys.stderr.write('\n*** No package specified. Try running "apt list" ***\n')
         return
 
     for p in packages:

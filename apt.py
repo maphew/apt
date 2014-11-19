@@ -404,30 +404,17 @@ def md5(packages):
 
 #@+node:maphew.20100223163802.3727: *3* missing
 def missing(packages):
-    '''Display missing dependencies for {packages}
-    
-        apt missing gdal saga
-    
-    FIXME: this would be more useful if it found missing for everything,
-    not just the named packages.
-    '''
+    '''Display missing dependencies for all installed packages.'''
+    ## installed[0] is a dict of {'pkg-name': 'pkg.tar.bz2'}
     missing = []
     for pkg in installed[0]:
-        result = get_missing(pkg)
+        result = string.join(get_missing(pkg))
         if result and result not in missing:
             missing.append(result)
     
+    print "\nThe following packages have been listed as dependencies but are not installed:\n"
     for m in missing:
-        print m
-        
-    if not packages:
-        help('missing')
-        sys.stderr.write('\n*** No package specified. Try running "apt list" ***\n')
-        return
-
-    for p in packages:
-        print string.join(get_missing(p), '\n')
-
+        print '\t%s' % m
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''
@@ -899,17 +886,17 @@ def get_mirror():
 #@+node:maphew.20100223163802.3752: *3* get_missing
 def get_missing(packagename):
     '''For package, identify any missing requirements (dependencies).'''
-    # print sys.argv[0], ": in get_missing with", packagename
-    ## installed[0] is a dict of {'pkg-name': 'pkg.tar.bz2'}
     reqs = get_requires(packagename)
     lst = []
     for pkg in reqs:
         if not pkg in installed[0]:
             lst.append(pkg)
-    # don't understand why this isn't just `if packagename not in lst:`
-    # in fact I think it can be just removed
+
+    # if list exists, and packagename isn't in it,
+    # something else has listed packagename as a dependency
+    # fixme: look back up stream and see who asked for it.
     if lst and packagename not in lst:
-        sys.stderr.write('warning: missing packages: %s\n' % string.join(lst))
+        sys.stderr.write('warning: missing package: %s\n' % string.join(lst))
     
     # I think this is out of place. We've only been asked to identify what's missing,
     # not if there are new versions available; scope creep.

@@ -411,6 +411,15 @@ def missing(packages):
     FIXME: this would be more useful if it found missing for everything,
     not just the named packages.
     '''
+    missing = []
+    for pkg in installed[0]:
+        result = get_missing(pkg)
+        if result and result not in missing:
+            missing.append(result)
+    
+    for m in missing:
+        print m
+        
     if not packages:
         help('missing')
         sys.stderr.write('\n*** No package specified. Try running "apt list" ***\n')
@@ -898,14 +907,19 @@ def get_missing(packagename):
         if not pkg in installed[0]:
             lst.append(pkg)
     # don't understand why this isn't just `if packagename not in lst:`
+    # in fact I think it can be just removed
     if lst and packagename not in lst:
         sys.stderr.write('warning: missing packages: %s\n' % string.join(lst))
+    
+    # I think this is out of place. We've only been asked to identify what's missing,
+    # not if there are new versions available; scope creep.
     elif packagename in installed[0]:
         ins = get_installed_version(packagename)
         new = get_version(packagename)
         if ins >= new:
-            sys.stderr.write('%s is already the newest version\n' % packagename)
+            #sys.stderr.write('%s is already the newest version\n' % packagename)
             #lst.remove(packagename)
+            pass
         elif packagename not in lst:
             lst.append(packagename)
     return lst

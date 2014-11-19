@@ -889,15 +889,18 @@ def get_mirror():
 
 #@+node:maphew.20100223163802.3752: *3* get_missing
 def get_missing(packagename):
+    '''For package, identify any missing requirements (dependencies).'''
     # print sys.argv[0], ": in get_missing with", packagename
+    ## installed[0] is a dict of {'pkg-name': 'pkg.tar.bz2'}
     reqs = get_requires(packagename)
     lst = []
-    for i in reqs:
-        if not installed[0].has_key(i):
-            lst.append(i)
+    for pkg in reqs:
+        if not pkg in installed[0]:
+            lst.append(pkg)
+    # don't understand why this isn't just `if packagename not in lst:`
     if lst and packagename not in lst:
         sys.stderr.write('warning: missing packages: %s\n' % string.join(lst))
-    elif installed[0].has_key(packagename):
+    elif packagename in installed[0]:
         ins = get_installed_version(packagename)
         new = get_version(packagename)
         if ins >= new:

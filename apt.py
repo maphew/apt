@@ -35,6 +35,7 @@ import gzip, tarfile, bz2
 import hashlib
 import subprocess
 import shlex
+import locale
 from attrdict import AttrDict
 #@-<<imports>>
 #@+others
@@ -388,16 +389,17 @@ def md5(packages):
 
     for p in packages:
         url, md5 = get_url(p)
-        ball = os.path.basename(url)
-        print 'remote:  %s  %s' % (md5, ball)
+        filename = os.path.basename(url)
+        print 'remote:  %s  %s' % (md5, filename)
 
         try:
-            ad = AttrDict(get_info(p))
-            localFile = file(ad.local_zip, 'rb') #we md5 the *file* not the *filename*
+            p_info = get_info(p)
+            localname = p_info['local_zip']
+            localFile = file(localname, 'rb') #we md5 the *file* not the *filename*
             my_md5 = hashlib.md5(localFile.read()).hexdigest()
-            print 'local:   %s  %s' % (my_md5, ball)
+            print 'local:   %s  %s' % (my_md5, localname)
             if md5 != my_md5:
-                raise TypeError('file md5 does not match for ' + ball)
+                raise TypeError('file md5 does not match for ' + filename)
 
         except IOError:
            sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))

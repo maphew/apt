@@ -693,11 +693,9 @@ def do_download(packagename):
         msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
         sys.exit(msg)
 
-    d = get_info(packagename)
-    ad = AttrDict(d)
-    #print ad.local_zip
+    p_info = get_info(packagename)
 
-    if not os.path.exists (ad.local_zip): #or not check_md5 ():
+    if not os.path.exists (p_info['local_zip']): #or not check_md5 ():
         print '\nFetching %s' % srcFile
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -724,21 +722,21 @@ def do_install(packagename):
 
     # retrieve local package (ball) and check md5
     ## these are all functionaly equivalent. Which is preferred for maintenance?
-    ball = dists(distname)(packagename).local_zip
-    ball = dists[distname][packagename]['local_zip']
-    ball = get_zipfile(packagename)
+    filename = dists(distname)(packagename).local_zip
+    filename = dists[distname][packagename]['local_zip']
+    filename = get_zipfile(packagename)
 
-    if not os.path.exists(ball):
-        sys.exit('Local archive %s not found' % ball)
+    if not os.path.exists(filename):
+        sys.exit('Local archive %s not found' % filename)
 
     # unpack
     os.chdir (root)
-    pipe = tarfile.open(ball,'r')
+    pipe = tarfile.open(filename,'r')
     lst = pipe.getnames()
     pipe.extractall()
     pipe.close()
     if pipe.close():
-        raise TypeError('urg')
+        raise Exception('urg')
 
    # record list of files installed
     write_filelist(packagename, lst)
@@ -750,7 +748,7 @@ def do_install(packagename):
             post_install(packagename)
 
     #update package details in installed.db
-    installed[0][packagename] = os.path.basename(ball)
+    installed[0][packagename] = os.path.basename(filename)
     write_installed()
 #@+node:maphew.20100223163802.3741: *3* do_uninstall
 def do_uninstall(packagename):

@@ -399,7 +399,7 @@ def md5(packages):
             my_md5 = hashlib.md5(localFile.read()).hexdigest()
             print 'local:   %s  %s' % (my_md5, localname)
             if md5 != my_md5:
-                raise TypeError('file md5 does not match for ' + filename)
+                raise Exception('file md5 does not match for ' + filename)
 
         except IOError:
            sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
@@ -683,19 +683,21 @@ def debug (s):
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
     url, md5 = get_url(packagename) # md5 is retrieved but not used, remove from function?
-
+    
     dir = '%s/%s' % (downloads, os.path.split(url)[0])
-    srcFile = os.path.join (mirror + '/' + url)
-    dstFile = os.path.join (downloads + '/' + url)
+    #srcFile = os.path.join (mirror + '/' + url)
+    #dstFile = os.path.join (downloads + '/' + url)
+
+    p_info = get_info(packagename)
+    dstFile = os.path.join(downloads + p_info['filename'])
+    srcFile = p_info['mirror_path']
 
     a = urllib.urlopen(srcFile)
     if not a.getcode() is 200:
         msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
         sys.exit(msg)
-
-    p_info = get_info(packagename)
-
-    if not os.path.exists (p_info['local_zip']): #or not check_md5 ():
+    
+    if not os.path.exists(dstFile): # or not __main__.md5(packagename):
         print '\nFetching %s' % srcFile
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -1069,6 +1071,8 @@ def get_info(packagename):
     #based on current mirror, might be different from when downloaded and/or installed
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
     d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
+
+    d['filename'] = os.path.basename(d['zip_path'])
     
     return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini

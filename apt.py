@@ -685,12 +685,16 @@ def do_download(packagename):
     url, md5 = get_url(packagename) # md5 is retrieved but not used, remove from function?
     
     dir = '%s/%s' % (downloads, os.path.split(url)[0])
-    #srcFile = os.path.join (mirror + '/' + url)
-    #dstFile = os.path.join (downloads + '/' + url)
+    srcFile = os.path.join (mirror + '/' + url)
+    dstFile = os.path.join (downloads + '/' + url)
+    # print srcFile
+    # print dstFile
 
-    p_info = get_info(packagename)
-    dstFile = os.path.join(downloads + p_info['filename'])
-    srcFile = p_info['mirror_path']
+    # p_info = get_info(packagename)
+    # dstFile = os.path.join(downloads + p_info['filename'])
+    # srcFile = p_info['mirror_path']
+    # print srcFile
+    # print dstFile
 
     a = urllib.urlopen(srcFile)
     if not a.getcode() is 200:

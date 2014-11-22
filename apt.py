@@ -290,7 +290,7 @@ def install(packages):
         sys.stderr.write ('    %s' % string.join(missing.keys()))
         sys.stderr.write ('\n')
 
-    for packages in missing.keys():
+    for p in missing.keys():
         download(p)
 
     if download_p:  # quit if download only flag is set

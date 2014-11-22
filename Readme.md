@@ -3,7 +3,7 @@ _A command line package manager for [Osgeo4W](http://trac.osgeo.org/osgeo4w/)_
 
 This is the development repository for the [apt package](http://trac.osgeo.org/osgeo4w/wiki/pkg-apt). It's a perpetual beta project, run by someone who's learning to program in python (very slowly!). That said, I've been using it regularly for several years to install and maintain o4w systems without serious problems. It works, more or less.
 
-Apt uses the same configuration files as the mainline Osgeo4wSetup.exe, so either tool can be used to install and remove packages at will (but not at the same time!).
+Apt uses the same configuration files as the mainline Osgeo4wSetup.exe, so either tool can be used to install and remove packages at will (but not concurrently!).
 
 At the moment, apt can only install the 32bit Osgeo4W packages.
 
@@ -26,6 +26,16 @@ Download the latest apt-rxx.exe from  http://download.osgeo.org/osgeo4w/release/
     apt setup
     apt update
     apt install shell
+
+
+## Differences from Setup.exe
+Apt strives to match Setup's results as closely as possible, and to not screw anything up that Setup does. User's should never be put in a position where they feel the need to choose between the tools and not go back. 
+
+Where I know we depart from Setup:
+
+ - `etc/setup/timestamp` apt doesn't create or use this file, while Setup does. Presumably it is to avoid downloading a new package list on every invocation, only when older than X. Apt doesn't need this since it has it's own `apt update` command that's fired at user discretion. Issue #15.
+
+- Apt doesn't know about the `%OSGEO4W_MENU_LINKS%` and `%OSGEO4W_DESKTOP_LINKS%` variables introduced in setup.exe v1.0.6-5. This needs to be added, issue #16. 
 
 
 ### Contributors ###

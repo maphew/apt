@@ -36,7 +36,7 @@ import hashlib
 import subprocess
 import shlex
 import locale
-from attrdict import AttrDict
+#from attrdict import AttrDict
 #@-<<imports>>
 #@+others
 #@+node:maphew.20100223163802.3718: ** usage
@@ -160,7 +160,7 @@ def ball(packages):
         
         # these are equivalent in output, but near equally messy
         # I don't think attrdict will work for this project.
-        print dists(distname)(p).local_zip
+        # print dists(distname)(p).local_zip
         print dists[distname][p]['local_zip']
     
         
@@ -298,35 +298,33 @@ def install(packages):
 
     install_next(missing.keys(), set([]), set([]))
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
-def install_next(missing_packages, resolved, seen):
+def install_next(packages, resolved, seen):
 ##    global packagename
-    for miss_package in missing_packages:
-        if miss_package in resolved:
+    for p in packages:
+        if p in resolved:
             continue
-        seen.add(miss_package)
-        packagename = miss_package
-        dependences = get_missing(packagename)
-        dependences.remove(miss_package)
+        seen.add(p)
+        dependences = get_missing(p)
+        dependences.remove(p)
         for dep in dependences:
             if dep in resolved:
                 continue
             if dep in seen:
                 raise Exception(
                     'Required package %s from %s is a circular reference '
-                    'with a previous dependent' % (dep, packagename)
+                    'with a previous dependent' % (dep, p)
                 )
             install_next(dependences, resolved, seen)
-        packagename = miss_package
-        if installed[0].has_key(miss_package):
+        if installed[0].has_key(p):
             sys.stderr.write('preparing to replace %s %s\n' \
-                      % (miss_package,
-                         version_to_string(get_installed_version(packagename))))
-            do_uninstall(packagename)
+                      % (p,
+                         version_to_string(get_installed_version(p))))
+            do_uninstall(p)
         sys.stderr.write('installing %s %s\n' \
-                  % (miss_package,
-                     version_to_string(get_version(packagename))))
-        do_install(packagename)
-        resolved.add(miss_package)
+                  % (p,
+                     version_to_string(get_version(p))))
+        do_install(p)
+        resolved.add(p)
 #@+node:maphew.20100223163802.3725: *3* list
 def list(dummy):
     '''List installed packages'''
@@ -728,7 +726,7 @@ def do_install(packagename):
 
     # retrieve local package (ball) and check md5
     ## these are all functionaly equivalent. Which is preferred for maintenance?
-    filename = dists(distname)(packagename).local_zip
+    # filename = dists(distname)(packagename).local_zip
     filename = dists[distname][packagename]['local_zip']
     filename = get_zipfile(packagename)
 
@@ -1163,9 +1161,9 @@ def parse_setup_ini(fname):
         # insert the parsed fields back into parent dict
         dists[distname][p] = d
         
-    # print dists[distname]['gdal'].keys()
-    dists = AttrDict(dists) # allow using dotted notation, e.g. print dists.curr.gdal
-    # print dists.curr.gdal
+    # # print dists[distname]['gdal'].keys()
+    # dists = AttrDict(dists) # allow using dotted notation, e.g. print dists.curr.gdal
+    # # print dists.curr.gdal
     
     return dists
 #@+node:maphew.20100223163802.3760: *3* join_ball

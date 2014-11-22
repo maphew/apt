@@ -312,17 +312,15 @@ def install_next(packages, resolved, seen):
             if dep in seen:
                 raise Exception(
                     'Required package %s from %s is a circular reference '
-                    'with a previous dependent' % (dep, p)
-                )
+                    'with a previous dependent' % (dep, p))
             install_next(dependences, resolved, seen)
+        
         if installed[0].has_key(p):
             sys.stderr.write('preparing to replace %s %s\n' \
-                      % (p,
-                         version_to_string(get_installed_version(p))))
+                      % (p, version_to_string(get_installed_version(p))))                         
             do_uninstall(p)
         sys.stderr.write('installing %s %s\n' \
-                  % (p,
-                     version_to_string(get_version(p))))
+                  % (p, version_to_string(get_version(p))))
         do_install(p)
         resolved.add(p)
 #@+node:maphew.20100223163802.3725: *3* list

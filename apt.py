@@ -938,12 +938,12 @@ def get_special_folder(intFolder):
     http://winshell.readthedocs.org/en/latest/special-folders.html
     '''
     import ctypes
-    from ctypes.wintypes import HWND , HANDLE ,DWORD ,LPCWSTR ,MAX_PATH , create_unicode_buffer
+    from ctypes.wintypes import HWND, HANDLE, DWORD, LPCWSTR, MAX_PATH, create_unicode_buffer
     SHGetFolderPath = ctypes.windll.shell32.SHGetFolderPathW
     SHGetFolderPath.argtypes = [HWND, ctypes.c_int, HANDLE, DWORD, LPCWSTR]
     auPathBuffer = create_unicode_buffer(MAX_PATH)
     exit_code=SHGetFolderPath(0, intFolder, 0, 0, auPathBuffer)
-    return auPathBuffer.value
+    return auPathBuffer.value.encode(locale.getpreferredencoding())
 #@+node:maphew.20100223163802.3756: *3* get_url
 def get_url(packagename):
     # FIXME: This looks more complicated than it needs to be.

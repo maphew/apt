@@ -10,6 +10,74 @@ On deck: Get ready for release.
 
 
 <!--@+others-->
+<!--@+node:maphew.20141123173815.3: ** Maintaining Compatibility-->
+**Basic process for checking that apt is working properly with Setup.exe**
+
+Install a minimal osgeo4w using each of Osgeo4w-setup-x86.exe and apt.exe,
+then compare resultant folders with Winmerge (or whatever).
+
+<!--@+node:maphew.20141123173815.4: *3* 2014-Nov-23 discrepancies-->
+<!--@+node:maphew.20141123173815.5: *4* ./bin-->
+    ./bin/
+        setup.bat
+        setup-test.bat
+    
+Inconsequential: Paths are different, but that's 'cause they're in diffent folders.
+
+Long term: suggest to upstream to use %~dp0 so the batch files are portable.
+<!--@+node:maphew.20141123173815.6: *4* ./etc/setup/installed.db-->
+    ./etc/setup/installed.db
+    
+Inconsequential: line order different, reflecting install order.
+<!--@+node:maphew.20141123173815.7: *4* ./etc/setup/setup.rc-->
+APT        
+        ./etc/setup/
+            last-cache
+            last-mirror
+            setup.ini
+            reboot            
+SETUP            
+        ./etc/setup/
+            setup.rc
+            timestamp
+
+This one is significant. Setup has moved multiple settings into a single .rc file. Also uses a timestamp of last mirror setup.ini check.
+https://github.com/maphew/apt/issues/18
+<!--@+node:maphew.20141123173815.8: *4* Downloads cache-->
+APT
+    ./var/cache/setup/http%3...
+SETUP
+    %USERPROFILE%/Downloads/http%3...    
+
+Not as important as setup.rc, but still a good idea to change the apt default to same standard download location.
+
+SETUP-CACHE
+    D:\osgeo\setup-cache\
+        .\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86
+            setup.ini
+APT-CACHE
+    D:\osgeo\Osgeo4w-apt\var\cache\setup\
+        http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2fsetup.ini.bz2
+
+Setup is storing the .ini uncompressed, in the downloads folder, and not in ./etc/setup/.
+
+This difference could be a problem. Apt depends on .ini always being present, and uses it on every invocation in order to build the dictionary of packages and their associated metdata. We could just repoint the default location to Downloads, and thereby use the Setup copy but I'm not comfortable with that idea. The Downloads folders could be altered at any time, by any number of other programs or user intervention. To which apt could just always download a new version if .ini doesn't exist; just doesn't smell right though.
+
+For the time being I'm keeping apt as is, with perhaps a time-stamp check to see if Downloads .ini is newer.
+<!--@+node:maphew.20141123173815.9: *4* ./var/log-->
+SETUP
+    ./var/log
+        setup.log
+        setup.full
+
+Apt doesn't log anything. I haven't added anything for this, as whenever I want to log something I just use console pipe redirect (`apt install ... > apt-install.log`). I think it would be good to log operations by default, but am not going to work on it for awhile. There's a good chance Click or whatever will give us this kind of feature for free or close to it.
+        
+<!--@+node:maphew.20141123173815.10: *4* ./-->
+OSGeo4W.ico
+    Binary files are different
+    
+This one is weird. They should be diffrent identical. 
+    ...unless there are different .ico files in different packages and last installed wins?
 <!--@+node:maphew.20140905201312.1893: ** Research-->
 new magic bullet discovered: click
 @url http://click.pocoo.org/3/quickstart
@@ -40,62 +108,7 @@ sigh.
 This may mean the end of moving apt furniture about. We've tidied things up, there's some organization, but to go any further means ripping some walls out and moving structural elements. It could all come crashing down next, but hey! that's why we're using version control with smart and easy merging and branching, right? 
 
 (now if only I knew how to use it! :)
-<!--@+node:maphew.20140905022205.1895: ** Too many apts-->
-    B:\code\apt\r183\gis\o4w_extras\bin\apt.py
-    B:\code\apt\r262\apt\apt.py
-    B:\code\apt\r262\gis\o4w_extras\bin\apt.py
-    B:\code\apt-hg\apt.py
-    B:\code\maphew\apt\apt.py
-    B:\code\maphew\gis\o4w_extras\bin\apt.py
-    B:\code\o4w\apt\apt.py
-    B:\Projects\o4w\matt_release\apt\bin\apt.py
-    
-This, is ridiculous. I don't know where to begin looking to catch up to myself, what to keep, what to throw away. It is the perfect exemplar for source code version control (management), yet I *am* using SCM in all 8 these -- just not the _same_ one for each...
-
-Gak. what a mess.
-
-By date of commit messages, `maphew-apt` is most current (Spring 2013).
-
-apt-r### are largely experimental and near duplicates. I seem to recall something about them being an attempt to sort out and fix a broken branching operation. (Fall 2012) DELETED
-
-apt-hg is Osgeo4w, using hg-subversion plugin. So most out of date (but matching current .exe release). RENAMED to `o4w-apt-hg`.
 <!--@+node:maphew.20141005121657.7064: ** Todo-->
-<!--@+node:maphew.20141005121657.7065: *3* Restore docstrings-->
-Currently the docstrings of all functions which are not Commands are hidden behind remarks (#).
-
-This is because currently docstrings are used to drive the console help screen. It's too much to have _all_ functions listed there.
-
-Ultimately we want to have all functions properly documented, using docstrings, and print only commands to the help screen.
-
-Writing this, I remember now that this was one of the original drivers for attempting to learn argparse, clint, plac, docopt... in the first place!
-
-----
-2014-Oct-05
-
-For now usage message is hard coded. This is to allow full fledged docstrings in all functions, which in turn will help with refactoring.
-
-Many times I'm stymied in my short bursts of reworking Apt because I don't remember or understand what a given function is supposed to do or how it operates. Better docstrings as I go will help with this.
-
-Next step is rewrite usage() so that it:
-
-    a) has shortlist of Commands (instead of all functions)
-    b) only shows first x characters of docstring (and then help() is used for the whole docstring).
-<!--@+node:maphew.20141005143559.6904: *4* print docstrings for all-->
-<!--@@language python-->
-'''Print the docstrings for all functions with defined docstrings'''
-
-<!--@+at-->
-<!--
-This was the original method in cyg-apt for
- displaying usage help. Clever, but not flexible enough for us here.
-https://code.google.com/p/maphew/source/browse/other/cyg-apt.py#78
--->
-<!--@@c-->
-d = __main__.__dict__
-commands = filter (lambda x:
-   type (d[x]) == type (usage) and d[x].__doc__, d)
-sys.stdout.writelines (map (lambda x:
-    "    %s - %s\n" % (x, d[x].__doc__), sorted (commands)))
 <!--@+node:maphew.20141010024515.2076: *3* Setup.ini has new fields-->
 New fields in setup.ini which we aren't capturing or doing anything with yet:
 
@@ -224,6 +237,61 @@ Traceback (most recent call last):
   File "B:\o4w\bin\apt-dev.py", line 238, in md5
     raise 'file md5 does not match for ' + ball
 TypeError: exceptions must be old-style classes or derived from BaseException, not str
+<!--@+node:maphew.20140905022205.1895: *4* Too many apts-->
+    B:\code\apt\r183\gis\o4w_extras\bin\apt.py
+    B:\code\apt\r262\apt\apt.py
+    B:\code\apt\r262\gis\o4w_extras\bin\apt.py
+    B:\code\apt-hg\apt.py
+    B:\code\maphew\apt\apt.py
+    B:\code\maphew\gis\o4w_extras\bin\apt.py
+    B:\code\o4w\apt\apt.py
+    B:\Projects\o4w\matt_release\apt\bin\apt.py
+    
+This, is ridiculous. I don't know where to begin looking to catch up to myself, what to keep, what to throw away. It is the perfect exemplar for source code version control (management), yet I *am* using SCM in all 8 these -- just not the _same_ one for each...
+
+Gak. what a mess.
+
+By date of commit messages, `maphew-apt` is most current (Spring 2013).
+
+apt-r### are largely experimental and near duplicates. I seem to recall something about them being an attempt to sort out and fix a broken branching operation. (Fall 2012) DELETED
+
+apt-hg is Osgeo4w, using hg-subversion plugin. So most out of date (but matching current .exe release). RENAMED to `o4w-apt-hg`.
+<!--@+node:maphew.20141005121657.7065: *4* Restore docstrings-->
+Currently the docstrings of all functions which are not Commands are hidden behind remarks (#).
+
+This is because currently docstrings are used to drive the console help screen. It's too much to have _all_ functions listed there.
+
+Ultimately we want to have all functions properly documented, using docstrings, and print only commands to the help screen.
+
+Writing this, I remember now that this was one of the original drivers for attempting to learn argparse, clint, plac, docopt... in the first place!
+
+----
+2014-Oct-05
+
+For now usage message is hard coded. This is to allow full fledged docstrings in all functions, which in turn will help with refactoring.
+
+Many times I'm stymied in my short bursts of reworking Apt because I don't remember or understand what a given function is supposed to do or how it operates. Better docstrings as I go will help with this.
+
+Next step is rewrite usage() so that it:
+
+    a) has shortlist of Commands (instead of all functions)
+    b) only shows first x characters of docstring (and then help() is used for the whole docstring).
+<!--@+node:maphew.20141005143559.6904: *5* print docstrings for all-->
+<!--@@language python-->
+'''Print the docstrings for all functions with defined docstrings'''
+
+<!--@+at-->
+<!--
+This was the original method in cyg-apt for
+ displaying usage help. Clever, but not flexible enough for us here.
+https://code.google.com/p/maphew/source/browse/other/cyg-apt.py#78
+-->
+<!--@@c-->
+d = __main__.__dict__
+commands = filter (lambda x:
+   type (d[x]) == type (usage) and d[x].__doc__, d)
+sys.stdout.writelines (map (lambda x:
+    "    %s - %s\n" % (x, d[x].__doc__), sorted (commands)))
 <!--@+node:maphew.20121011215813.1569: ** Expected test results-->
 <!--@+node:maphew.20141031121809.3: *3* apt requires-->
 B:\code\apt>apt requires python
@@ -419,6 +487,14 @@ I realised something in the midst of insomnia this morning: 90% of apt is just "
 Would it be nicer and easier to just run `apt info gdal` and see the whole kit and kaboodle at once? We could, I think, tweak that so `apt info.version gdal` reported just version in those instances we don't want to parse through all the noise.
 
 Though I suppose it should be `apt info --version gdal` to be more in line with other command line tools. 'twould also allow chaining, `apt info --version --url gdal`.
+
+<!--@+node:maphew.20141122223321.3: *3* Nov-22-->
+A stand alone apt.exe
+---------------------
+
+Seem to have lost all my notes on creating apt.exe, so here goes again.
+
+Oh. that's why no notes, it's just `pyinstaller --onefile apt.py`
 
 <!--@-others-->
 

@@ -1043,26 +1043,58 @@ def write_filelist (packagename, lst):
 #@+node:maphew.20100308085005.1382: ** Parsers
 #@+node:maphew.20141128231605.7: *3* parse_config
 def parse_config(fname):
-    '''Stub for parsing setup.rc config file into values.
+    '''Stub for parsing setup.rc config file into a dictionary.
+
+    We assume any line beginning with a tab is a value, and all others are dict
+    keys. Consequently this will return a bad dict if there are extra lines
+    starting with tabs.
+
+    Example setup.rc:
     
+        mirrors-lst
+                http://download.osgeo.org/osgeo4w/;OSGeo;USA;California
+        window-placement
+                44,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,255,255,255,255...
+        last-mode
+                Advanced
         last-mirror
-            http://download.osgeo.org/osgeo4w/
+                http://download.osgeo.org/osgeo4w/
         net-method
-            Direct
+                Direct
         last-cache
-            C:\Users\Matt\Downloads
+                C:\Users\Matt\Downloads
         last-menu-name
-            OSGeo4W_default
+                OSGeo4W_default
+
+    And result:
+        
+        last-cache:     C:\Users\Matt\Downloads
+        last-mirror:    http://download.osgeo.org/osgeo4w/
+        mirrors-lst:    http://download.osgeo.org/osgeo4w/;OSGeo;USA;Cal...
+        window-placement:       44,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255...
+        last-mode:      Advanced
+        last-menu-name: OSGeo4W_default
+        net-method:     Direct
     '''
     fname = r'c:\OSGeo4W\etc\setup\setup.rc'
     os.chdir(config)
     f = open(fname,'r')
     
+    d = {}        
     for line in f.readlines():
-        print line
+        if not line.startswith('\t'):
+            key = line.strip()
+            # print 'key:', line
+        else:
+            value = line.strip()
+            # print 'value:', line
+            d[key] = value    
+    
+    for k,v in d.items():
+        print '%s:\t%s' % (k, v)
     
     f.close()
-
+    return d
 #@+node:maphew.20141111130056.4: *3* get_info
 def get_info(packagename):
     '''Retrieve details for package X.

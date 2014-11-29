@@ -43,6 +43,21 @@ SETUP
 
 This one is significant. Setup has moved multiple settings into a single .rc file. Also uses a timestamp of last mirror setup.ini check.
 https://github.com/maphew/apt/issues/18
+<!--@+node:maphew.20141128231605.3: *5* setup.rc-->
+mirrors-lst
+	http://download.osgeo.org/osgeo4w/;OSGeo;USA;California
+window-placement
+	44,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,151,1,0,0,185,0,0,0,175,4,0,0,118,2,0,0
+last-mode
+	Advanced
+last-mirror
+	http://download.osgeo.org/osgeo4w/
+net-method
+	Direct
+last-cache
+	C:\Users\Matt\Downloads
+last-menu-name
+	OSGeo4W_default
 <!--@+node:maphew.20141123173815.8: *4* Downloads cache-->
 APT
     ./var/cache/setup/http%3...

@@ -1041,6 +1041,28 @@ def write_filelist (packagename, lst):
     if pipe.close ():
         raise TypeError('urg')
 #@+node:maphew.20100308085005.1382: ** Parsers
+#@+node:maphew.20141128231605.7: *3* parse_config
+def parse_config(fname):
+    '''Stub for parsing setup.rc config file into values.
+    
+        last-mirror
+            http://download.osgeo.org/osgeo4w/
+        net-method
+            Direct
+        last-cache
+            C:\Users\Matt\Downloads
+        last-menu-name
+            OSGeo4W_default
+    '''
+    fname = r'c:\OSGeo4W\etc\setup\setup.rc'
+    os.chdir(config)
+    f = open(fname,'r')
+    
+    for line in f.readlines():
+        print line
+    
+    f.close()
+
 #@+node:maphew.20141111130056.4: *3* get_info
 def get_info(packagename):
     '''Retrieve details for package X.

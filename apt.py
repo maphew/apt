@@ -1453,7 +1453,7 @@ if __name__ == '__main__':
         # OSGEO4W_ROOT = check_env() # look for root in environment
         
     OSGEO4W_ROOT = check_env() # look for root in environment
-    CWD = os.getcwd ()
+    CWD = os.getcwd()
     INSTALL = 'install'
     installed = 0
     root = OSGEO4W_ROOT
@@ -1531,8 +1531,11 @@ if __name__ == '__main__':
     #@-<<parse command line>>
     #@+<<post-parse globals>>
     #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>
-    last_mirror = get_config('last-mirror')
-    last_cache = get_config('last-cache')
+    #last_mirror = get_config('last-mirror')
+    #last_cache = get_config('last-cache')
+    setuprc = parse_config(config + '/setup.rc')
+    last_mirror = setuprc['last-mirror']
+    last_cache = setuprc['last-cache']
 
     if not 'mirror' in globals():
         mirror = get_mirror()
@@ -1548,9 +1551,9 @@ if __name__ == '__main__':
     downloads = '%s/%s' % (cache_dir, mirror_dir)
 
     ##fixme: this is useful, but too noisy to report every time
-    #print "Last cache:\t%s\nLast mirror:\t%s" % (last_cache, last_mirror)
-    #print "Using mirror:\t%s" % (mirror)
-    #print "Saving to:\t%s" % (cache_dir)
+    print "Last cache:\t%s\nLast mirror:\t%s" % (last_cache, last_mirror)
+    print "Using mirror:\t%s" % (mirror)
+    print "Saving to:\t%s" % (cache_dir)
     #@-<<post-parse globals>>
     #@+<<run the commands>>
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>

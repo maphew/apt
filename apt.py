@@ -1049,7 +1049,7 @@ def parse_setuprc(fname):
     keys. Consequently this will return a bad dict if there are extra lines
     starting with tabs.
 
-    Example setup.rc:
+    Example C:\OSGeo4W\etc\setup\setup.rc:
     
         mirrors-lst
                 http://download.osgeo.org/osgeo4w/;OSGeo;USA;California
@@ -1076,28 +1076,32 @@ def parse_setuprc(fname):
         last-menu-name: OSGeo4W_default
         net-method:     Direct
     '''
-    #fname = r'c:\OSGeo4W\etc\setup\setup.rc'
-    # os.chdir(config)
-    if not os.path.exists(fname):
-        print "*** %s doesn't exist, using default values" % fname
-        return {}
+    d = {}
+    default_keys = ['last-cache', 'last-mirror', 'mirrors-lst',
+        'window-placement', 'last-mode', 'last-menu-name', 'net-method', ]
+
+    try:
+        f = open(fname,'r')
+        for line in f.readlines():
+            if not line.startswith('\t'):
+                key = line.strip()
+                # print 'key:', line
+            else:
+                value = line.strip()
+                # print 'value:', line
+                d[key] = value    
+        f.close()
     
-    f = open(fname,'r')
+    except IOError:
+        print "Couldn't open %s, setting empty" % fname
+        for k in default_keys:
+            d[k] = None
     
-    d = {}        
-    for line in f.readlines():
-        if not line.startswith('\t'):
-            key = line.strip()
-            # print 'key:', line
-        else:
-            value = line.strip()
-            # print 'value:', line
-            d[key] = value    
-    
-    for k,v in d.items():
-        print '%s:\t%s' % (k, v)
-    
-    f.close()
+    if debug == True:
+        print '### DEBUG: %s ###' % sys._getframe().f_code.co_name
+        for k,v in d.items():
+            print '%s:\t%s' % (k, v)
+        
     return d
 #@+node:maphew.20141111130056.4: *3* get_info
 def get_info(packagename):

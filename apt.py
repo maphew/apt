@@ -1597,6 +1597,7 @@ if __name__ == '__main__':
     #@-<<run the commands>>
     #@+<<wrap up>>
     #@+node:maphew.20100307230644.3845: ** <<wrap up>>
+    #todo, #18: use the new setuprc dict, and create write_setuprc()
     save_config('last-mirror', mirror)
     save_config('last-cache', cache_dir)
     #@-<<wrap up>>

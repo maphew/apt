@@ -1041,9 +1041,9 @@ def write_filelist (packagename, lst):
     if pipe.close ():
         raise TypeError('urg')
 #@+node:maphew.20100308085005.1382: ** Parsers
-#@+node:maphew.20141128231605.7: *3* parse_config
-def parse_config(fname):
-    '''Stub for parsing setup.rc config file into a dictionary.
+#@+node:maphew.20141128231605.7: *3* parse_setuprc
+def parse_setuprc(fname):
+    '''Parse setup.rc config file into a dictionary.
 
     We assume any line beginning with a tab is a value, and all others are dict
     keys. Consequently this will return a bad dict if there are extra lines
@@ -1076,8 +1076,12 @@ def parse_config(fname):
         last-menu-name: OSGeo4W_default
         net-method:     Direct
     '''
-    fname = r'c:\OSGeo4W\etc\setup\setup.rc'
-    os.chdir(config)
+    #fname = r'c:\OSGeo4W\etc\setup\setup.rc'
+    # os.chdir(config)
+    if not os.path.exists(fname):
+        print "*** %s doesn't exist, using default values" % fname
+        return {}
+    
     f = open(fname,'r')
     
     d = {}        
@@ -1533,15 +1537,20 @@ if __name__ == '__main__':
     #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>
     #last_mirror = get_config('last-mirror')
     #last_cache = get_config('last-cache')
-    setuprc = parse_config(config + '/setup.rc')
-    last_mirror = setuprc['last-mirror']
-    last_cache = setuprc['last-cache']
+    setuprc = parse_setuprc(config + '/setup.rc')
+    try:
+        last_mirror = setuprc['last-mirror']
+        last_cache = setuprc['last-cache']
+    except KeyError:
+        last_mirror = None
+        last_cache = None
 
+        
     if not 'mirror' in globals():
         mirror = get_mirror()
 
     # convert mirror url into acceptable folder name
-    mirror_dir = urllib.quote (mirror, '').lower ()
+    mirror_dir = urllib.quote(mirror, '').lower()
 
     if last_cache == None:
         cache_dir = '%s/var/cache/setup' % (root)
@@ -1551,9 +1560,9 @@ if __name__ == '__main__':
     downloads = '%s/%s' % (cache_dir, mirror_dir)
 
     ##fixme: this is useful, but too noisy to report every time
-    print "Last cache:\t%s\nLast mirror:\t%s" % (last_cache, last_mirror)
-    print "Using mirror:\t%s" % (mirror)
-    print "Saving to:\t%s" % (cache_dir)
+    #print "Last cache:\t%s\nLast mirror:\t%s" % (last_cache, last_mirror)
+    #print "Using mirror:\t%s" % (mirror)
+    #print "Saving to:\t%s" % (cache_dir)
     #@-<<post-parse globals>>
     #@+<<run the commands>>
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>

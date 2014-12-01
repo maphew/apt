@@ -1040,6 +1040,21 @@ def write_filelist (packagename, lst):
         pipe.write ('\n')
     if pipe.close ():
         raise TypeError('urg')
+#@+node:maphew.20141130225434.5: *3* write_setuprc
+def write_setuprc(setuprc, fname='test_setup.rc'):
+    '''Write the setuprc dictionary to file (etc/setup/setup.rc).
+    '''
+    if not 'last-mirror' in setuprc.keys():
+        return "Incoming setuprc dict doesn't have expected values, aborting"
+    
+    fname = os.path.join(config, fname)
+    
+    f = open(fname, 'w')
+    for k,v in setuprc.items():
+        f.write('{0}\n\t{1}\n'.format(k,v))
+    f.close()
+    
+    print "Wrote %s" % fname
 #@+node:maphew.20100308085005.1382: ** Parsers
 #@+node:maphew.20141128231605.7: *3* parse_setuprc
 def parse_setuprc(fname):
@@ -1600,5 +1615,7 @@ if __name__ == '__main__':
     #todo, #18: use the new setuprc dict, and create write_setuprc()
     save_config('last-mirror', mirror)
     save_config('last-cache', cache_dir)
+    write_setuprc(setuprc, fname = 'apt_setup.rc')
+    print "all wrapped up, no place to go"
     #@-<<wrap up>>
 #@-leo

@@ -75,6 +75,7 @@ Options:
     -t,--t=NAME            set dist name (*curr*, test, prev)
     -x,--no-deps           ignore dependencies
     -s,--start-menu=NAME   set the start menu name (OSGeo4W)
+       --debug             display debugging statements (very noisy)
 ''' % {'setup_ini':setup_ini,'mirror':mirror,'root':root}) #As they were just printing as "%(setup_ini)s" etc...
 #@+node:maphew.20121113004545.1577: ** check_env
 def check_env():
@@ -668,12 +669,12 @@ def cygpath(path):
             path = "/" + path[0].lower() + path[2:]
     return path
 
-#@+node:maphew.20100223163802.3738: *3* debug
-def debug (s):
+#@+node:maphew.20100223163802.3738: *3* debug_old
+def debug_old(s):
     # still haven't figured out quite how this is meant to be used
     # uncomment the print statement to display contents of parsed setup.ini
     s
-    #print s
+    print s
 
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
@@ -1013,6 +1014,8 @@ def get_requires(packagename):
 def save_config(fname,values):
     # '''save settings like last-mirror, last-cache'''
     # e.g. /etc/setup/last-cache --> d:\downloads\osgeo4w
+    return "save_config() is deprecated. Please rewrite to use write_setuprc()"
+    
     os.chdir(config)
     pipe = open(fname,'w')
 
@@ -1047,8 +1050,6 @@ def write_setuprc(setuprc, fname='setup.rc'):
     Dict entries with empty values are left out.
     
     Incoming dict:
-        mirrors-lst: None
-        window-placement: None
         last-mode: None
         last-mirror: http://download.osgeo.org/osgeo4w/
         net-method: None
@@ -1074,7 +1075,8 @@ def write_setuprc(setuprc, fname='setup.rc'):
             f.write('{0}\n\t{1}\n'.format(k,v))
     f.close()
     
-    if debug == True:
+    if debug:
+        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
         print "Wrote %s" % fname
 #@+node:maphew.20100308085005.1382: ** Parsers
 #@+node:maphew.20141128231605.7: *3* parse_setuprc
@@ -1198,17 +1200,20 @@ def parse_setup_ini(fname):
     for i in chunks[1:]:
         lines = string.split(i, '\n')
         name = string.strip(lines[0])
-        debug('package: ' + name)
+        if debug:
+            print 'package: ' + name
         packages = dists['curr']
         records = {'sdesc': name}
         j = 1
         while j < len(lines) and string.strip(lines[j]):
-            debug('raw: ' + lines[j])
+            if debug:
+                print 'raw: ' + lines[j]
             if lines[j][0] == '#':
                 j = j + 1
                 continue
             elif lines[j][0] == '[':
-                debug('dist: ' + lines[j][1:5])
+                if debug:
+                    print 'dist: ' + lines[j][1:5]
                 packages[name] = records.copy()
                 packages = dists[lines[j][1:5]]
                 j = j + 1
@@ -1520,6 +1525,7 @@ if __name__ == '__main__':
     depend_p = 0
     download_p = 0
     start_menu_name = 'OSGeo4W'
+    debug = False
 
     # Thank you Luke Pinner for answering how to get path of "Start > Programs"
     # http://stackoverflow.com/questions/2216173
@@ -1533,7 +1539,7 @@ if __name__ == '__main__':
     (options, params) = getopt.getopt (sys.argv[1:],
                       'dhi:m:r:t:s:x',
                       ('download', 'help', 'mirror=', 'root='
-                       'ini=', 't=', 'start-menu=', 'no-deps'))
+                       'ini=', 't=', 'start-menu=', 'no-deps', 'debug'))
     # the first parameter is our action
     if len(params) > 0:
         command = params[0]
@@ -1572,6 +1578,8 @@ if __name__ == '__main__':
             depend_p = 1
         elif o == '--start-menu' or o == '-s':
             start_menu_name = a
+        elif o == '--debug':
+            debug = True
     #@-<<parse command line>>
     #@+<<post-parse globals>>
     #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>
@@ -1584,6 +1592,10 @@ if __name__ == '__main__':
     except KeyError:
         last_mirror = None
         last_cache = None
+    if debug:
+        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
+        print 'last-mirror:', last_mirror
+        print 'last-cache:', last_cache
 
         
     if not 'mirror' in globals():

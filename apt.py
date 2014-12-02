@@ -1200,19 +1200,19 @@ def parse_setup_ini(fname):
     for i in chunks[1:]:
         lines = string.split(i, '\n')
         name = string.strip(lines[0])
-        if debug:
+        if debug and verbose:
             print 'package: ' + name
         packages = dists['curr']
         records = {'sdesc': name}
         j = 1
         while j < len(lines) and string.strip(lines[j]):
-            if debug:
+            if debug and verbose:
                 print 'raw: ' + lines[j]
             if lines[j][0] == '#':
                 j = j + 1
                 continue
             elif lines[j][0] == '[':
-                if debug:
+                if debug and verbose:
                     print 'dist: ' + lines[j][1:5]
                 packages[name] = records.copy()
                 packages = dists[lines[j][1:5]]
@@ -1526,6 +1526,7 @@ if __name__ == '__main__':
     download_p = 0
     start_menu_name = 'OSGeo4W'
     debug = False
+    verbose = False
 
     # Thank you Luke Pinner for answering how to get path of "Start > Programs"
     # http://stackoverflow.com/questions/2216173
@@ -1537,9 +1538,10 @@ if __name__ == '__main__':
     #@+<<parse command line>>
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
     (options, params) = getopt.getopt (sys.argv[1:],
-                      'dhi:m:r:t:s:x',
+                      'dhi:m:r:t:s:xv',
                       ('download', 'help', 'mirror=', 'root='
-                       'ini=', 't=', 'start-menu=', 'no-deps', 'debug'))
+                       'ini=', 't=', 'start-menu=', 'no-deps', 
+                       'debug', 'verbose'))
     # the first parameter is our action
     if len(params) > 0:
         command = params[0]
@@ -1580,6 +1582,8 @@ if __name__ == '__main__':
             start_menu_name = a
         elif o == '--debug':
             debug = True
+        elif o == '--verbose' or o == '-v':
+            verbose = True
     #@-<<parse command line>>
     #@+<<post-parse globals>>
     #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>

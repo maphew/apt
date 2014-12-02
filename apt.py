@@ -1041,8 +1041,27 @@ def write_filelist (packagename, lst):
     if pipe.close ():
         raise TypeError('urg')
 #@+node:maphew.20141130225434.5: *3* write_setuprc
-def write_setuprc(setuprc, fname='test_setup.rc'):
-    '''Write the setuprc dictionary to file (etc/setup/setup.rc).
+def write_setuprc(setuprc, fname='setup.rc'):
+    '''Write the setuprc dictionary to file, in osgeo4w-setup.exe format.
+    
+    Dict entries with empty values are left out.
+    
+    Incoming dict:
+        mirrors-lst: None
+        window-placement: None
+        last-mode: None
+        last-mirror: http://download.osgeo.org/osgeo4w/
+        net-method: None
+        last-cache: C:\Users\Matt\Downloads
+        last-menu-name: OSGeo4W_default
+    
+    Out etc/setup/setup.rc:
+        last-mirror
+                http://download.osgeo.org/osgeo4w/
+        last-cache
+                C:\Users\Matt\Downloads
+        last-menu-name
+                OSGeo4W_default        
     '''
     if not 'last-mirror' in setuprc.keys():
         return "Incoming setuprc dict doesn't have expected values, aborting"
@@ -1051,10 +1070,12 @@ def write_setuprc(setuprc, fname='test_setup.rc'):
     
     f = open(fname, 'w')
     for k,v in setuprc.items():
-        f.write('{0}\n\t{1}\n'.format(k,v))
+        if v:
+            f.write('{0}\n\t{1}\n'.format(k,v))
     f.close()
     
-    print "Wrote %s" % fname
+    if debug == True:
+        print "Wrote %s" % fname
 #@+node:maphew.20100308085005.1382: ** Parsers
 #@+node:maphew.20141128231605.7: *3* parse_setuprc
 def parse_setuprc(fname):
@@ -1612,10 +1633,11 @@ if __name__ == '__main__':
     #@-<<run the commands>>
     #@+<<wrap up>>
     #@+node:maphew.20100307230644.3845: ** <<wrap up>>
-    #todo, #18: use the new setuprc dict, and create write_setuprc()
-    save_config('last-mirror', mirror)
-    save_config('last-cache', cache_dir)
-    write_setuprc(setuprc, fname = 'apt_setup.rc')
-    print "all wrapped up, no place to go"
+    save_config('last-mirror', mirror)      # deprecated
+    save_config('last-cache', cache_dir)    # deprecated
+
+    setuprc['last-mirror'] = mirror
+    setuprc['last-cache'] = cache_dir
+    write_setuprc(setuprc)
     #@-<<wrap up>>
 #@-leo

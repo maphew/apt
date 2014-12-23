@@ -915,14 +915,12 @@ def get_missing(packagename):
     return lst
 #@+node:maphew.20100223163802.3753: *3* get_new
 def get_new():
-    '''get available upgrades '''
-    global packagename
+    '''Return list of packages with newer versions than those installed.'''
     lst = []
     for packagename in installed[0].keys():
         new = get_version(packagename)
         ins = get_installed_version(packagename)
         if new > ins:
-            debug (" %s > %s" % (new, ins))
             lst.append(packagename)
     return lst
 

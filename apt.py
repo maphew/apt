@@ -546,7 +546,11 @@ def setup(target):
     if not os.path.isfile(setup_ini):
         sys.stderr.write('getting %s\n' % setup_ini)
         update()
-    print '\nFolders and setup config exists, nothing more to do.'
+    print '''
+    Osgeo4w folders and setup config exist; skeleton environment is complete.
+    
+    You might try `apt available` and `apt install` next.
+    '''
 #@+node:maphew.20100223163802.3733: *3* update
 def update():
     '''Fetch updated package list from mirror.

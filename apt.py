@@ -396,11 +396,10 @@ def md5(packages):
             my_md5 = hashlib.md5(localFile.read()).hexdigest()
             print 'local:   %s  %s' % (my_md5, localname)
             if md5 != my_md5:
-                raise Exception('file md5 does not match for ' + filename)
+                raise ValueError('md5 sum does not match for "%s"' % filename)
 
         except IOError:
            sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
-
 #@+node:maphew.20100223163802.3727: *3* missing
 def missing(packages):
     '''Display missing dependencies for all installed packages.'''

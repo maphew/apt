@@ -16,7 +16,7 @@
   beginning July 2008
 
 '''
-apt_version = 'Dev - 2014-Nov'
+apt_version = 'Dev - 2014-Dec'
 #@-<<docstring>>
 #@@language python
 #@@tabwidth -4
@@ -647,6 +647,21 @@ def version(packages):
         print '%-20s%-12s' % (p, version_to_string(get_installed_version(p)))
 
 #@+node:maphew.20100302221232.1485: ** Helpers
+#@+node:maphew.20141228100517.4: *3* exceptionHandler
+def exceptionHandler(exception_type, exception, traceback):
+    '''Print user friendly error messages normally, full traceback if DEBUG on.
+    
+       adapted from http://stackoverflow.com/questions/27674602/hide-traceback-unless-a-debug-flag-is-set
+    '''
+    if debug:
+        print '\n*** Error:'
+        print traceback
+        print traceback.format_exc()
+            # kludge: force exception, so stdlib handler prints everything
+        print "\t%s: %s" % (exception_type.__name__, exception)
+    else:
+        print "\t%s: %s" % (exception_type.__name__, exception)
+        
 #@+node:maphew.20141110231213.3: *3* class AttrDict
 class xAttrDict(dict):
     '''Access a dictionary by attributes, like using javascript dotted notation.
@@ -1491,6 +1506,7 @@ def source ():
 
 
 #@-others
+sys.excepthook = exceptionHandler
 
 if __name__ == '__main__':
     #@+<<globals>>

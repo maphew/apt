@@ -648,19 +648,15 @@ def version(packages):
 
 #@+node:maphew.20100302221232.1485: ** Helpers
 #@+node:maphew.20141228100517.4: *3* exceptionHandler
-def exceptionHandler(exception_type, exception, traceback):
+def exceptionHandler(exception_type, exception, traceback, debug_hook=sys.excepthook):
     '''Print user friendly error messages normally, full traceback if DEBUG on.
-    
-       adapted from http://stackoverflow.com/questions/27674602/hide-traceback-unless-a-debug-flag-is-set
+       Adapted from http://stackoverflow.com/questions/27674602/hide-traceback-unless-a-debug-flag-is-set
     '''
     if debug:
         print '\n*** Error:'
-        print traceback
-        print traceback.format_exc()
-            # kludge: force exception, so stdlib handler prints everything
-        print "\t%s: %s" % (exception_type.__name__, exception)
+        debug_hook(exception_type, exception, traceback)
     else:
-        print "\t%s: %s" % (exception_type.__name__, exception)
+        print "\n%s: %s" % (exception_type.__name__, exception)
         
 #@+node:maphew.20141110231213.3: *3* class AttrDict
 class xAttrDict(dict):

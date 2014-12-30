@@ -380,32 +380,29 @@ def md5(package):
             > apt md5 shell
 
         Returns: True or False
+        
+        If passed a list it only processes the first item.
     '''
     if not package:
         sys.stderr.write('Please specify package to calculate md5 hash value for.')
         return
 
-    # if type(packages) is str: packages = [packages]
+    if not isinstance(package, basestring):
+        package = package[0]
 
     print "--- Verifying local file's md5 hash matches mirror"
     match = False
-    # url, md5 = get_url(p)
-    # filename = os.path.basename(url)
-    # print 'remote:  %s  %s' % (md5, filename)
     p_info = get_info(package)
     
     try:
-        # p_info = get_info(p)
         localname = p_info['local_zip']
         localFile = file(localname, 'rb') #we md5 the *file* not the *filename*
         my_md5 = hashlib.md5(localFile.read()).hexdigest()
         their_md5 = p_info['md5']
-        # print 'local:   %s  %s' % (my_md5, localname)
         if their_md5 == my_md5:
             match = True
         else:
-            #raise ValueError('md5 sum does not match for "%s"' % filename)
-            print('md5 hash does NOT match!')
+            print('\tmd5 hash does NOT match!')
             print('\tremote: %s' % their_md5)
             print('\tlocal:  %s' % my_md5)
 
@@ -1176,7 +1173,7 @@ def get_info(packagename):
         {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
         {'zip_size':'5430991'}
         {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
-    '''
+    '''   
     d = dists[distname][packagename]
     d['name'] = packagename
     #print d    # debug peek at incoming dict

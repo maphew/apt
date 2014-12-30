@@ -292,13 +292,15 @@ def install(packages):
         sys.stderr.write ('    %s' % string.join(missing.keys()))
         sys.stderr.write ('\n')
 
-    for p in missing.keys():
-        download(p)
-
-    if download_p:  # quit if download only flag is set
-        sys.exit(0)
-
-    install_next(missing.keys(), set([]), set([]))
+    if missing:
+        for p in missing.keys():
+            download(p)    
+        if download_p:  # quit if download only flag is set
+            sys.exit(0)
+        install_next(missing.keys(), set([]), set([]))
+    else:
+        print('Already installed!')
+        version(packages) # display versions
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
 def install_next(packages, resolved, seen):
 ##    global packagename

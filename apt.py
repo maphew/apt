@@ -695,17 +695,10 @@ def debug_old(s):
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
-    path, md5 = get_url(packagename) # md5 is retrieved but not used, remove from function?
-    
-    dir = '%s/%s' % (downloads, os.path.split(path)[0])
-    srcFile = os.path.join (mirror + '/' + path)
-    dstFile = os.path.join (downloads + '/' + path)
-    # print srcFile
-    # print dstFile
-
-    # p_info = get_info(packagename)
-    # dstFile = os.path.join(downloads + p_info['filename'])
-    # srcFile = p_info['mirror_path']
+    p_info = get_info(packagename)
+    #dstFile = os.path.join(downloads + p_info['filename'])
+    dstFile = p_info['local_zip']
+    srcFile = p_info['mirror_path']
     # print srcFile
     # print dstFile
 
@@ -720,7 +713,7 @@ def do_download(packagename):
             os.makedirs(dir)
         status = urllib.urlretrieve(srcFile, dstFile, down_stat)
     else:
-        print 'Skipping download, %s exists in cache' % 'null'
+        print 'Skipping download of %s, exists in cache' % p_info['filename']
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

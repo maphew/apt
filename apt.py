@@ -374,34 +374,45 @@ def listfiles(packages):
             print i
     
 #@+node:maphew.20100223163802.3726: *3* md5
-def md5(packages):
-    '''Check if the md5 sum for package(s) matches mirror
-    
-        apt md5 shell iconv                    
+def md5(package):
+    '''Check if the md5 hash for "package" in local cache matches mirror
+
+            > apt md5 shell
+
+        Returns: True or False
     '''
-    if not packages:
-        sys.stderr.write('Please specify package(s) to calculate md5 value for.')
+    if not package:
+        sys.stderr.write('Please specify package to calculate md5 hash value for.')
         return
 
-    if type(packages) is str: packages = [packages]
+    # if type(packages) is str: packages = [packages]
 
-    print "Verifying local file's md5 matches mirror"
-    for p in packages:
-        url, md5 = get_url(p)
-        filename = os.path.basename(url)
-        print 'remote:  %s  %s' % (md5, filename)
+    print "--- Verifying local file's md5 hash matches mirror"
+    match = False
+    # url, md5 = get_url(p)
+    # filename = os.path.basename(url)
+    # print 'remote:  %s  %s' % (md5, filename)
+    p_info = get_info(package)
+    
+    try:
+        # p_info = get_info(p)
+        localname = p_info['local_zip']
+        localFile = file(localname, 'rb') #we md5 the *file* not the *filename*
+        my_md5 = hashlib.md5(localFile.read()).hexdigest()
+        their_md5 = p_info['md5']
+        # print 'local:   %s  %s' % (my_md5, localname)
+        if their_md5 == my_md5:
+            match = True
+        else:
+            #raise ValueError('md5 sum does not match for "%s"' % filename)
+            print('md5 hash does NOT match!')
+            print('\tremote: %s' % their_md5)
+            print('\tlocal:  %s' % my_md5)
 
-        try:
-            p_info = get_info(p)
-            localname = p_info['local_zip']
-            localFile = file(localname, 'rb') #we md5 the *file* not the *filename*
-            my_md5 = hashlib.md5(localFile.read()).hexdigest()
-            print 'local:   %s  %s' % (my_md5, localname)
-            if md5 != my_md5:
-                raise ValueError('md5 sum does not match for "%s"' % filename)
+    except IOError:
+       sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
 
-        except IOError:
-           sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
+    return match
 #@+node:maphew.20100223163802.3727: *3* missing
 def missing(packages):
     '''Display missing dependencies for all installed packages.'''
@@ -696,7 +707,6 @@ def debug_old(s):
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
     p_info = get_info(packagename)
-    #dstFile = os.path.join(downloads + p_info['filename'])
     dstFile = p_info['local_zip']
     srcFile = p_info['mirror_path']
     # print srcFile
@@ -707,13 +717,14 @@ def do_download(packagename):
         msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
         sys.exit(msg)
     
-    if not os.path.exists(dstFile): # or not __main__.md5(packagename):
+    if not os.path.exists(dstFile) or not md5(packagename):
         print '\nFetching %s' % srcFile
         if not os.path.exists(dir):
             os.makedirs(dir)
         status = urllib.urlretrieve(srcFile, dstFile, down_stat)
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
+
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

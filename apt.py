@@ -187,7 +187,8 @@ def download(packages):
         help('download')
         sys.stderr.write("\n*** No package names specified. ***\n")
         return
-
+    
+    print "Preparing to download:", ', '.join(packages)
     for p in packages:
         do_download(p)
         ball(p)
@@ -384,6 +385,7 @@ def md5(packages):
 
     if type(packages) is str: packages = [packages]
 
+    print "Verifying local file's md5 matches mirror"
     for p in packages:
         url, md5 = get_url(p)
         filename = os.path.basename(url)
@@ -693,11 +695,11 @@ def debug_old(s):
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
-    url, md5 = get_url(packagename) # md5 is retrieved but not used, remove from function?
+    path, md5 = get_url(packagename) # md5 is retrieved but not used, remove from function?
     
-    dir = '%s/%s' % (downloads, os.path.split(url)[0])
-    srcFile = os.path.join (mirror + '/' + url)
-    dstFile = os.path.join (downloads + '/' + url)
+    dir = '%s/%s' % (downloads, os.path.split(path)[0])
+    srcFile = os.path.join (mirror + '/' + path)
+    dstFile = os.path.join (downloads + '/' + path)
     # print srcFile
     # print dstFile
 
@@ -717,6 +719,8 @@ def do_download(packagename):
         if not os.path.exists(dir):
             os.makedirs(dir)
         status = urllib.urlretrieve(srcFile, dstFile, down_stat)
+    else:
+        print 'Skipping download, %s exists in cache' % 'null'
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

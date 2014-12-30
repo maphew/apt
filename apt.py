@@ -401,14 +401,14 @@ def md5(package):
         their_md5 = p_info['md5']
         if their_md5 == my_md5:
             match = True
-        else:
-            print('\tmd5 hash does NOT match!')
-            print('\tremote: %s' % their_md5)
-            print('\tlocal:  %s' % my_md5)
 
     except IOError:
        sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
 
+    print('\t%s' % match)
+    print('\tremote: %s' % their_md5)
+    print('\tlocal:  %s' % my_md5)
+    
     return match
 #@+node:maphew.20100223163802.3727: *3* missing
 def missing(packages):
@@ -706,6 +706,7 @@ def do_download(packagename):
     p_info = get_info(packagename)
     dstFile = p_info['local_zip']
     srcFile = p_info['mirror_path']
+    cacheDir = os.path.dirname(dstFile)
     # print srcFile
     # print dstFile
 
@@ -713,15 +714,14 @@ def do_download(packagename):
     if not a.getcode() is 200:
         msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
         sys.exit(msg)
-    
+
     if not os.path.exists(dstFile) or not md5(packagename):
         print '\nFetching %s' % srcFile
-        if not os.path.exists(dir):
-            os.makedirs(dir)
+        if not os.path.exists(cacheDir):
+            os.makedirs(cacheDir)
         status = urllib.urlretrieve(srcFile, dstFile, down_stat)
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
-
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

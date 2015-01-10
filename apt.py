@@ -16,7 +16,7 @@
   beginning July 2008
 
 '''
-apt_version = 'Dev - 2014-Dec'
+apt_version = '2015-01.Dev'
 #@-<<docstring>>
 #@@language python
 #@@tabwidth -4
@@ -413,8 +413,11 @@ def md5(package):
     
     return match
 #@+node:maphew.20100223163802.3727: *3* missing
-def missing(packages):
-    '''Display missing dependencies for all installed packages.'''
+def missing(dummy):
+    '''Display missing dependencies for all installed packages.
+    
+        `dummy` parameter is ignored
+    '''
     ## installed[0] is a dict of {'pkg-name': 'pkg.tar.bz2'}
     missing = []
     for pkg in installed[0]:
@@ -425,6 +428,36 @@ def missing(packages):
     print "\nThe following packages have been listed as dependencies but are not installed:\n"
     for m in missing:
         print '\t%s' % m
+    
+    return missing
+#@+node:maphew.20150110091755.3: *4* get_missing
+def get_missing(packagename):
+    '''For package, identify any missing requirements (dependencies).'''
+    # reqs = get_requires(packagename)
+    reqs = get_info(packagename)['requires'].split()
+    lst = []
+    for pkg in reqs:
+        if not pkg in installed[0]:
+            lst.append(pkg)
+
+    # if list exists, and packagename isn't in it,
+    # something else has listed packagename as a dependency
+    # fixme: look back up stream and see who asked for it.
+    if lst and packagename not in lst:
+        sys.stderr.write('warning: missing package: %s\n' % string.join(lst))
+    
+    # I think this is out of place. We've only been asked to identify what's missing,
+    # not if there are new versions available; scope creep.
+    elif packagename in installed[0]:
+        ins = get_installed_version(packagename)
+        new = get_version(packagename)
+        if ins >= new:
+            #sys.stderr.write('%s is already the newest version\n' % packagename)
+            #lst.remove(packagename)
+            pass
+        elif packagename not in lst:
+            lst.append(packagename)
+    return lst
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''
@@ -467,8 +500,10 @@ def requires(packages):
     
     for p in packages:
         print '----- "%s" requires the following to work -----' % p
-        depends = get_requires(p)
-        depends.remove(p) # don't need to list self ;-)
+        depends = get_info(p)['requires'].split()
+        # depends = get_requires(p)
+        if p in depends:
+            depends.remove(p) # don't need to list self ;-)
         depends.sort()
         print string.join(depends, '\n')
 #@+node:maphew.20100223163802.3731: *3* search
@@ -907,33 +942,6 @@ def get_mirror():
         mirror = last_mirror
     return mirror
 
-#@+node:maphew.20100223163802.3752: *3* get_missing
-def get_missing(packagename):
-    '''For package, identify any missing requirements (dependencies).'''
-    reqs = get_requires(packagename)
-    lst = []
-    for pkg in reqs:
-        if not pkg in installed[0]:
-            lst.append(pkg)
-
-    # if list exists, and packagename isn't in it,
-    # something else has listed packagename as a dependency
-    # fixme: look back up stream and see who asked for it.
-    if lst and packagename not in lst:
-        sys.stderr.write('warning: missing package: %s\n' % string.join(lst))
-    
-    # I think this is out of place. We've only been asked to identify what's missing,
-    # not if there are new versions available; scope creep.
-    elif packagename in installed[0]:
-        ins = get_installed_version(packagename)
-        new = get_version(packagename)
-        if ins >= new:
-            #sys.stderr.write('%s is already the newest version\n' % packagename)
-            #lst.remove(packagename)
-            pass
-        elif packagename not in lst:
-            lst.append(packagename)
-    return lst
 #@+node:maphew.20100223163802.3753: *3* get_new
 def get_new():
     '''Return list of packages with newer versions than those installed.'''
@@ -1001,7 +1009,7 @@ def get_version(packagename):
     return package['ver']
 
 #@+node:maphew.20100223163802.3759: *3* get_requires
-def get_requires(packagename):
+def xx_get_requires(packagename):
     ''' identify dependencies of package'''
     dist = dists[distname]
     if not dists[distname].has_key(packagename):
@@ -1192,6 +1200,10 @@ def get_info(packagename):
     d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
 
     d['filename'] = os.path.basename(d['zip_path'])
+    
+    # ensure reuires key exists even if it's empty
+    if not 'requires' in d.keys():
+        d['requires'] = ''
     
     return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini

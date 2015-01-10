@@ -691,7 +691,7 @@ def version(packages):
         return
 
     for p in packages:
-        print '%-20s%-12s' % (p, version_to_string(get_installed_version(p)))
+        print '%-20s%-12s' % (p, get_info(p)['version'])
 
 #@+node:maphew.20100302221232.1485: ** Helpers
 #@+node:maphew.20141228100517.4: *3* exceptionHandler

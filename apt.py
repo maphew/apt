@@ -224,13 +224,25 @@ def info(packages):
         print('')
         # NB: only prints fields we know about, if something is added
         # upstream we'll miss it here
-        # for k in 'name, version, sdesc, ldesc, category, requires, zip_path, zip_size, md5, local_zip'.split(', '):
-            # print('{0:9}: {1}'.format(k,d[k]))
-            
-        # This guaranteed to print entire dict contents,
-        # but not in a logical order.
-        for k in d.keys():
-            print('{0:8}:\t{1}'.format(k,d[k]))
+        fields = ['name', 
+            'version', 
+            'sdesc', 
+            'ldesc', 
+            'category', 
+            'requires', 
+            'zip_path', 
+            'zip_size', 
+            'md5', 
+            'local_zip', 
+            'installed']
+        for k in fields:
+            print('{0:9}: {1}'.format(k,d[k]))
+
+        if debug:            
+            # This guaranteed to print entire dict contents,
+            # but not in a logical order.
+            for k in d.keys():
+                print('{0:8}:\t{1}'.format(k,d[k]))
 #@+node:maphew.20100223163802.3722: *3* find
 def find(patterns):
     '''Search installed packages for filenames matching the specified text string.'''

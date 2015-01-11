@@ -1201,9 +1201,14 @@ def get_info(packagename):
 
     d['filename'] = os.path.basename(d['zip_path'])
     
-    # ensure reuires key exists even if it's empty
+    # ensure requires key exists even if it's empty
     if not 'requires' in d.keys():
         d['requires'] = ''
+    
+    if packagename in installed[0].keys():
+        d['installed'] = True
+    else:
+        d['installed'] = False
     
     return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini

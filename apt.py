@@ -1190,12 +1190,13 @@ def get_info(packagename):
     
     # 'install' and 'source keys have compound values, atomize them
     d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-    if 'source' in d.keys():
-        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
     if not debug:
         del d['install']
-        #del d['source']
-    
+    if 'source' in d.keys():
+        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
+        if not debug:
+            del d['source']
+        
     #based on current mirror, might be different from when downloaded and/or installed
     d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
     d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])

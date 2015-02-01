@@ -288,21 +288,28 @@ def install(packages):
         C:\> apt install shell gdal
     '''
     if type(packages) is str: packages = [packages]
-    #print '=== pkgs:', packages # debug
+    if debug:
+        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
+        print '### pkgs:', packages
     
     if not packages:
         sys.stderr.write('\n*** No packages specified. Use "apt available" for ideas. ***\n')
         help('install')
         return
 
-    #identify which pkgs are not yet installed
+    #identify which dependent pkgs are not yet installed
     missing = {}
     for p in packages:
-        missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
+        m = get_missing(p)
+        print(string.join(m))
+        # missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
     if len(missing) > 0:
         sys.stderr.write ('to install:')
         sys.stderr.write ('    %s' % string.join(missing.keys()))
         sys.stderr.write ('\n')
+
+    if debug:
+        print '### missing:', missing
 
     if missing:
         for p in missing.keys():
@@ -312,7 +319,10 @@ def install(packages):
         install_next(missing.keys(), set([]), set([]))
     else:
         print('Already installed!')
+        print(missing, packages, p)
         version(packages) # display versions
+
+    print'end of install'
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
 def install_next(packages, resolved, seen):
 ##    global packagename
@@ -444,32 +454,42 @@ def missing(dummy):
     return missing
 #@+node:maphew.20150110091755.3: *4* get_missing
 def get_missing(packagename):
-    '''For package, identify any missing requirements (dependencies).'''
-    # reqs = get_requires(packagename)
+    '''For package, identify any requirements (dependencies) that are not installed.
+       
+       Returns a dictionary of {packagname: ['missing_1','missing_2','...']}
+    '''
+    if debug:
+        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
+    
+    # build list of required packages
     reqs = get_info(packagename)['requires'].split()
+    
+    # determine which requires are not installed
     lst = []
     for pkg in reqs:
+        if debug: print 'DEBUG: get_info.reqs.pkg:', pkg
         if not pkg in installed[0]:
             lst.append(pkg)
-
+    
     # if list exists, and packagename isn't in it,
     # something else has listed packagename as a dependency
     # fixme: look back up stream and see who asked for it.
     if lst and packagename not in lst:
         sys.stderr.write('warning: missing package: %s\n' % string.join(lst))
     
-    # I think this is out of place. We've only been asked to identify what's missing,
-    # not if there are new versions available; scope creep.
-    elif packagename in installed[0]:
-        ins = get_installed_version(packagename)
-        new = get_version(packagename)
-        if ins >= new:
-            #sys.stderr.write('%s is already the newest version\n' % packagename)
-            #lst.remove(packagename)
-            pass
-        elif packagename not in lst:
-            lst.append(packagename)
-    return lst
+    # # I think this is out of place. We've only been asked to identify what's missing,
+    # # not if there are new versions available; scope creep.
+    # elif packagename in installed[0]:
+        # ins = get_installed_version(packagename)
+        # new = get_version(packagename)
+        # if ins >= new:
+            # #sys.stderr.write('%s is already the newest version\n' % packagename)
+            # #lst.remove(packagename)
+            # pass
+        # elif packagename not in lst:
+            # lst.append(packagename)
+    
+    return {packagename: lst}
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''

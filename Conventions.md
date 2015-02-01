@@ -6,4 +6,11 @@ Not really thought out or set in stone yet, just a summary of a few patterns tha
 
 `p_info`: package info, a dictionary resulting from `get_info(p)`
 
+
+Print name of current function when `--debug` active:
+
+    if debug:
+        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
+
+
  

@@ -183,6 +183,9 @@ def download(packages):
     '''
     if type(packages) is str: packages = [packages]
 
+    if debug:
+        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
+
     if not packages:
         help('download')
         sys.stderr.write("\n*** No package names specified. ***\n")
@@ -191,6 +194,7 @@ def download(packages):
     print "Preparing to download:", ', '.join(packages)
     for p in packages:
         do_download(p)
+        print '### do_download() complete'
         ball(p)
         md5(p)
 #@+node:maphew.20141101125304.3: *3* info
@@ -771,7 +775,9 @@ def debug_old(s):
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
+    print 'do_download:', packagename
     p_info = get_info(packagename)
+    print 'p_info', p_info
     dstFile = p_info['local_zip']
     srcFile = p_info['mirror_path']
     cacheDir = os.path.dirname(dstFile)
@@ -1215,14 +1221,18 @@ def get_info(packagename):
         {'zip_size':'5430991'}
         {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
     '''   
+    print 'get_info()'
     d = dists[distname][packagename]
     d['name'] = packagename
     #print d    # debug peek at incoming dict
     
     # 'install' and 'source keys have compound values, atomize them
     d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-    if not debug:
-        del d['install']
+    
+    # if not debug:
+        # del d['install']
+        ## actual cause of github issue#21!
+        
     if 'source' in d.keys():
         d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
         if not debug:

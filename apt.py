@@ -304,9 +304,14 @@ def install(packages):
     missing = {}
     #missing = []
     for p in packages:
-        missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
+        #missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
             # don't think we need a dict for this, but postponing changing it
+        
+        missing.update (dict (map (lambda x: (x, 0), xx_get_requires(p))))
+            #debug: #21
+        
         #missing.append(string.join(get_missing(p)))
+        
     if len(missing) > 0:
         sys.stderr.write ('to install:')
         sys.stderr.write ('    %s' % string.join(missing.keys()))
@@ -466,6 +471,13 @@ def get_missing(packagename):
     # build list of required packages
     reqs = get_info(packagename)['requires'].split()
     
+    depends = xx_get_requires(packagename)
+        #debug: #21
+    
+    print reqs
+    print depends
+    pause
+    
     # determine which requires are not installed
     lst = []
     for pkg in reqs:
@@ -492,6 +504,34 @@ def get_missing(packagename):
             lst.append(packagename)
     
     return lst
+#@+node:maphew.20150201144500.7: *4* xx_get_requires
+def xx_get_requires(packagename):
+    ''' identify dependencies of package'''
+    dist = dists[distname]
+    if not dists[distname].has_key(packagename):
+        no_package(packagename, distname)
+        #return []
+        sys.exit(1)
+    if depend_p:
+        return [packagename]
+    reqs = {packagename:0}
+    n = 0
+    while len(reqs) > n:
+        n = len(reqs)
+        for i in reqs.keys():
+            if not dist.has_key(i):
+                sys.stderr.write("error: %s not in [%s]\n" \
+                          % (i, distname))
+                if i != packagename:
+                    del reqs[i]
+                continue
+            reqs[i] = '0'
+            p = dist[i]
+            if not p.has_key('requires'):
+                continue
+            reqs.update (dict(map(lambda x: (x, 0),
+                        string.split (p['requires']))))
+    return reqs.keys()
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''
@@ -1042,34 +1082,6 @@ def get_version(packagename):
         package['ver'] = split_ball(ball)[1]
     return package['ver']
 
-#@+node:maphew.20100223163802.3759: *3* get_requires
-def xx_get_requires(packagename):
-    ''' identify dependencies of package'''
-    dist = dists[distname]
-    if not dists[distname].has_key(packagename):
-        no_package(packagename, distname)
-        #return []
-        sys.exit(1)
-    if depend_p:
-        return [packagename]
-    reqs = {packagename:0}
-    n = 0
-    while len(reqs) > n:
-        n = len(reqs)
-        for i in reqs.keys():
-            if not dist.has_key(i):
-                sys.stderr.write("error: %s not in [%s]\n" \
-                          % (i, distname))
-                if i != packagename:
-                    del reqs[i]
-                continue
-            reqs[i] = '0'
-            p = dist[i]
-            if not p.has_key('requires'):
-                continue
-            reqs.update (dict(map(lambda x: (x, 0),
-                        string.split (p['requires']))))
-    return reqs.keys()
 #@+node:maphew.20100308085005.1381: ** Writers
 #@+node:maphew.20100223163802.3750: *3* save_config
 def save_config(fname,values):

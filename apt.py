@@ -298,31 +298,30 @@ def install(packages):
         return
 
     #identify which dependent pkgs are not yet installed
-    missing = {}
+    missing = []
     for p in packages:
-        m = get_missing(p)
-        print(string.join(m))
+        if not p in installed[0]:
+            missing.append(string.join(get_missing(p)))
         # missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
+            # don't think we need a dict for this...
     if len(missing) > 0:
         sys.stderr.write ('to install:')
-        sys.stderr.write ('    %s' % string.join(missing.keys()))
+        # sys.stderr.write ('    %s' % string.join(missing.keys()))
+        sys.stderr.write ('    %s' % string.join(missing))
         sys.stderr.write ('\n')
 
     if debug:
         print '### missing:', missing
 
     if missing:
-        for p in missing.keys():
+        for p in missing:
             download(p)    
         if download_p:  # quit if download only flag is set
             sys.exit(0)
-        install_next(missing.keys(), set([]), set([]))
+        #install_next(missing.keys(), set([]), set([]))
     else:
-        print('Already installed!')
-        print(missing, packages, p)
+        print('Already installed:')
         version(packages) # display versions
-
-    print'end of install'
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
 def install_next(packages, resolved, seen):
 ##    global packagename

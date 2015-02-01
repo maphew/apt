@@ -194,7 +194,6 @@ def download(packages):
     print "Preparing to download:", ', '.join(packages)
     for p in packages:
         do_download(p)
-        print '### do_download() complete'
         ball(p)
         md5(p)
 #@+node:maphew.20141101125304.3: *3* info
@@ -302,27 +301,27 @@ def install(packages):
         return
 
     #identify which dependent pkgs are not yet installed
-    missing = []
+    missing = {}
+    #missing = []
     for p in packages:
-        if not p in installed[0]:
-            missing.append(string.join(get_missing(p)))
-        # missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
-            # don't think we need a dict for this...
+        missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
+            # don't think we need a dict for this, but postponing changing it
+        #missing.append(string.join(get_missing(p)))
     if len(missing) > 0:
         sys.stderr.write ('to install:')
-        # sys.stderr.write ('    %s' % string.join(missing.keys()))
-        sys.stderr.write ('    %s' % string.join(missing))
+        sys.stderr.write ('    %s' % string.join(missing.keys()))
+        # sys.stderr.write ('    %s' % string.join(missing))
         sys.stderr.write ('\n')
 
     if debug:
         print '### missing:', missing
 
     if missing:
-        for p in missing:
+        for p in missing.keys():
             download(p)    
         if download_p:  # quit if download only flag is set
             sys.exit(0)
-        #install_next(missing.keys(), set([]), set([]))
+        install_next(missing.keys(), set([]), set([]))
     else:
         print('Already installed:')
         version(packages) # display versions
@@ -480,19 +479,19 @@ def get_missing(packagename):
     if lst and packagename not in lst:
         sys.stderr.write('warning: missing package: %s\n' % string.join(lst))
     
-    # # I think this is out of place. We've only been asked to identify what's missing,
-    # # not if there are new versions available; scope creep.
-    # elif packagename in installed[0]:
-        # ins = get_installed_version(packagename)
-        # new = get_version(packagename)
-        # if ins >= new:
-            # #sys.stderr.write('%s is already the newest version\n' % packagename)
-            # #lst.remove(packagename)
-            # pass
-        # elif packagename not in lst:
-            # lst.append(packagename)
+    # I think this is out of place. We've only been asked to identify what's missing,
+    # not if there are new versions available; scope creep.
+    elif packagename in installed[0]:
+        ins = get_installed_version(packagename)
+        new = get_version(packagename)
+        if ins >= new:
+            #sys.stderr.write('%s is already the newest version\n' % packagename)
+            #lst.remove(packagename)
+            pass
+        elif packagename not in lst:
+            lst.append(packagename)
     
-    return {packagename: lst}
+    return lst
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''
@@ -775,9 +774,7 @@ def debug_old(s):
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
-    print 'do_download:', packagename
     p_info = get_info(packagename)
-    print 'p_info', p_info
     dstFile = p_info['local_zip']
     srcFile = p_info['mirror_path']
     cacheDir = os.path.dirname(dstFile)

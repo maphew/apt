@@ -1221,18 +1221,16 @@ def get_info(packagename):
         {'zip_size':'5430991'}
         {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
     '''   
-    print 'get_info()'
     d = dists[distname][packagename]
     d['name'] = packagename
     #print d    # debug peek at incoming dict
     
-    # 'install' and 'source keys have compound values, atomize them
-    d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-    
-    # if not debug:
-        # del d['install']
-        ## actual cause of github issue#21!
-        
+    if 'install' in d.keys():
+        # 'install' and 'source keys have compound values, atomize them
+        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+        if not debug:
+            del d['install']
+            
     if 'source' in d.keys():
         d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
         if not debug:

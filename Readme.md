@@ -31,6 +31,8 @@ Download the latest apt-rxx.exe from  http://download.osgeo.org/osgeo4w/release/
 ## Differences from Setup.exe
 Apt strives to match Setup's results as closely as possible, and to not screw anything up that Setup does. User's should never be put in a position where they feel the need to choose between the tools and not go back. 
 
+That's the aspiration. There's no guarantee it's been achieved.
+
 Where I know we depart from Setup:
 
  - `etc/setup/timestamp` apt doesn't create or use this file, while Setup does. Presumably it is to avoid downloading a new package list on every invocation, only when older than X. Apt doesn't need this since it has it's own `apt update` command that's fired at user discretion. Issue #15.
@@ -51,4 +53,3 @@ These fine people have made this program better than I could have managed on my 
 - [cyg-apt](http://www.lilypond.org/~janneke/software/cyg-apt), the original python script by Jan Nieuwenhuizen that started it all.
 - [cyg-apt](https://code.google.com/p/cyg-apt/) - a fork by cjcormie, dev stopped ~2009
 - [apt-cyg](https://github.com/transcode-open/apt-cyg) - written in bash by transcode-open; relatively active and current.
-

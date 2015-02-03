@@ -1,6 +1,7 @@
 # Apt Release Notes #
 
-2014 November
+<s>2014 November</s>
+_Sometime in 2015_
 
 Inside, a **lot** has changed since I last made an apt release, over 2 years ago. On the surface, not so much! The commands are the same, as are their results. A few bugs have been fixed, and there is more feedback and usage notes throughout, but for the most part people probably won't notice much.
 

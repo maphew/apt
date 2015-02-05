@@ -300,34 +300,42 @@ def install(packages):
         help('install')
         return
 
-    to_get = packages[:]
-    print to_get
     # build list of all required packages
     for p in packages:
+        print '\nPPP', p
+        if not p:
+            print 'BREAK!'
+            break
         p_info = get_info(p)
-        reqs = p_info['requires']
+        reqs = p_info['requires'].split(' ')
         print '\npkg \t installed?\n', '-'*20
         print '%s \t %s' % (p, p_info['installed'])
-        print 'Req:', reqs, type(reqs)
-        to_get.extend(reqs)
-        print 'inner', to_get
-        print packages
+        print 'Req:', reqs
+        packages.extend(reqs)
+        print 'inner packages list:', packages
 
-    print 'outer', to_get
+    # remove duplicates
+    print list(set(packages))
+    print set(packages)
+    print packages
+
+    print 'outer packages list:', packages
+
+    print packages
     
-    # remove everything already installed
-    for s in to_get:
+    # skip everything already installed
+    for s in packages:
         if get_info(s)['installed']:
-            while s in to_get:
-                to_get.remove(s)
-    
-    if to_get:
-        for p in to_get:
+            while s in packages:
+                packages.remove(s)
+        
+    if packages:
+        for p in packages:
             download(p)    
         if download_p:  # quit if download only flag is set
             sys.exit(0)
         #install_next(missing.keys(), set([]), set([]))
-        install_next(p)
+        do_install(p)
     else:
         print('Already installed:')
         # version(packages) # display versions
@@ -390,7 +398,7 @@ def install_next(packages, resolved, seen):
         do_install(p)
         resolved.add(p)
 #@+node:maphew.20100223163802.3725: *3* list
-def list(dummy):
+def x_list(dummy):
     '''List installed packages'''
     # fixme: once again, 'dummy' defined but not used. fix after calling structure is refactored
     ## global packagename

@@ -302,33 +302,29 @@ def install(packages):
 
     # build list of all required packages
     for p in packages:
-        print '\nPPP', p
         if not p:
-            print 'BREAK!'
             break
         p_info = get_info(p)
         reqs = p_info['requires'].split(' ')
-        print '\npkg \t installed?\n', '-'*20
-        print '%s \t %s' % (p, p_info['installed'])
-        print 'Req:', reqs
         packages.extend(reqs)
-        print 'inner packages list:', packages
 
-    # remove duplicates
-    print list(set(packages))
-    print set(packages)
-    print packages
-
-    print 'outer packages list:', packages
-
-    print packages
+    # remove duplicates and empty items
+    packages = list(set(packages))
+    packages = [i for i in packages if i != '']
     
     # skip everything already installed
-    for s in packages:
-        if get_info(s)['installed']:
-            while s in packages:
-                packages.remove(s)
-        
+    for p in packages:
+        if not p:
+            break
+        if get_info(p)['installed']:
+            print p, 'already installed, skipping.'
+            packages.remove(p)
+            # while p in packages:
+                # packages.remove(p)
+            print packages
+
+    print 'asdfasdfsafsafasfdsadf', packages
+    
     if packages:
         for p in packages:
             download(p)    

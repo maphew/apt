@@ -300,36 +300,69 @@ def install(packages):
         help('install')
         return
 
-    #identify which dependent pkgs are not yet installed
-    missing = {}
-    #missing = []
+    to_get = packages[:]
+    print to_get
+    # build list of all required packages
     for p in packages:
-        #missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
-            # don't think we need a dict for this, but postponing changing it
-        
-        missing.update (dict (map (lambda x: (x, 0), xx_get_requires(p))))
-            #debug: #21
-        
-        #missing.append(string.join(get_missing(p)))
-        
-    if len(missing) > 0:
-        sys.stderr.write ('to install:')
-        sys.stderr.write ('    %s' % string.join(missing.keys()))
-        # sys.stderr.write ('    %s' % string.join(missing))
-        sys.stderr.write ('\n')
+        p_info = get_info(p)
+        reqs = p_info['requires']
+        print '\npkg \t installed?\n', '-'*20
+        print '%s \t %s' % (p, p_info['installed'])
+        print 'Req:', reqs, type(reqs)
+        to_get.extend(reqs)
+        print 'inner', to_get
+        print packages
 
-    if debug:
-        print '### missing:', missing
-
-    if missing:
-        for p in missing.keys():
+    print 'outer', to_get
+    
+    # remove everything already installed
+    for s in to_get:
+        if get_info(s)['installed']:
+            while s in to_get:
+                to_get.remove(s)
+    
+    if to_get:
+        for p in to_get:
             download(p)    
         if download_p:  # quit if download only flag is set
             sys.exit(0)
-        install_next(missing.keys(), set([]), set([]))
+        #install_next(missing.keys(), set([]), set([]))
+        install_next(p)
     else:
         print('Already installed:')
-        version(packages) # display versions
+        # version(packages) # display versions
+#@+node:maphew.20150204213908.5: *4* #identify which dependent pkgs are not yet installed
+#@+at
+# missing = {}
+# #missing = []
+# for p in packages:
+#     #missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
+#         # don't think we need a dict for this, but postponing changing it
+#     
+#     missing.update (dict (map (lambda x: (x, 0), xx_get_requires(p))))
+#         #debug: #21
+#     
+#     #missing.append(string.join(get_missing(p)))
+#     
+# if len(missing) > 0:
+#     sys.stderr.write ('to install:')
+#     sys.stderr.write ('    %s' % string.join(missing.keys()))
+#     # sys.stderr.write ('    %s' % string.join(missing))
+#     sys.stderr.write ('\n')
+# 
+# if debug:
+#     print '### missing:', missing
+# 
+#     if missing:
+#         for p in missing.keys():
+#             download(p)    
+#         if download_p:  # quit if download only flag is set
+#             sys.exit(0)
+#         install_next(missing.keys(), set([]), set([]))
+#     else:
+#         print('Already installed:')
+#         version(packages) # display versions
+#     
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
 def install_next(packages, resolved, seen):
 ##    global packagename
@@ -473,10 +506,8 @@ def get_missing(packagename):
     
     depends = xx_get_requires(packagename)
         #debug: #21
-    
-    print reqs
-    print depends
-    pause
+    # print reqs
+    # print depends
     
     # determine which requires are not installed
     lst = []

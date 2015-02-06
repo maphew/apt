@@ -300,30 +300,22 @@ def install(packages):
         help('install')
         return
 
-    # build list of all required packages
+    # build list of dependencies
     reqs = []
     for p in packages:
-        # if not p:
-            # break
-        p_info = get_info(p)
-        #reqs.extend(p_info['requires'].split(' '))
-            # TODO: up stream returns a string, I think we want it to
-            # always return a list. Fix up stream in parse_setup_ini().
-        #packages.extend(reqs)
         reqs.extend(get_requires(p))
-
-    print '--- To install:', packages
-    print '--- & dependendencies:', reqs
-
+    if debug:
+        print '--- To install:', packages
+        print '--- & dependendencies:', reqs
+    
     # remove duplicates and empty items
     packages = list(set(packages))
     packages = [i for i in packages if i != '']
-    
     reqs = list(set(reqs))
-    reqs = [i for i in reqs if i != '']
-    
-    print '--- To install:', packages
-    print '--- & dependendencies:', reqs
+    reqs = [i for i in reqs if i != '']    
+    if debug:
+        print '--- To install:', packages
+        print '--- & dependendencies:', reqs
     
     # skip everything already installed
     for p in packages:
@@ -332,10 +324,11 @@ def install(packages):
             break
         if get_info(p)['installed']:
             print p, 'already installed, skipping.'
-            packages.remove(p)
-            # while p in packages:
-                # packages.remove(p)
-            print packages
+            # packages.remove(p)
+            while p in packages:
+                packages.remove(p)
+            if debug:
+                print packages
     del p
 
     # skip installed dependencies
@@ -345,14 +338,19 @@ def install(packages):
             # reqs.remove(p)
             while r in reqs:
                 reqs.remove(r)
-            print reqs
-
-    print '--- To install:', packages
-    print '--- & dependendencies:', reqs
-    force_crash
+            if debug:
+                print reqs
+    if debug:
+        print '--- To install:', packages
+        print '--- & dependendencies:', reqs
         
     if packages:
-        for p in packages:
+        todo = reqs + packages
+        todo = list(set(todo))
+        todo = [i for i in todo if i != '']    
+        if debug:
+            print '--- To install:', todo
+        for p in todo:
             download(p)    
         if download_p:  # quit if download only flag is set
             sys.exit(0)
@@ -534,7 +532,7 @@ def get_missing(packagename):
     # build list of required packages
     reqs = get_info(packagename)['requires'].split()
     
-    depends = xx_get_requires(packagename)
+    depends = get_requires(packagename)
         #debug: #21
     # print reqs
     # print depends

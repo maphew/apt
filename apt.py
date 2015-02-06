@@ -301,19 +301,29 @@ def install(packages):
         return
 
     # build list of all required packages
+    reqs = []
     for p in packages:
-        if not p:
-            break
+        # if not p:
+            # break
         p_info = get_info(p)
-        reqs = p_info['requires'].split(' ')
-        packages.extend(reqs)
+        reqs.extend(p_info['requires'].split(' '))
+            # TODO: up stream returns a string, I think we want it to
+            # always return a list. Fix up stream in parse_setup_ini().
+        #packages.extend(reqs)
 
     # remove duplicates and empty items
     packages = list(set(packages))
     packages = [i for i in packages if i != '']
     
+    reqs = list(set(packages))
+    reqs = [i for i in packages if i != '']
+    
+    print '--- To install:', packages
+    print '--- & dependendencies:', reqs
+    
     # skip everything already installed
     for p in packages:
+        print 'Is %s installed already?' % p
         if not p:
             break
         if get_info(p)['installed']:
@@ -323,8 +333,19 @@ def install(packages):
                 # packages.remove(p)
             print packages
 
-    print 'asdfasdfsafsafasfdsadf', packages
-    
+    # skip installed dependencies
+    for p in reqs:
+        if get_info(p)['installed']:
+            print p, 'already installed, skipping.'
+            # reqs.remove(p)
+            while p in reqs:
+                reqs.remove(p)
+            print reqs
+
+    print '--- To install:', packages
+    print '--- & dependendencies:', reqs
+    pause
+        
     if packages:
         for p in packages:
             download(p)    

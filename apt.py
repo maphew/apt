@@ -306,17 +306,21 @@ def install(packages):
         # if not p:
             # break
         p_info = get_info(p)
-        reqs.extend(p_info['requires'].split(' '))
+        #reqs.extend(p_info['requires'].split(' '))
             # TODO: up stream returns a string, I think we want it to
             # always return a list. Fix up stream in parse_setup_ini().
         #packages.extend(reqs)
+        reqs.extend(get_requires(p))
+
+    print '--- To install:', packages
+    print '--- & dependendencies:', reqs
 
     # remove duplicates and empty items
     packages = list(set(packages))
     packages = [i for i in packages if i != '']
     
-    reqs = list(set(packages))
-    reqs = [i for i in packages if i != '']
+    reqs = list(set(reqs))
+    reqs = [i for i in reqs if i != '']
     
     print '--- To install:', packages
     print '--- & dependendencies:', reqs
@@ -332,19 +336,20 @@ def install(packages):
             # while p in packages:
                 # packages.remove(p)
             print packages
+    del p
 
     # skip installed dependencies
-    for p in reqs:
-        if get_info(p)['installed']:
-            print p, 'already installed, skipping.'
+    for r in reqs:
+        if get_info(r)['installed']:
+            print r, 'already installed, skipping.'
             # reqs.remove(p)
-            while p in reqs:
-                reqs.remove(p)
+            while r in reqs:
+                reqs.remove(r)
             print reqs
 
     print '--- To install:', packages
     print '--- & dependendencies:', reqs
-    pause
+    force_crash
         
     if packages:
         for p in packages:
@@ -560,8 +565,8 @@ def get_missing(packagename):
             lst.append(packagename)
     
     return lst
-#@+node:maphew.20150201144500.7: *4* xx_get_requires
-def xx_get_requires(packagename):
+#@+node:maphew.20150201144500.7: *4* get_requires
+def get_requires(packagename):
     ''' identify dependencies of package'''
     dist = dists[distname]
     if not dists[distname].has_key(packagename):

@@ -310,10 +310,8 @@ def install(packages):
         print '--- & dependendencies:', reqs
     
     # remove duplicates and empty items
-    packages = list(set(packages))
-    packages = [i for i in packages if i != '']
-    reqs = list(set(reqs))
-    reqs = [i for i in reqs if i != '']    
+    packages = unique(packages)
+    reqs = unique(reqs)
     if debug:
         print '\n### post "remove dupes and empties"'
         print '--- To install:', packages
@@ -424,6 +422,12 @@ def install_next(packages, resolved, seen):
                   % (p, version_to_string(get_version(p))))
         do_install(p)
         resolved.add(p)
+#@+node:maphew.20150208163633.3: *4* def unique
+def unique(L):
+    '''Remove duplicates and empty items from a list'''
+    L = list(set(L))
+    L = [i for i in L if i != '']
+    return L
 #@+node:maphew.20100223163802.3725: *3* list
 def x_list(dummy):
     '''List installed packages'''

@@ -299,7 +299,7 @@ def install(packages):
         sys.stderr.write('\n*** No packages specified. Use "apt available" for ideas. ***\n')
         help('install')
         return
-
+    
     # build list of dependencies
     reqs = []
     for p in packages:
@@ -309,7 +309,13 @@ def install(packages):
     # remove duplicates and empty items
     packages = unique(packages)
     reqs = unique(reqs)
+    # don't need pkg dupes listed in requires
+    for p in packages:
+        while p in reqs[:]:
+            reqs.remove(p)    
     if debug: print 'Unique PKGS: %s, REQS: %s' % (packages, reqs)
+    pkgs_requested = packages[:] # save copy for later
+    reqs_requested = reqs[:]
     
     # skip everything already installed
     # for p in packages:
@@ -317,22 +323,17 @@ def install(packages):
         # http://stackoverflow.com/a/1207427/14420
     print 'PKGS: Checking install status:', ' '.join(packages)
     for p in packages[:]:
-        if debug: print '%s - %s' % (p, get_info(p)['installed'])
+        print '\t %s - %s' % (p, get_info(p)['installed'])
         if get_info(p)['installed']:
             packages.remove(p)
 
     # skip installed dependencies
-    print 'REQS: Checking install status:', ' '.join(reqs)
+    print 'REQS: Checking dependencies installed:', ' '.join(reqs)
     for r in reqs[:]:
-        if debug: print '%s - %s' % (r, get_info(r)['installed'])
+        print '\t %s - %s' % (r, get_info(r)['installed'])
         if get_info(r)['installed']:
             reqs.remove(r)
     
-    # don't need pkg dupes listed in requires
-    for p in packages[:]:
-        while p in reqs[:]:
-            reqs.remove(p)
-
     if debug: print 'Not installed PKGS: %s, REQS: %s' % (packages, reqs)
     
     if reqs:
@@ -351,8 +352,10 @@ def install(packages):
         do_install(p)
 
     else:
-        print 'Packages and required dependencies already installed.'
-        # version(packages) # display versions
+        print '\nPackages and required dependencies are installed.\n'
+        version(pkgs_requested)
+        print ''
+        version(reqs_requested)
 #@+node:maphew.20150204213908.5: *4* #identify which dependent pkgs are not yet installed
 #@+at
 # missing = {}

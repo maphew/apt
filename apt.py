@@ -304,51 +304,40 @@ def install(packages):
     reqs = []
     for p in packages:
         reqs.extend(get_requires(p))
-    if debug:
-        print '\n### post "build list of dependencies'
-        print '--- To install:', packages
-        print '--- & dependendencies:', reqs
+    if debug: print 'PKGS: %s, REQS: %s' % (packages, reqs)
     
     # remove duplicates and empty items
     packages = unique(packages)
     reqs = unique(reqs)
-    if debug:
-        print '\n### post "remove dupes and empties"'
-        print '--- To install:', packages
-        print '--- & dependendencies:', reqs
+    if debug: print 'Unique PKGS: %s, REQS: %s' % (packages, reqs)
     
     # skip everything already installed
+    print 'PKGS: Checking install status'
     for p in packages:
-        print 'Is %s installed already?' % p
-        # if not p:
-            # break
-        print 'Pkg: %s, - %s' % (p, get_info(p)['installed'])
+        if debug: print '%s - %s' % (p, get_info(p)['installed'])
         if get_info(p)['installed']:
-            print '\t %s pkg already installed, skipping.' % p
             # packages.remove(p)
             while p in packages:
                 packages.remove(p)
-            if debug:
-                print '\tRemaining:', packages
-        else:
-            print '\t %s not yet installed' % p
     del p
 
     # skip installed dependencies
+    print 'REQS: Checking install status'
     for r in reqs:
-        print 'Req: %s, - %s' % (r, get_info(r)['installed'])
+        if debug: print '%s, - %s' % (r, get_info(r)['installed'])
         if get_info(r)['installed']:
-            print '\n %s req already installed, skipping.' % r
             # reqs.remove(p)
             while r in reqs:
                 reqs.remove(r)
-            if debug:
-                print reqs
-    if debug:
-        print '\n### post "skip installed deps"'        
-        print '--- To install:', packages
-        print '--- & dependendencies:', reqs
-        
+    del r
+
+    # don't need pkg dupes listed in requires
+    for p in packages:
+        while p in reqs:
+            reqs.remove(p)
+
+    if debug: print 'Not installed PKGS: %s, REQS: %s' % (packages, reqs)
+    
     if packages:
         todo = reqs + packages
         todo = list(set(todo))

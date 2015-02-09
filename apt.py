@@ -305,6 +305,7 @@ def install(packages):
     for p in packages:
         reqs.extend(get_requires(p))
     if debug:
+        print '\n### post "build list of dependencies'
         print '--- To install:', packages
         print '--- & dependendencies:', reqs
     
@@ -314,33 +315,39 @@ def install(packages):
     reqs = list(set(reqs))
     reqs = [i for i in reqs if i != '']    
     if debug:
+        print '\n### post "remove dupes and empties"'
         print '--- To install:', packages
         print '--- & dependendencies:', reqs
     
     # skip everything already installed
     for p in packages:
         print 'Is %s installed already?' % p
-        if not p:
-            break
+        # if not p:
+            # break
+        print 'Pkg: %s, - %s' % (p, get_info(p)['installed'])
         if get_info(p)['installed']:
-            print p, 'already installed, skipping.'
+            print '\t %s pkg already installed, skipping.' % p
             # packages.remove(p)
             while p in packages:
                 packages.remove(p)
             if debug:
-                print packages
+                print '\tRemaining:', packages
+        else:
+            print '\t %s not yet installed' % p
     del p
 
     # skip installed dependencies
     for r in reqs:
+        print 'Req: %s, - %s' % (r, get_info(r)['installed'])
         if get_info(r)['installed']:
-            print r, 'already installed, skipping.'
+            print '\n %s req already installed, skipping.' % r
             # reqs.remove(p)
             while r in reqs:
                 reqs.remove(r)
             if debug:
                 print reqs
     if debug:
+        print '\n### post "skip installed deps"'        
         print '--- To install:', packages
         print '--- & dependendencies:', reqs
         

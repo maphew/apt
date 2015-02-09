@@ -322,15 +322,22 @@ def install(packages):
     del p
 
     # skip installed dependencies
-    print 'REQS: Checking install status'
+    print 'REQS: Checking install status', reqs
+    print len(reqs)
+    count = 0
     for r in reqs:
-        if debug: print '%s, - %s' % (r, get_info(r)['installed'])
+        count += 1
+        if debug: print '%s - %s' % (r, get_info(r)['installed'])
         if get_info(r)['installed']:
-            # reqs.remove(p)
-            while r in reqs:
-                reqs.remove(r)
+            reqs.remove(r)
+            # while r in reqs:
+                # reqs.remove(r)
+        else:
+            print '%s - %s' % (r, get_info(r)['installed'])
+        print '--- end "for r in reqs"', count
     del r
-
+    print count
+    
     # don't need pkg dupes listed in requires
     for p in packages:
         while p in reqs:
@@ -338,20 +345,23 @@ def install(packages):
 
     if debug: print 'Not installed PKGS: %s, REQS: %s' % (packages, reqs)
     
+    if reqs:
+        print 'REQS: --- To install:', reqs
+        for r in reqs:
+            download(r)
+            if download_p:  # quit if download only flag is set
+                sys.exit(0)
+            do_install(r)
     if packages:
-        todo = reqs + packages
-        todo = list(set(todo))
-        todo = [i for i in todo if i != '']    
-        if debug:
-            print '--- To install:', todo
+        print 'PKGS: --- To install:', packages
         for p in todo:
             download(p)    
         if download_p:  # quit if download only flag is set
             sys.exit(0)
-        #install_next(missing.keys(), set([]), set([]))
         do_install(p)
+
     else:
-        print('Already installed:')
+        print('Already installed:'), packages
         # version(packages) # display versions
 #@+node:maphew.20150204213908.5: *4* #identify which dependent pkgs are not yet installed
 #@+at

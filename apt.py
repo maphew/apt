@@ -312,35 +312,25 @@ def install(packages):
     if debug: print 'Unique PKGS: %s, REQS: %s' % (packages, reqs)
     
     # skip everything already installed
-    print 'PKGS: Checking install status'
-    for p in packages:
+    # for p in packages:
+        # Skips items! See "Remove items from a list while iterating in Python"
+        # http://stackoverflow.com/a/1207427/14420
+    print 'PKGS: Checking install status:', ' '.join(packages)
+    for p in packages[:]:
         if debug: print '%s - %s' % (p, get_info(p)['installed'])
         if get_info(p)['installed']:
-            # packages.remove(p)
-            while p in packages:
-                packages.remove(p)
-    del p
+            packages.remove(p)
 
     # skip installed dependencies
-    print 'REQS: Checking install status', reqs
-    print len(reqs)
-    count = 0
-    for r in reqs:
-        count += 1
+    print 'REQS: Checking install status:', ' '.join(reqs)
+    for r in reqs[:]:
         if debug: print '%s - %s' % (r, get_info(r)['installed'])
         if get_info(r)['installed']:
             reqs.remove(r)
-            # while r in reqs:
-                # reqs.remove(r)
-        else:
-            print '%s - %s' % (r, get_info(r)['installed'])
-        print '--- end "for r in reqs"', count
-    del r
-    print count
     
     # don't need pkg dupes listed in requires
-    for p in packages:
-        while p in reqs:
+    for p in packages[:]:
+        while p in reqs[:]:
             reqs.remove(p)
 
     if debug: print 'Not installed PKGS: %s, REQS: %s' % (packages, reqs)
@@ -361,7 +351,7 @@ def install(packages):
         do_install(p)
 
     else:
-        print('Already installed:'), packages
+        print 'Packages and required dependencies already installed.'
         # version(packages) # display versions
 #@+node:maphew.20150204213908.5: *4* #identify which dependent pkgs are not yet installed
 #@+at

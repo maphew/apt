@@ -338,14 +338,14 @@ def install(packages):
     
     if reqs:
         print 'REQS: --- To install:', reqs
-        for r in reqs:
+        for r in reversed(reqs):
             download(r)
             if download_p:  # quit if download only flag is set
                 sys.exit(0)
             do_install(r)
     if packages:
         print 'PKGS: --- To install:', packages
-        for p in todo:
+        for p in packages:
             download(p)    
         if download_p:  # quit if download only flag is set
             sys.exit(0)

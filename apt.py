@@ -53,7 +53,7 @@ Commands:
     help - show help for COMMAND
     info - report name, version, category etc. for specified packages
     install - download and install packages, including dependencies
-    list - installed packages
+    list-installed - report installed packages
     listfiles - installed with package X
     md5 - check md5 sum
     missing - print missing dependencies for X
@@ -420,8 +420,8 @@ def unique(L):
     L = list(set(L))
     L = [i for i in L if i != '']
     return L
-#@+node:maphew.20100223163802.3725: *3* list
-def x_list(dummy):
+#@+node:maphew.20100223163802.3725: *3* list_installed
+def list_installed(dummy):
     '''List installed packages'''
     # fixme: once again, 'dummy' defined but not used. fix after calling structure is refactored
     ## global packagename
@@ -1691,9 +1691,10 @@ if __name__ == '__main__':
                       ('download', 'help', 'mirror=', 'root='
                        'ini=', 't=', 'start-menu=', 'no-deps', 
                        'debug', 'verbose'))
-    # the first parameter is our action
+    # the first parameter is our action,
+    # and change `list-installed` to `list_installed`
     if len(params) > 0:
-        command = params[0]
+        command = params[0].replace('-','_')
     else:
         command = 'help'
 

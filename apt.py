@@ -1389,31 +1389,38 @@ def parse_setup_ini(fname):
         packages[name] = records
 
     # this duplicated from get_info()
+    # ...in order to populate keys built from 'install' and 'source'
+    # FIXME: apply DRY and split into smaller re-usable functions
     for p in packages:
         # print p
         # print dists[distname][p]['install']
         d = dists[distname][p]
         d['name'] = p
         #print d    # debug peek at incoming dict
-        
-        # 'install' and 'source keys have compound values, atomize them
-        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-        # del d['install']
-        if 'source' in d.keys():
+        try:
+            # 'install' and 'source keys have compound values, atomize them
+            d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+            if not debug:
+                del d['install']
+        except KeyError as e:
+            d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
+            print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
+
+        try:
             d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-            del d['source']
+            if not debug:
+                del d['source']
+        except KeyError as e:
+            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
             
         #based on current mirror, might be different from when downloaded and/or installed
         d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
         d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
-        
+            
         # insert the parsed fields back into parent dict
         dists[distname][p] = d
         
-    # # print dists[distname]['gdal'].keys()
-    # dists = AttrDict(dists) # allow using dotted notation, e.g. print dists.curr.gdal
-    # # print dists.curr.gdal
-    
+    # # print dists[distname]['gdal'].keys()    
     return dists
 #@+node:maphew.20100223163802.3760: *3* join_ball
 def join_ball(t):

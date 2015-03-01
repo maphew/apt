@@ -23,7 +23,5 @@ goto :EOF
     goto :eof
 :Usage
     echo.
-    echo.   Specify apt command to test, or use "all" for everything.
-    echo.
+    echo.   Specify apt command to test; use "all" for everything.
     goto :eof
-    

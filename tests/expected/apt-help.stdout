@@ -1,0 +1,35 @@
+-={ 2015-01.Dev }=-
+
+apt [OPTION]... COMMAND [PACKAGE]...
+
+Commands:
+    available -  show packages available to be installed
+    ball - print full path name of package archive
+    download - download package
+    find - package containing file (from installed packages)
+    help - show help for COMMAND
+    info - report name, version, category etc. for specified packages
+    install - download and install packages, including dependencies
+    list-installed - report installed packages
+    listfiles - installed with package X
+    md5 - check md5 sum
+    missing - print missing dependencies for X
+    new - list available upgrades to currently installed packages
+    remove - uninstall packages
+    requires - report package dependencies
+    search - search available packages list for X
+    setup - skeleton installed packages environment
+    update - setup.ini
+    upgrade - all installed packages
+    url - print package archive path, relative to mirror root
+    version - print installed version of X
+
+Options:
+    -d,--download          download only
+    -i,--ini=FILE          use setup.ini [B:/o4w//etc/setup//setup.ini]
+    -m,--mirror=URL        use mirror [http://download.osgeo.org/osgeo4w/]
+    -r,--root=DIR          set osgeo4w root [B:/o4w/]
+    -t,--t=NAME            set dist name (*curr*, test, prev)
+    -x,--no-deps           ignore dependencies
+    -s,--start-menu=NAME   set the start menu name (OSGeo4W)
+       --debug             display debugging statements (very noisy)

@@ -1,0 +1,21 @@
+
+*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
+
+
+info - report name, version, category, etc. about the package(s)
+        
+    B:\> apt info shell
+    
+    name     : shell
+    version  : 1.0.0-13
+    sdesc    : "OSGeo4W Command Shell"
+    ldesc    : "Menu and Desktop icon launch OSGeo4W command shell"
+    category : Commandline_Utilities
+    requires : msvcrt setup
+    zip_path : x86/release/shell/shell-1.0.0-13.tar.bz2
+    zip_size : 3763
+    md5      : c38f03d2b7160f891fc36ec776ca4685
+    local_zip: d:/temp/o4w-cache/setup/http%3.../shell-1.0.0-13.tar.bz2
+        
+    Note: "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
+    

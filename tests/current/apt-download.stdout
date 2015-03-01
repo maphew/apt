@@ -1,0 +1,18 @@
+
+*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
+
+
+Download the package(s) from mirror and save in local cache folder:
+    
+    C:\> apt download shell gdal {...etc}
+        
+    shell = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/shell/shell-1.0.0-13.tar.bz2
+    remote:  c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2
+    local:   c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2
+    
+    gdal = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/gdal/gdal-1.11.1-4.tar.bz2
+    remote:  3b60f036f0d29c401d0927a9ae000f0c  gdal-1.11.1-4.tar.bz2
+    local:   3b60f036f0d29c401d0927a9ae000f0c  gdal-1.11.1-4.tar.bz2    
+        
+    Use `apt available` to see what is on the mirror for downloading.
+    

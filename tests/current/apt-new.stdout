@@ -1,0 +1,7 @@
+
+*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
+
+Package             Installed   Available
+-----------------   ---------   ----------
+
+TypeError: no_package() takes at least 2 arguments (0 given)

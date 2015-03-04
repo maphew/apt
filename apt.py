@@ -16,7 +16,7 @@
   beginning July 2008
 
 '''
-apt_version = '2015-01.Dev'
+apt_version = '0.3-1-dev'
 #@-<<docstring>>
 #@@language python
 #@@tabwidth -4

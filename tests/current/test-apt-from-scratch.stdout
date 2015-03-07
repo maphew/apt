@@ -1,0 +1,224 @@
+
+   Ensuring clean environment
+
+
+   Building installer script
+
+
+B:\code\apt\tests\\..\..\..\dist\apt\apt.exe setup
+B:\code\apt\tests\\..\..\..\dist\apt\apt.exe update
+B:\code\apt\tests\\..\..\..\dist\apt\apt.exe install apt
+
+osgeo4w_7464>
+B:\code\apt\tests\\..\..\..\dist\apt\apt.exe setup
+Couldn't open C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/etc/setup//setup.rc,
+ setting empty
+creating C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/etc/setup/
+creating C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/etc/setup//installed.db
+getting C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/etc/setup//setup.ini
+Fetching http://download.osgeo.org/osgeo4w//x86//setup.ini.bz2
+...100%
+
+    Osgeo4w folders and setup config exist; skeleton environment is complete.
+
+    You might try `apt available` and `apt install` next.
+
+
+osgeo4w_7464>
+B:\code\apt\tests\\..\..\..\dist\apt\apt.exe update
+Couldn't open C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/etc/setup//setup.rc,
+ setting empty
+Fetching http://download.osgeo.org/osgeo4w//x86//setup.ini.bz2
+...100%
+
+osgeo4w_7464>
+B:\code\apt\tests\\..\..\..\dist\apt\apt.exe install apt
+Couldn't open C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/etc/setup//setup.rc,
+ setting empty
+
+*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might c
+ause problems.
+
+PKGS: Checking install status: apt
+         apt - False
+REQS: Checking dependencies installed: shell setup python-core sqlite3 msvcrt
+         shell - False
+         setup - False
+         python-core - False
+         sqlite3 - False
+         msvcrt - False
+REQS: --- To install: ['shell', 'setup', 'python-core', 'sqlite3', 'msvcrt']
+Preparing to download: msvcrt
+
+Fetching http://download.osgeo.org/osgeo4w//x86/release/msvcrt/msvcrt-1.0.1-12.t
+ar.bz2
+...100%
+msvcrt = C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2
+f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/msvcrt/msvcrt-1.0.1-12.tar.bz2
+C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f%2fdownl
+oad.osgeo.org%2fosgeo4w%2f/x86/release/msvcrt/msvcrt-1.0.1-12.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 8cd7567b4afc9e88184c9db06ca0e473
+        local:  8cd7567b4afc9e88184c9db06ca0e473
+
+osgeo4w_7464>
+for %f in ("C:\Users\Matt\AppData\Local\Temp") do call set TEMPDRIVE=%~df
+
+osgeo4w_7464>
+call set TEMPDRIVE=C:
+
+osgeo4w_7464>
+cd "C:\Users\Matt\AppData\Local\Temp"
+
+osgeo4w_7464>
+"C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\vcredist_2005_x86.exe" /q /t:
+C:
+
+osgeo4w_7464>
+if errorlevel 3010 echo1>"C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\etc\rebo
+ot"
+
+osgeo4w_7464>
+del "C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\vcredist_2005_x86.exe"
+
+osgeo4w_7464>
+"C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\vcredist_2008_x86.exe" /q
+Access is denied.
+
+osgeo4w_7464>
+if errorlevel 3010 echo1>"C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\etc\rebo
+ot"
+
+osgeo4w_7464>
+del "C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\vcredist_2008_x86.exe"
+
+osgeo4w_7464>
+"C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\vcredist_2010_x86.exe" /q
+Access is denied.
+
+osgeo4w_7464>
+if errorlevel 3010 echo1>"C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\etc\rebo
+ot"
+
+osgeo4w_7464>
+del "C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\vcredist_2010_x86.exe"
+Post_install complete, return code 0
+Preparing to download: sqlite3
+
+Fetching http://download.osgeo.org/osgeo4w//x86/release/sqlite3/sqlite3-3.7.17-1
+.tar.bz2
+...100%
+sqlite3 = C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%
+2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/sqlite3/sqlite3-3.7.17-1.tar.bz
+2
+C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f%2fdownl
+oad.osgeo.org%2fosgeo4w%2f/x86/release/sqlite3/sqlite3-3.7.17-1.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 7e2e16d0b72a0a5d9ccd060bdde56b99
+        local:  7e2e16d0b72a0a5d9ccd060bdde56b99
+Preparing to download: python-core
+
+Fetching http://download.osgeo.org/osgeo4w//x86/release/python/python-core/pytho
+n-core-2.7.4-3.tar.bz2
+...100%
+python-core = C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http
+%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/python/python-core/python-c
+ore-2.7.4-3.tar.bz2
+C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f%2fdownl
+oad.osgeo.org%2fosgeo4w%2f/x86/release/python/python-core/python-core-2.7.4-3.ta
+r.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: e212dea81e83a0ab5caeaa5cd3c53145
+        local:  e212dea81e83a0ab5caeaa5cd3c53145
+
+osgeo4w_7464>
+call "C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\make-bat-for-py.bat"
+
+    Generating .bat files for all .py files in C:\Users\Matt\AppData\Local\Temp\
+osgeo4w_7464\bin
+
+Post_install complete, return code 0
+Preparing to download: setup
+
+Fetching http://download.osgeo.org/osgeo4w//x86/release/setup/setup-1.0.7-10.tar
+.bz2
+...100%
+setup = C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f
+%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/setup/setup-1.0.7-10.tar.bz2
+C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f%2fdownl
+oad.osgeo.org%2fosgeo4w%2f/x86/release/setup/setup-1.0.7-10.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 83b101be126692b9af34120d168ef8d9
+        local:  83b101be126692b9af34120d168ef8d9
+
+osgeo4w_7464>
+nircmd shortcut "C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\nircmd.exe" "
+C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W" "Setup" "exec hide
+ ~qC:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\bin\setup.bat~q -R ~qC:\Users\M
+att\AppData\Local\Temp\osgeo4w_7464~q" "C:\Users\Matt\AppData\Local\Temp\osgeo4w
+_7464\OSGeo4W.ico"
+
+osgeo4w_7464>
+textreplace -std -t bin/setup.bat
+
+osgeo4w_7464>
+textreplace -std -t bin/setup-test.bat
+Post_install complete, return code 0
+Preparing to download: shell
+
+Fetching http://download.osgeo.org/osgeo4w//x86/release/shell/shell-1.0.0-13.tar
+.bz2
+...100%
+shell = C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f
+%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/shell/shell-1.0.0-13.tar.bz2
+C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f%2fdownl
+oad.osgeo.org%2fosgeo4w%2f/x86/release/shell/shell-1.0.0-13.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: c38f03d2b7160f891fc36ec776ca4685
+        local:  c38f03d2b7160f891fc36ec776ca4685
+
+osgeo4w_7464>
+mkdir "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W"
+Access is denied.
+
+osgeo4w_7464>
+xxmklink "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W\OSGeo4W.l
+nk" "C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\OSGeo4W.bat" " " \ "OSGeo for
+ Windows command shell" 1 "C:\Users\Matt\AppData\Local\Temp\osgeo4w_7464\OSGeo4W
+.ico"
+
+XXMkLink     ver 1.00    (c)2005 Copyright  Pixelab, Inc.
+
+
+Failed to create the shortcut.
+
+osgeo4w_7464>
+xxmklink "C:\ProgramData\Desktop\OSGeo4W.lnk" "C:\Users\Matt\AppData\Local\Temp\
+osgeo4w_7464\OSGeo4W.bat" " " \ "OSGeo for Windows command shell" 1 "C:\Users\Ma
+tt\AppData\Local\Temp\osgeo4w_7464\OSGeo4W.ico"
+
+XXMkLink     ver 1.00    (c)2005 Copyright  Pixelab, Inc.
+
+
+Failed to create the shortcut.
+Post_install complete, return code 1
+PKGS: --- To install: ['apt']
+Preparing to download: apt
+
+Fetching http://download.osgeo.org/osgeo4w//x86/release/apt/apt-0.3-1.tar.bz2
+...100%
+apt = C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f%2
+fdownload.osgeo.org%2fosgeo4w%2f/x86/release/apt/apt-0.3-1.tar.bz2
+C:/Users/Matt/AppData/Local/Temp/osgeo4w_7464/var/cache/setup/http%3a%2f%2fdownl
+oad.osgeo.org%2fosgeo4w%2f/x86/release/apt/apt-0.3-1.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: e6f900c62b4cbee1c4092e1d1d8244d1
+        local:  e6f900c62b4cbee1c4092e1d1d8244d1
+
+osgeo4w_7464>

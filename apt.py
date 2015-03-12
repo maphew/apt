@@ -192,10 +192,18 @@ def download(packages):
         return
     
     print "Preparing to download:", ', '.join(packages)
+    # for p in packages:
+    #     do_download(p)
+    #     ball(p)
+    #     md5(p)
+    # amr66-patch-1
     for p in packages:
-        do_download(p)
-        ball(p)
-        md5(p)
+        if do_download(p) > 0:
+            ball(p)
+            md5(p)
+        else:
+            print "Download for Package", p, "failed!"
+    
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
     '''info - report name, version, category, etc. about the package(s)
@@ -882,17 +890,34 @@ def do_download(packagename):
     cacheDir = os.path.dirname(dstFile)
     # print srcFile
     # print dstFile
+    
+    # a = urllib.urlopen(srcFile)
+    # if not a.getcode() is 200:
+    #     msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
+    #     sys.exit(msg)
+    # amr66-patch-1
+    try:
+        a = urllib.urlopen(srcFile)
+    except IOErrror as e:
+        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+        return -1
 
-    a = urllib.urlopen(srcFile)
     if not a.getcode() is 200:
         msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
-        sys.exit(msg)
+        print msg
+        return -2
 
     if not os.path.exists(dstFile) or not md5(packagename):
         print '\nFetching %s' % srcFile
         if not os.path.exists(cacheDir):
             os.makedirs(cacheDir)
-        status = urllib.urlretrieve(srcFile, dstFile, down_stat)
+        # status = urllib.urlretrieve(srcFile, dstFile, down_stat)
+        # amr66-patch-1
+        try:
+          status = urllib.urlretrieve(srcFile, dstFile, down_stat)
+        except IOError as e:
+          print "I/O error({0}): {1}".format(e.errno, e.strerror)
+          return -3
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
 #@+node:maphew.20100223163802.3742: *4* down_stat

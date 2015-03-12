@@ -941,12 +941,15 @@ def down_stat(count, blockSize, totalSize):
 def do_install(packagename):
     ''' Unpack the package in appropriate locations, write file list to installed manifest, run postinstall confguration.'''
 
-    # retrieve local package (ball) and check md5
-    ## these are all functionaly equivalent. Which is preferred for maintenance?
-    # filename = dists(distname)(packagename).local_zip
-    filename = dists[distname][packagename]['local_zip']
-    filename = get_zipfile(packagename)
-
+    # filename = dists[distname][packagename]['local_zip']
+    # filename = get_zipfile(packagename)
+    # amr66-patch-1
+    try:
+        filename = dists[distname][packagename]['local_zip']
+        filename = get_zipfile(packagename)
+    except KeyError as e:
+        pass
+      
     if not os.path.exists(filename):
         sys.exit('Local archive %s not found' % filename)
 
@@ -1488,6 +1491,9 @@ def split_ball(filename):
     m = re.match(regex, filename)
     if not m:
         print '\n\n*** Error parsing version number from "%s"\n%s\n' % (filename, m)
+        # amr66-patch-1: return is missing
+        return "u", "0"
+        
     return (m.group(1), string_to_version(m.group(2)))
 #@+node:maphew.20100223163802.3762: *3* string_to_version
 def string_to_version(s):

@@ -920,6 +920,7 @@ def do_download(packagename):
           return -3
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
+    return 0
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

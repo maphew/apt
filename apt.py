@@ -143,7 +143,9 @@ def ball(packages):
     shell = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86
 /release/shell/shell-1.0.0-13.tar.bz2
     '''
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    # if type(packages) is str: packages = [packages]
 
     if not packages:
         help('ball')
@@ -181,7 +183,9 @@ def download(packages):
         
     Use `apt available` to see what is on the mirror for downloading.
     '''
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    # if type(packages) is str: packages = [packages]
 
     if debug:
         print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
@@ -223,7 +227,9 @@ def info(packages):
         
     Note: "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
     '''
-    if type(packages) is str: packages = [packages]
+        #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    #if type(packages) is str: packages = [packages]
 
     if not packages:
         help('info')
@@ -298,7 +304,9 @@ def install(packages):
     
         C:\> apt install shell gdal
     '''
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    #if type(packages) is str: packages = [packages]
     if debug:
         print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
         print '### pkgs:', packages
@@ -465,7 +473,9 @@ def listfiles(packages):
         bin/gdaladdo.exe
         ...etc
     '''
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    #if type(packages) is str: packages = [packages]
     if not packages:
         help('listfiles')
         sys.stderr.write ('\n*** No packages specified. Use "apt list" to see installed packages.***\n')
@@ -620,7 +630,9 @@ def remove(packages):
     if not packages:
         sys.stderr.write('No packages specified. Run "apt list" to see installed packages')
         return
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    #if type(packages) is str: packages = [packages]
 
     for p in packages:
         print p
@@ -639,8 +651,9 @@ def requires(packages):
     if not packages:
         sys.stderr.write('Please specify package names to list dependencies for.')
         return
-
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    # if type(packages) is str: packages = [packages]
     
     for p in packages:
         print '----- "%s" requires the following to work -----' % p
@@ -802,8 +815,9 @@ def upgrade(packages):
     if not packages:
         sys.stderr.write('No packages specified. Use "apt new" and "apt list" for ideas.')
         return
-
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    # if type(packages) is str: packages = [packages]
 
     if packages[0] == 'all':
         packages = get_new()
@@ -813,7 +827,9 @@ def upgrade(packages):
 #@+node:maphew.20100223163802.3735: *3* url
 def url(packages):
     '''Print remote package archive path, relative to mirror root'''
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    #if type(packages) is str: packages = [packages]
 
     if not packages:
         help('url')
@@ -827,7 +843,9 @@ def url(packages):
 #@+node:maphew.20100223163802.3736: *3* version
 def version(packages):
     '''Report installed version of X'''
-    if type(packages) is str: packages = [packages]
+    #AMR66:
+    if isinstance(packages, basestring): packages = [packages]
+    # if type(packages) is str: packages = [packages]
 
     if not packages:
         help('version')

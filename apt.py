@@ -39,6 +39,14 @@ import locale
 #from attrdict import AttrDict
 #@-<<imports>>
 #@+others
+# AMR66: check raise Errors, 15/03/15
+# a class for throwing exceptions in apt.py
+# use this where no other exception type fits
+class AptError(Exception):
+    def __init__(self, message):
+        self.message = message
+    def __str__(self):
+        return repr(self.message)
 #@+node:maphew.20100223163802.3718: ** usage
 def usage ():
     print('-={ %s }=-\n'% apt_version)
@@ -792,6 +800,7 @@ def update():
         
     try:
         uncompressedData = bz2.BZ2File(archive).read()
+    # AMR66: check raise Errors, 15/03/15 -> this should not raise Errors but catching them
     except:
        raise IOError('\n*** Error decompressing: %s' % archive)
 
@@ -903,33 +912,31 @@ def debug_old(s):
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
     p_info = get_info(packagename)
-    dstFile = p_info['local_zip']
-    srcFile = p_info['mirror_path']
-    cacheDir = os.path.dirname(dstFile)
-    # print srcFile
-    # print dstFile
-    
-    # a = urllib.urlopen(srcFile)
-    # if not a.getcode() is 200:
-    #     msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
-    #     sys.exit(msg)
-    # amr66-patch-1
+    # AMR66: 15/03/15: KeyError with errors in setup.ini
     try:
-        a = urllib.urlopen(srcFile)
-    except IOErrror as e:
-        print "I/O error({0}): {1}".format(e.errno, e.strerror)
-        return -1
-
-    if not a.getcode() is 200:
-        msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
-        print msg
-        return -2
-
+        dstFile = p_info['local_zip']
+        srcFile = p_info['mirror_path']
+        cacheDir = os.path.dirname(dstFile)
+    except KeyError as e:
+        print "package name not found in setup.ini"
+        return -4
+    # amr66-patch-1
+    # amr66: ask first, then access the web
     if not os.path.exists(dstFile) or not md5(packagename):
+        try:
+            a = urllib.urlopen(srcFile)
+        except IOErrror as e:
+            print "I/O error({0}): {1}".format(e.errno, e.strerror)
+            return -1
+
+        if not a.getcode() is 200:
+            msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
+            print msg
+            return -2
+
         print '\nFetching %s' % srcFile
         if not os.path.exists(cacheDir):
             os.makedirs(cacheDir)
-        # status = urllib.urlretrieve(srcFile, dstFile, down_stat)
         # amr66-patch-1
         try:
           status = urllib.urlretrieve(srcFile, dstFile, down_stat)
@@ -937,8 +944,11 @@ def do_download(packagename):
           print "I/O error({0}): {1}".format(e.errno, e.strerror)
           return -3
     else:
-        print 'Skipping download of %s, exists in cache' % p_info['filename']
-    return 0
+        # amr66: p_info has no key 'filename'?
+        # print 'Skipping download of %s, exists in cache' % p_info['filename']
+        print 'Skipping download of %s, exists in cache' % p_info['local_zip']
+    return 1
+    
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''
@@ -969,7 +979,8 @@ def do_install(packagename):
         pass
       
     if not os.path.exists(filename):
-        sys.exit('Local archive %s not found' % filename)
+        # AMR66: check raise Errors, 15/03/15
+        raise AptError('Local archive %s not found' % filename)
 
     # unpack
     os.chdir (root)
@@ -978,7 +989,8 @@ def do_install(packagename):
     pipe.extractall()
     pipe.close()
     if pipe.close():
-        raise Exception('urg')
+        # AMR66: check raise Errors, 15/03/15
+        raise AptError('do_install failed extracting tar %s' % filename)
 
    # record list of files installed
     write_filelist(packagename, lst)
@@ -1057,7 +1069,8 @@ def get_filelist(packagename):
     pipe = gzip.open(config + packagename + '.lst.gz', 'r')
     lst = map(string.strip, pipe.readlines())
     if pipe.close():
-        raise TypeError('urg')
+        # AMR66: check raise Errors, 15/03/15
+        raise AptError('get_filelist failed reading %s' % config + packagename + '.lst.gz')
     return lst
 
 #@+node:maphew.20100223163802.3746: *3* get_installed
@@ -1204,7 +1217,8 @@ def save_config(fname,values):
     for i in values:
         pipe.write (i)
     if pipe.close ():
-        raise TypeError('urg')
+        # AMR66: check raise Errors, 15/03/15
+        raise AptError('save_config failed writing %s' % fname)
 #@+node:maphew.20100223163802.3764: *3* write_installed
 def write_installed ():
     ''' Record installed packages in install.db '''
@@ -1213,7 +1227,8 @@ def write_installed ():
     file.writelines (map (lambda x: '%s %s 0\n' % (x, installed[0][x]),
                   installed[0].keys ()))
     if file.close ():
-        raise TypeError('urg')
+        # AMR66: check raise Errors, 15/03/15
+        raise AptError("write_installed failed writing %s" % installed_db)
 #@+node:maphew.20100223163802.3766: *3* write_filelist
 def write_filelist (packagename, lst):
     # ''' Record installed files in package manifest (etc/setup/packagename.lst.gz) '''
@@ -1224,7 +1239,8 @@ def write_filelist (packagename, lst):
         pipe.write (i)
         pipe.write ('\n')
     if pipe.close ():
-        raise TypeError('urg')
+        # AMR66: check raise Errors, 15/03/15
+        raise AptError('write_filelist failed writing %s' % packagename + '.lst.gz')
 #@+node:maphew.20141130225434.5: *3* write_setuprc
 def write_setuprc(setuprc, fname='setup.rc'):
     '''Write the setuprc dictionary to file, in osgeo4w-setup.exe format.
@@ -1420,8 +1436,8 @@ def parse_setup_ini(fname):
                 key, value = map(string.strip,
                       string.split(lines[j], ': ', 1))
             except:
-                print lines[j]
-                raise TypeError('urg')
+                # AMR66: check raise Errors, 15/03/15
+                raise TypeError('parse_setup failed on splitting line %s' % lines[j])
             
             #strip outer quotes?
             if value[0] == '"' and value.find('"', 1) == -1:
@@ -1637,20 +1653,24 @@ def do_unpack ():
     pipe = os.popen ('tar -C %s -xjvf %s' % (SRC, ball), 'r')
     lst = map (string.strip, pipe.readlines ())
     if pipe.close ():
-        raise TypeError('urg1')
+        # AMR66: check raise Errors, 15/03/15
+        raise AptError('do_unpack failed opening shell %s' % 'tar -C %s -xjvf %s' % (SRC, ball))
     print ('%s/%s' % (SRC, packagename))
     if not os.path.exists ('%s/%s' % (SRC, packagename)):
-        raise TypeError('urg2')        
+        # AMR66: check raise Errors, 15/03/15
+        raise OSError(2, 'do_unpack failed: no such file or directory', '%s/%s' % (SRC, packagename))      
 
 #@+node:maphew.20100223163802.3768: *3* do_build
 def do_build ():
     src = '%s/%s' % (SRC, packagename)
     if not os.path.exists (src):
-        raise TypeError('urg')
+        # AMR66: check raise Errors, 15/03/15
+        raise OSError(2, 'do_unpack failed: no such file or directory', src)
         
     m = re.match ('^(.*)-([0-9]*)$', packagename)
     if not m:
-        raise TypeError('urg')
+        # AMR66: check raise Errors, 15/03/15
+        raise AptError("do_build failed, regex expression doesn't match")
     namever = m.group (1)
 
     package = split_ball (packagename)

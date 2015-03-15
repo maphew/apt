@@ -192,17 +192,20 @@ def download(packages):
         return
     
     print "Preparing to download:", ', '.join(packages)
-    # for p in packages:
-    #     do_download(p)
-    #     ball(p)
-    #     md5(p)
-    # amr66-patch-1
     for p in packages:
-        if do_download(p) > 0:
-            ball(p)
-            md5(p)
-        else:
-            print "Download for Package", p, "failed!"
+        do_download(p)
+        ball(p)
+        md5(p)
+    # # amr66-patch-1
+    # for p in packages:
+        # status = do_download(p)
+        # print 'Download status returned:', status
+        # print 'status > 0:', status > 0
+        # if status == 0:
+            # ball(p)
+            # md5(p)
+        # else:
+            # print "Download for Package", p, "failed!"
     
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
@@ -884,6 +887,13 @@ def debug_old(s):
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
+    '''Download package from mirror and save in local cache folder.
+    
+    Overwrites existing cached version if md5 sum doesn't match expected from setup.ini.
+    
+    Returns `None` for success (file downloaded, or file with correct md5 is present),
+    and urllib http status code if fails.
+    '''
     p_info = get_info(packagename)
     dstFile = p_info['local_zip']
     srcFile = p_info['mirror_path']
@@ -891,37 +901,25 @@ def do_download(packagename):
     # print srcFile
     # print dstFile
     
-    # a = urllib.urlopen(srcFile)
-    # if not a.getcode() is 200:
-    #     msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
-    #     sys.exit(msg)
-    # amr66-patch-1
-    try:
-        a = urllib.urlopen(srcFile)
-    except IOErrror as e:
-        print "I/O error({0}): {1}".format(e.errno, e.strerror)
-        return -1
-
+    a = urllib.urlopen(srcFile)
     if not a.getcode() is 200:
         msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
-        print msg
-        return -2
+        return a.getcode()
+        #sys.exit(msg)
 
     if not os.path.exists(dstFile) or not md5(packagename):
         print '\nFetching %s' % srcFile
         if not os.path.exists(cacheDir):
             os.makedirs(cacheDir)
-        # status = urllib.urlretrieve(srcFile, dstFile, down_stat)
-        # amr66-patch-1
         try:
           status = urllib.urlretrieve(srcFile, dstFile, down_stat)
         except IOError as e:
           print "I/O error({0}): {1}".format(e.errno, e.strerror)
-          return -3
+          raise
 
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
-    return 0
+    return
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

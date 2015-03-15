@@ -918,6 +918,7 @@ def do_download(packagename):
         except IOError as e:
           print "I/O error({0}): {1}".format(e.errno, e.strerror)
           return -3
+
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
     return 0
@@ -1337,7 +1338,7 @@ def get_info(packagename):
             del d['source']
         
     #based on current mirror, might be different from when downloaded and/or installed
-    d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
+    d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
     d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
 
     d['filename'] = os.path.basename(d['zip_path'])

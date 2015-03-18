@@ -204,18 +204,23 @@ def download(packages):
         return
     
     print "Preparing to download:", ', '.join(packages)
-    # for p in packages:
-    #     do_download(p)
-    #     ball(p)
-    #     md5(p)
-    # amr66-patch-1
-    for p in packages:
-        if do_download(p) > 0:
-            ball(p)
-            md5(p)
-        else:
-            print "Download for Package", p, "failed!"
     
+    # amr66-urllib
+    for p in packages:
+        try:
+          do_download(p)
+        except AptError as e:
+            print "Download Failed.\n", e.message
+            sys.exit(1)
+        else:
+            if not md5(p):
+                msg("""MD5 doesn't match for download of package %s.
+                File may be corrupted, please retry.""" % p)
+                print msg # don't rise an error in a top-level function, as we can't catch it anyway
+                sys.exit(1)
+            ball(p)
+            
+        
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
     '''info - report name, version, category, etc. about the package(s)
@@ -784,25 +789,34 @@ def update():
     #bits = 'x86_64'
     source = '%s/%s/%s' % (mirror, bits, '/setup.ini.bz2')
     archive = downloads + 'setup.ini.bz2'
-        
-    a = urllib.urlopen(source)
-    if not a.getcode() is 200:
-        print 'Problem getting %s\nServer returned "%s"' % (source, a.getcode())
-        return IOError
-
-   # remove cached ini archive
+   
+   # amr66-urllib: use urlretrieve here
+   
+   # save cached ini-bz2 archive
     if os.path.exists(archive):
         shutil.copy(archive, archive + '.bak')
-
-    print('Fetching %s' % source)
-    f = urllib.urlretrieve(source, archive, down_stat)
-    print('')        
+    # universal retrieve function in apt ;-) 
+    urlretrieve(source, archive)    
+##    a = urllib.urlopen(source)
+##    if not a.getcode() is 200:
+##        print 'Problem getting %s\nServer returned "%s"' % (source, a.getcode())
+##        return IOError
+##
+##    # remove cached ini archive
+##      if os.path.exists(archive):
+##        shutil.copy(archive, archive + '.bak')
+##
+##    print('Fetching %s' % source)
+##    f = urllib.urlretrieve(source, archive, down_stat)
+##    print('')        
         
     try:
         uncompressedData = bz2.BZ2File(archive).read()
-    # AMR66: check raise Errors, 15/03/15 -> this should not raise Errors but catching them
-    except:
-       raise IOError('\n*** Error decompressing: %s' % archive)
+    except Exception as e:
+        # should we raise an AptError here? bz2 has a lot of Exceptions...
+        # 'generell errors' also discussed here: python.org/moin/HandlingExceptions
+        print '%s\n*** Error decompressing: %s' % (str(e), archive)
+        raise
 
     # backup existing setup config
     if os.path.exists(setup_ini):
@@ -911,44 +925,50 @@ def debug_old(s):
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
+    '''Download package from mirror and save in local cache folder.
+    Overwrites existing cached version if md5 sum doesn't match expected from setup.ini.
+    Returns `None` for success (file downloaded, or file with correct md5 is present),
+    and urllib http status code if fails.
+    '''
     p_info = get_info(packagename)
-    # AMR66: 15/03/15: KeyError with errors in setup.ini
+    dstFile = p_info['local_zip']
+    srcFile = p_info['mirror_path']
+
+
+    if os.path.exists(dstFile) and md5(packagename):
+        print 'Skipping download of %s, exists in cache' % p_info['filename']
+        return
+
+    # throws an AptError, if something went wrong
+    urlretrieve(srcFile, dstFile)
+
+    return
+
+def urlretrieve(srcFile, dstFile):
+    """used in do_download(), would fit into update(), too"""
+    cacheDir = os.path.dirname(dstFile)
+
     try:
-        dstFile = p_info['local_zip']
-        srcFile = p_info['mirror_path']
-        cacheDir = os.path.dirname(dstFile)
-    except KeyError as e:
-        print "package name not found in setup.ini"
-        return -4
-    # amr66-patch-1
-    # amr66: ask first, then access the web
-    if not os.path.exists(dstFile) or not md5(packagename):
-        try:
-            a = urllib.urlopen(srcFile)
-        except IOErrror as e:
-            print "I/O error({0}): {1}".format(e.errno, e.strerror)
-            return -1
+        url = urllib.urlopen(srcFile)
+    except IOError as e:
+        print "Error on opening URL %s: %s" % (srcFile, e.msg)
+        raise
 
-        if not a.getcode() is 200:
-            msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
-            print msg
-            return -2
+    if not url.getcode() is 200:
+        msg = 'Problem getting "%s"\nServer returned "%s"' % (srcFile, url.getcode())
+        raise AptError(msg)
 
-        print '\nFetching %s' % srcFile
-        if not os.path.exists(cacheDir):
-            os.makedirs(cacheDir)
-        # amr66-patch-1
-        try:
-          status = urllib.urlretrieve(srcFile, dstFile, down_stat)
-        except IOError as e:
-          print "I/O error({0}): {1}".format(e.errno, e.strerror)
-          return -3
-    else:
-        # amr66: p_info has no key 'filename'?
-        # print 'Skipping download of %s, exists in cache' % p_info['filename']
-        print 'Skipping download of %s, exists in cache' % p_info['local_zip']
-    return 1
-    
+    print '\nFetching %s' % srcFile
+
+    if not os.path.exists(cacheDir):
+        os.makedirs(cacheDir)
+
+    try:
+        status = urllib.urlretrieve(srcFile, dstFile, down_stat)
+    except IOError as e:
+        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+        raise
+  
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

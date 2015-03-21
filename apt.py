@@ -33,6 +33,7 @@ import sys
 import urllib
 import gzip, tarfile, bz2
 import hashlib
+import requests
 import subprocess
 import shlex
 import locale
@@ -901,22 +902,29 @@ def do_download(packagename):
     # print srcFile
     # print dstFile
     
-    a = urllib.urlopen(srcFile)
-    if not a.getcode() is 200:
-        msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, a.getcode())
-        return a.getcode()
-        #sys.exit(msg)
-
+    r = requests.head(srcFile)
+    if not r.ok:
+        msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+        return r.status_code
+            
     if not os.path.exists(dstFile) or not md5(packagename):
         print '\nFetching %s' % srcFile
         if not os.path.exists(cacheDir):
             os.makedirs(cacheDir)
-        try:
-          status = urllib.urlretrieve(srcFile, dstFile, down_stat)
-        except IOError as e:
-          print "I/O error({0}): {1}".format(e.errno, e.strerror)
-          raise
-
+            
+        with open(dstFile, 'wb') as handle:
+            r = requests.get(srcFile, stream=True)
+            total_length = int(r.headers.get('content-length'))
+            dl = 0
+            for block in r.iter_content(1024):
+                dl += len(block)
+                if not block:
+                    break
+                handle.write(block)
+                done = int(50 * dl / total_length)
+                sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
+                sys.stdout.flush()
+        
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
     return

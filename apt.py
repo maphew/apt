@@ -765,19 +765,12 @@ def update():
     #bits = 'x86_64'
     source = '%s/%s/%s' % (mirror, bits, '/setup.ini.bz2')
     archive = downloads + 'setup.ini.bz2'
-        
-    # #a = urllib.urlopen(source)
-    # r = requests.head(srcFile):
-    # if not r.ok:
-        # print 'Problem getting %s\nServer returned "%s"' % (source, r.status_code)
-        # return r.status_code
 
    # backup cached ini archive
     if os.path.exists(archive):
         shutil.copy(archive, archive + '.bak')
 
     print('Fetching %s' % source)
-    #f = urllib.urlretrieve(source, archive, down_stat)
     dodo_download(source, archive)
     print('')
         
@@ -911,30 +904,6 @@ def do_download(packagename):
 
     f = dodo_download(srcFile, dstFile)
                 
-    # print '\nFetching %s' % srcFile
-    # if not os.path.exists(cacheDir):
-        # os.makedirs(cacheDir)
-
-    # r = requests.head(srcFile)
-    # if not r.ok:
-        # print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
-        # return r.status_code
-        
-    # with open(dstFile, 'wb') as f:
-        # r = requests.get(srcFile, stream=True)
-        # total_length = int(r.headers.get('content-length'))
-        # block_size = 1024
-        # down_bytes = 0
-        # for block in r.iter_content(block_size):
-            # down_bytes += len(block)
-            # if not block:
-                # break
-            # f.write(block)
-            # xdown_stat(down_bytes, total_length)     
-        # if not r.ok:
-            # print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
-            # return r.status_code    
-
     return f
 #@+node:maphew.20150322125023.13: *4* dodo_download
 def dodo_download(url, dstFile):
@@ -958,32 +927,15 @@ def dodo_download(url, dstFile):
             if not block:
                 break
             f.write(block)
-            xdown_stat(down_bytes, total_length)
+            down_stat(down_bytes, total_length)
         if not r.ok:
             print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
             return r.status_code
             
     return dstFile    
         
-#@+node:maphew.20150321192201.3: *4* down_stat
-def down_stat(count, blockSize, totalSize):
-    '''Report download progress'''
-    #courtesy of http://stackoverflow.com/questions/51212/how-to-write-a-download-progress-indicator-in-python
-    percent = int(count*blockSize*100/totalSize+0.5)#Round percentage
-
-    if not 'last_percent' in vars(down_stat):
-        down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
-
-    if percent > 100: # filesize usually doesn't correspond to blocksize multiple, so flatten overrun
-        percent = 100
-        down_stat.last_percent=0
-
-    if percent > down_stat.last_percent:
-        sys.stdout.write("\r...%d%%  " % percent)
-        sys.stdout.flush()
-    down_stat.last_percent=percent
-#@+node:maphew.20100223163802.3742: *4* xdown_stat
-def xdown_stat(downloaded_size, total_size):
+#@+node:maphew.20100223163802.3742: *4* down_stat
+def down_stat(downloaded_size, total_size):
     ''' Report download progress in bar, percent, and bytes.
         
         Each bar stroke '=' is approximately 2% 
@@ -996,17 +948,17 @@ def xdown_stat(downloaded_size, total_size):
     bar = percent/2
     
     if not 'last_percent' in vars(down_stat):
-        xdown_stat.last_percent=0 #Static var to track percentages so we only print N% once.
+        down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
 
     if percent > 100: # filesize usually doesn't correspond to blocksize multiple, so flatten overrun
         percent = 100
-        xdown_stat.last_percent=0
+        down_stat.last_percent=0
 
-    if percent > xdown_stat.last_percent:
+    if percent > down_stat.last_percent:
         msg = '\r[{:<50}] {:>3}% {:,}'.format('=' * bar, percent, downloaded_size)
         sys.stdout.write(msg)
         sys.stdout.flush()
-    xdown_stat.last_percent=percent
+    down_stat.last_percent=percent
 #@+node:maphew.20100223163802.3740: *3* do_install
 def do_install(packagename):
     ''' Unpack the package in appropriate locations, write file list to installed manifest, run postinstall confguration.'''
@@ -1865,9 +1817,9 @@ if __name__ == '__main__':
         mirror = get_mirror()
 
     # convert mirror url into acceptable folder name
-    #mirror_dir = urllib.quote(mirror, '').lower()
-    mirror_dir = requests.utils.quote(mirror).lower()
-
+    mirror_dir = requests.utils.quote(mirror, '').lower()
+        # optional quote '' param is to also substitute slashes etc.
+        
     if last_cache == None:
         cache_dir = '%s/var/cache/setup' % (root)
     else:

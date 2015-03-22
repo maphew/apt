@@ -912,29 +912,29 @@ def do_download(packagename):
         if not os.path.exists(cacheDir):
             os.makedirs(cacheDir)
             
-        with open(dstFile, 'wb') as handle:
+        with open(dstFile, 'wb') as f:
             r = requests.get(srcFile, stream=True)
             total_length = int(r.headers.get('content-length'))
-            dl = 0
-            for block in r.iter_content(1024):
-                dl += len(block)
+            block_size = 1024
+            down_bytes = 0
+            for block in r.iter_content(block_size):
+                down_bytes += len(block)
                 if not block:
                     break
-                handle.write(block)
-                done = int(50 * dl / total_length)
-                sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
-                sys.stdout.flush()
+                f.write(block)
+                xdown_stat(down_bytes, total_length)
         
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
     return
-#@+node:maphew.20100223163802.3742: *4* down_stat
+#@+node:maphew.20150321192201.3: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''
     #courtesy of http://stackoverflow.com/questions/51212/how-to-write-a-download-progress-indicator-in-python
     percent = int(count*blockSize*100/totalSize+0.5)#Round percentage
 
-    if not 'last_percent' in vars(down_stat):down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
+    if not 'last_percent' in vars(down_stat):
+        down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
 
     if percent > 100: # filesize usually doesn't correspond to blocksize multiple, so flatten overrun
         percent = 100
@@ -944,6 +944,31 @@ def down_stat(count, blockSize, totalSize):
         sys.stdout.write("\r...%d%%  " % percent)
         sys.stdout.flush()
     down_stat.last_percent=percent
+#@+node:maphew.20100223163802.3742: *4* xdown_stat
+def xdown_stat(downloaded_size, total_size):
+    ''' Report download progress in bar, percent, and bytes.
+        
+        Each bar stroke '=' is approximately 2% 
+        
+        Adapted from
+            http://stackoverflow.com/questions/51212/how-to-write-a-download-progress-indicator-in-python
+            http://stackoverflow.com/questions/15644964/python-progress-bar-and-downloads
+    '''
+    percent = int(100 * downloaded_size/total_size)
+    bar = percent/2
+    
+    if not 'last_percent' in vars(down_stat):
+        xdown_stat.last_percent=0 #Static var to track percentages so we only print N% once.
+
+    if percent > 100: # filesize usually doesn't correspond to blocksize multiple, so flatten overrun
+        percent = 100
+        xdown_stat.last_percent=0
+
+    if percent > xdown_stat.last_percent:
+        msg = '\r[{:<50}] {:>3}% {:,}'.format('=' * bar, percent, downloaded_size)
+        sys.stdout.write(msg)
+        sys.stdout.flush()
+    xdown_stat.last_percent=percent
 #@+node:maphew.20100223163802.3740: *3* do_install
 def do_install(packagename):
     ''' Unpack the package in appropriate locations, write file list to installed manifest, run postinstall confguration.'''

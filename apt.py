@@ -184,9 +184,7 @@ def download(packages):
         
     Use `apt available` to see what is on the mirror for downloading.
     '''
-    #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    # if type(packages) is str: packages = [packages]
 
     if debug:
         print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
@@ -201,17 +199,6 @@ def download(packages):
         do_download(p)
         ball(p)
         md5(p)
-    # # amr66-patch-1
-    # for p in packages:
-        # status = do_download(p)
-        # print 'Download status returned:', status
-        # print 'status > 0:', status > 0
-        # if status == 0:
-            # ball(p)
-            # md5(p)
-        # else:
-            # print "Download for Package", p, "failed!"
-    
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
     '''info - report name, version, category, etc. about the package(s)
@@ -910,7 +897,7 @@ def do_download(packagename):
     
     Overwrites existing cached version if md5 sum doesn't match expected from setup.ini.
     
-    Returns `None` for success (file downloaded, or file with correct md5 is present),
+    Returns `path\to\archive.bz2` on success (file downloaded, or file with correct md5 is present),
     and http status code if fails.
     '''
     p_info = get_info(packagename)
@@ -918,30 +905,35 @@ def do_download(packagename):
     srcFile = p_info['mirror_path']
     cacheDir = os.path.dirname(dstFile)
                 
-    if not os.path.exists(dstFile) or not md5(packagename):
-        print '\nFetching %s' % srcFile
-        if not os.path.exists(cacheDir):
-            os.makedirs(cacheDir)
-
-        r = requests.head(srcFile)
-        if not r.ok:
-            msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
-            return r.status_code
-            
-        with open(dstFile, 'wb') as f:
-            r = requests.get(srcFile, stream=True)
-            total_length = int(r.headers.get('content-length'))
-            block_size = 1024
-            down_bytes = 0
-            for block in r.iter_content(block_size):
-                down_bytes += len(block)
-                if not block:
-                    break
-                f.write(block)
-                xdown_stat(down_bytes, total_length)     
-    else:
+    if os.path.exists(dstFile)and md5(packagename):
         print 'Skipping download of %s, exists in cache' % p_info['filename']
-    return
+        return
+        
+    print '\nFetching %s' % srcFile
+    if not os.path.exists(cacheDir):
+        os.makedirs(cacheDir)
+
+    r = requests.head(srcFile)
+    if not r.ok:
+        print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+        return r.status_code
+        
+    with open(dstFile, 'wb') as f:
+        r = requests.get(srcFile, stream=True)
+        total_length = int(r.headers.get('content-length'))
+        block_size = 1024
+        down_bytes = 0
+        for block in r.iter_content(block_size):
+            down_bytes += len(block)
+            if not block:
+                break
+            f.write(block)
+            xdown_stat(down_bytes, total_length)     
+        if not r.ok:
+            print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+            return r.status_code    
+
+    return dstFile
 #@+node:maphew.20150321192201.3: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

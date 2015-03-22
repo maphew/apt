@@ -1865,7 +1865,8 @@ if __name__ == '__main__':
         mirror = get_mirror()
 
     # convert mirror url into acceptable folder name
-    mirror_dir = urllib.quote(mirror, '').lower()
+    #mirror_dir = urllib.quote(mirror, '').lower()
+    mirror_dir = requests.utils.quote(mirror).lower()
 
     if last_cache == None:
         cache_dir = '%s/var/cache/setup' % (root)

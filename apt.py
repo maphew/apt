@@ -893,24 +893,22 @@ def do_download(packagename):
     Overwrites existing cached version if md5 sum doesn't match expected from setup.ini.
     
     Returns `None` for success (file downloaded, or file with correct md5 is present),
-    and urllib http status code if fails.
+    and http status code if fails.
     '''
     p_info = get_info(packagename)
     dstFile = p_info['local_zip']
     srcFile = p_info['mirror_path']
     cacheDir = os.path.dirname(dstFile)
-    # print srcFile
-    # print dstFile
-    
-    r = requests.head(srcFile)
-    if not r.ok:
-        msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
-        return r.status_code
-            
+                
     if not os.path.exists(dstFile) or not md5(packagename):
         print '\nFetching %s' % srcFile
         if not os.path.exists(cacheDir):
             os.makedirs(cacheDir)
+
+        r = requests.head(srcFile)
+        if not r.ok:
+            msg = 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+            return r.status_code
             
         with open(dstFile, 'wb') as f:
             r = requests.get(srcFile, stream=True)
@@ -922,8 +920,7 @@ def do_download(packagename):
                 if not block:
                     break
                 f.write(block)
-                xdown_stat(down_bytes, total_length)
-        
+                xdown_stat(down_bytes, total_length)     
     else:
         print 'Skipping download of %s, exists in cache' % p_info['filename']
     return

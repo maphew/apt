@@ -749,11 +749,9 @@ def setup(target):
 def update():
     '''Fetch updated package list from mirror.
     
-    Use same mirror as last time:
-        
         apt update  
     
-    Specify mirror:
+    Specify mirror (web server, windows file share, local disk):
         
         apt --mirror=http://example.com/...  update
         apt --mirror=file:////server/share/...  update
@@ -768,18 +766,20 @@ def update():
     source = '%s/%s/%s' % (mirror, bits, '/setup.ini.bz2')
     archive = downloads + 'setup.ini.bz2'
         
-    a = urllib.urlopen(source)
-    if not a.getcode() is 200:
-        print 'Problem getting %s\nServer returned "%s"' % (source, a.getcode())
-        return IOError
+    # #a = urllib.urlopen(source)
+    # r = requests.head(srcFile):
+    # if not r.ok:
+        # print 'Problem getting %s\nServer returned "%s"' % (source, r.status_code)
+        # return r.status_code
 
-   # remove cached ini archive
+   # backup cached ini archive
     if os.path.exists(archive):
         shutil.copy(archive, archive + '.bak')
 
     print('Fetching %s' % source)
-    f = urllib.urlretrieve(source, archive, down_stat)
-    print('')        
+    #f = urllib.urlretrieve(source, archive, down_stat)
+    dodo_download(source, archive)
+    print('')
         
     try:
         uncompressedData = bz2.BZ2File(archive).read()
@@ -908,18 +908,48 @@ def do_download(packagename):
     if os.path.exists(dstFile)and md5(packagename):
         print 'Skipping download of %s, exists in cache' % p_info['filename']
         return
-        
-    print '\nFetching %s' % srcFile
-    if not os.path.exists(cacheDir):
-        os.makedirs(cacheDir)
 
-    r = requests.head(srcFile)
+    f = dodo_download(srcFile, dstFile)
+                
+    # print '\nFetching %s' % srcFile
+    # if not os.path.exists(cacheDir):
+        # os.makedirs(cacheDir)
+
+    # r = requests.head(srcFile)
+    # if not r.ok:
+        # print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+        # return r.status_code
+        
+    # with open(dstFile, 'wb') as f:
+        # r = requests.get(srcFile, stream=True)
+        # total_length = int(r.headers.get('content-length'))
+        # block_size = 1024
+        # down_bytes = 0
+        # for block in r.iter_content(block_size):
+            # down_bytes += len(block)
+            # if not block:
+                # break
+            # f.write(block)
+            # xdown_stat(down_bytes, total_length)     
+        # if not r.ok:
+            # print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+            # return r.status_code    
+
+    return f
+#@+node:maphew.20150322125023.13: *4* dodo_download
+def dodo_download(url, dstFile):
+    ''' Dumbest name for abstracting downloading
+        a file to disk with requests module and progress reporting
+        
+        Returns `path\to\archive.bz2` on success, http status code if fails.
+    '''
+    r = requests.head(url)
     if not r.ok:
-        print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+        print 'Problem getting %s\nServer returned "%s"' % (url, r.status_code)
         return r.status_code
         
     with open(dstFile, 'wb') as f:
-        r = requests.get(srcFile, stream=True)
+        r = requests.get(url, stream=True)
         total_length = int(r.headers.get('content-length'))
         block_size = 1024
         down_bytes = 0
@@ -928,12 +958,13 @@ def do_download(packagename):
             if not block:
                 break
             f.write(block)
-            xdown_stat(down_bytes, total_length)     
+            xdown_stat(down_bytes, total_length)
         if not r.ok:
             print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
-            return r.status_code    
-
-    return dstFile
+            return r.status_code
+            
+    return dstFile    
+        
 #@+node:maphew.20150321192201.3: *4* down_stat
 def down_stat(count, blockSize, totalSize):
     '''Report download progress'''

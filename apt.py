@@ -33,6 +33,7 @@ import sys
 import urllib
 import gzip, tarfile, bz2
 import hashlib
+import requests
 import subprocess
 import shlex
 import locale
@@ -96,7 +97,7 @@ def check_env():
     else:
        sys.stderr.write('error: Please set OSGEO4W_ROOT\n')
        sys.exit(2)
-       
+
     return OSGEO4W_ROOT
 #@+node:maphew.20121111221942.1497: ** check_setup
 def check_setup(installed_db, setup_ini):
@@ -110,16 +111,16 @@ def check_setup(installed_db, setup_ini):
 #@+node:maphew.20100223163802.3719: *3* available
 def available(dummy):
     '''Show packages available to be installed from the package mirror.
-    
+
     Specify an alternate source with `--mirror=...`
     '''
     '''
     Args:
         dummy: required but not used.
 
-    This function requires a parameter only because of the command 
-    calling structure of the module. The parameter is not used. When the 
-    command structure is fixed remove the parameter (or perhaps make it 
+    This function requires a parameter only because of the command
+    calling structure of the module. The parameter is not used. When the
+    command structure is fixed remove the parameter (or perhaps make it
     useful by saying (available(at_url_of_package_mirror_x)`
     '''
 
@@ -145,9 +146,9 @@ def available(dummy):
 #@+node:maphew.20100223163802.3720: *3* ball
 def ball(packages):
     '''Print full local path name of package archive
-    
+
     C:\> apt ball shell
-    
+
     shell = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86
 /release/shell/shell-1.0.0-13.tar.bz2
     '''
@@ -159,41 +160,40 @@ def ball(packages):
         help('ball')
         sys.stderr.write("\n*** No package names specified. ***\n")
         return
- 
-    for p in packages:            
+
+    for p in packages:
         #print "\n%s = %s" % (p, get_ball(p))
         d = get_info(p)
         print "\n%s = %s" % (p, d['local_zip'])
-        
+
         # # won't work, it looks for `distname` and not distname's value, `curr`
         # print "\n%s = %s" % (p, dists.distname.p.local_zip)
         # #print dists.curr.shell.local_zip
-        
+
         # these are equivalent in output, but near equally messy
         # I don't think attrdict will work for this project.
         # print dists(distname)(p).local_zip
         print dists[distname][p]['local_zip']
-    
-        
+
+
 #@+node:maphew.20100223163802.3721: *3* download
 def download(packages):
     '''Download the package(s) from mirror and save in local cache folder:
-    
+
     C:\> apt download shell gdal {...etc}
-        
+
     shell = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/shell/shell-1.0.0-13.tar.bz2
     remote:  c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2
     local:   c38f03d2b7160f891fc36ec776ca4685  shell-1.0.0-13.tar.bz2
-    
+
     gdal = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86/release/gdal/gdal-1.11.1-4.tar.bz2
     remote:  3b60f036f0d29c401d0927a9ae000f0c  gdal-1.11.1-4.tar.bz2
-    local:   3b60f036f0d29c401d0927a9ae000f0c  gdal-1.11.1-4.tar.bz2    
-        
+    local:   3b60f036f0d29c401d0927a9ae000f0c  gdal-1.11.1-4.tar.bz2
+
     Use `apt available` to see what is on the mirror for downloading.
     '''
-    #AMR66:
+
     if isinstance(packages, basestring): packages = [packages]
-    # if type(packages) is str: packages = [packages]
 
     if debug:
         print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
@@ -202,31 +202,19 @@ def download(packages):
         help('download')
         sys.stderr.write("\n*** No package names specified. ***\n")
         return
-    
+
     print "Preparing to download:", ', '.join(packages)
-    
-    # amr66-urllib
     for p in packages:
-        try:
-          do_download(p)
-        except AptError as e:
-            print "Download Failed.\n", e.message
-            sys.exit(1)
-        else:
-            if not md5(p):
-                msg("""MD5 doesn't match for download of package %s.
-                File may be corrupted, please retry.""" % p)
-                print msg # don't rise an error in a top-level function, as we can't catch it anyway
-                sys.exit(1)
-            ball(p)
-            
-        
+        do_download(p)
+        ball(p)
+        md5(p)
+
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
     '''info - report name, version, category, etc. about the package(s)
-        
+
     B:\> apt info shell
-    
+
     name     : shell
     version  : 1.0.0-13
     sdesc    : "OSGeo4W Command Shell"
@@ -237,7 +225,7 @@ def info(packages):
     zip_size : 3763
     md5      : c38f03d2b7160f891fc36ec776ca4685
     local_zip: d:/temp/o4w-cache/setup/http%3.../shell-1.0.0-13.tar.bz2
-        
+
     Note: "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
     '''
         #AMR66:
@@ -254,21 +242,21 @@ def info(packages):
         print('')
         # NB: only prints fields we know about, if something is added
         # upstream we'll miss it here
-        fields = ['name', 
-            'version', 
-            'sdesc', 
-            'ldesc', 
-            'category', 
-            'requires', 
-            'zip_path', 
-            'zip_size', 
-            'md5', 
-            'local_zip', 
+        fields = ['name',
+            'version',
+            'sdesc',
+            'ldesc',
+            'category',
+            'requires',
+            'zip_path',
+            'zip_size',
+            'md5',
+            'local_zip',
             'installed']
         for k in fields:
             print('{0:9}: {1}'.format(k,d[k]))
 
-        if debug:            
+        if debug:
             # This guaranteed to print entire dict contents,
             # but not in a logical order.
             for k in d.keys():
@@ -279,7 +267,7 @@ def find(patterns):
     if not patterns:
         sys.stderr.write('\nFind what? Enter a filename to look for (partial is ok).\n')
         return
-        
+
     for p in patterns:
         print '--- %s:' % p
         hits = []
@@ -289,20 +277,20 @@ def find(patterns):
                     hits.append('%s: /%s' % (package, line))
         results = (string.join(hits, '\n'))
         if results:
-            print results            
-                        
+            print results
+
     return results
 #@+node:maphew.20100223163802.3723: *3* help
 def help(*args):
     '''Show help for COMMAND'''
     action = args[-1] # ([],) --> []
     if type(action) is str: action = [action] # convert bare string to list
-    
+
     # Show general usage help when no specific action named
     if not (action) or (action == ['help']):
         usage()
         sys.exit(0)
-        
+
     action = action[-1] # ['help','remove'] --> 'remove'
 
     # display the function's docstring
@@ -314,7 +302,7 @@ def help(*args):
 #@+node:maphew.20100223163802.3724: *3* install
 def install(packages):
     '''Download and install packages, including dependencies
-    
+
         C:\> apt install shell gdal
     '''
     #AMR66:
@@ -323,29 +311,29 @@ def install(packages):
     if debug:
         print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
         print '### pkgs:', packages
-    
+
     if not packages:
         sys.stderr.write('\n*** No packages specified. Use "apt available" for ideas. ***\n')
         help('install')
         return
-    
+
     # build list of dependencies
     reqs = []
     for p in packages:
         reqs.extend(get_requires(p))
     if debug: print 'PKGS: %s, REQS: %s' % (packages, reqs)
-    
+
     # remove duplicates and empty items
     packages = unique(packages)
     reqs = unique(reqs)
     # don't need pkg dupes listed in requires
     for p in packages:
         while p in reqs[:]:
-            reqs.remove(p)    
+            reqs.remove(p)
     if debug: print 'Unique PKGS: %s, REQS: %s' % (packages, reqs)
     pkgs_requested = packages[:] # save copy for later
     reqs_requested = reqs[:]
-    
+
     # skip everything already installed
     # for p in packages:
         # Skips items! See "Remove items from a list while iterating in Python"
@@ -362,9 +350,9 @@ def install(packages):
         print '\t %s - %s' % (r, get_info(r)['installed'])
         if get_info(r)['installed']:
             reqs.remove(r)
-    
+
     if debug: print 'Not installed PKGS: %s, REQS: %s' % (packages, reqs)
-    
+
     if reqs:
         print 'REQS: --- To install:', reqs
         for r in reversed(reqs):
@@ -375,7 +363,7 @@ def install(packages):
     if packages:
         print 'PKGS: --- To install:', packages
         for p in packages:
-            download(p)    
+            download(p)
         if download_p:  # quit if download only flag is set
             sys.exit(0)
         do_install(p)
@@ -392,31 +380,31 @@ def install(packages):
 # for p in packages:
 #     #missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
 #         # don't think we need a dict for this, but postponing changing it
-#     
+#
 #     missing.update (dict (map (lambda x: (x, 0), xx_get_requires(p))))
 #         #debug: #21
-#     
+#
 #     #missing.append(string.join(get_missing(p)))
-#     
+#
 # if len(missing) > 0:
 #     sys.stderr.write ('to install:')
 #     sys.stderr.write ('    %s' % string.join(missing.keys()))
 #     # sys.stderr.write ('    %s' % string.join(missing))
 #     sys.stderr.write ('\n')
-# 
+#
 # if debug:
 #     print '### missing:', missing
-# 
+#
 #     if missing:
 #         for p in missing.keys():
-#             download(p)    
+#             download(p)
 #         if download_p:  # quit if download only flag is set
 #             sys.exit(0)
 #         install_next(missing.keys(), set([]), set([]))
 #     else:
 #         print('Already installed:')
 #         version(packages) # display versions
-#     
+#
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
 def install_next(packages, resolved, seen):
 ##    global packagename
@@ -434,10 +422,10 @@ def install_next(packages, resolved, seen):
                     'Required package %s from %s is a circular reference '
                     'with a previous dependent' % (dep, p))
             install_next(dependences, resolved, seen)
-        
+
         if installed[0].has_key(p):
             sys.stderr.write('preparing to replace %s %s\n' \
-                      % (p, version_to_string(get_installed_version(p))))                         
+                      % (p, version_to_string(get_installed_version(p))))
             do_uninstall(p)
         sys.stderr.write('installing %s %s\n' \
                   % (p, version_to_string(get_version(p))))
@@ -470,10 +458,10 @@ def list_installed(dummy):
         print s
 #@+node:mhw.20120404170129.1475: *3* listfiles
 def listfiles(packages):
-    '''List files installed with package X. Multiple packages can be specified. 
-    
+    '''List files installed with package X. Multiple packages can be specified.
+
         C:\> apt listfiles shell gdal
-        
+
         ----- shell -----
         OSGeo4W.bat
         OSGeo4W.ico
@@ -498,7 +486,7 @@ def listfiles(packages):
         print "\n----- %s -----" % p
         for i in get_filelist(p):
             print i
-    
+
 #@+node:maphew.20100223163802.3726: *3* md5
 def md5(package):
     '''Check if the md5 hash for "package" in local cache matches mirror
@@ -506,7 +494,7 @@ def md5(package):
             > apt md5 shell
 
         Returns: True or False
-        
+
         If passed a list it only processes the first item.
     '''
     if not package:
@@ -519,7 +507,7 @@ def md5(package):
     print "--- Verifying local file's md5 hash matches mirror"
     match = False
     p_info = get_info(package)
-    
+
     try:
         localname = p_info['local_zip']
         localFile = file(localname, 'rb') #we md5 the *file* not the *filename*
@@ -534,12 +522,12 @@ def md5(package):
     print('\t%s' % match)
     print('\tremote: %s' % their_md5)
     print('\tlocal:  %s' % my_md5)
-    
+
     return match
 #@+node:maphew.20100223163802.3727: *3* missing
 def missing(dummy):
     '''Display missing dependencies for all installed packages.
-    
+
         `dummy` parameter is ignored
     '''
     ## installed[0] is a dict of {'pkg-name': 'pkg.tar.bz2'}
@@ -548,42 +536,42 @@ def missing(dummy):
         result = string.join(get_missing(pkg))
         if result and result not in missing:
             missing.append(result)
-    
+
     print "\nThe following packages have been listed as dependencies but are not installed:\n"
     for m in missing:
         print '\t%s' % m
-    
+
     return missing
 #@+node:maphew.20150110091755.3: *4* get_missing
 def get_missing(packagename):
     '''For package, identify any requirements (dependencies) that are not installed.
-       
+
        Returns a dictionary of {packagname: ['missing_1','missing_2','...']}
     '''
     if debug:
         print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
-    
+
     # build list of required packages
     reqs = get_info(packagename)['requires'].split()
-    
+
     depends = get_requires(packagename)
         #debug: #21
     # print reqs
     # print depends
-    
+
     # determine which requires are not installed
     lst = []
     for pkg in reqs:
         if debug: print 'DEBUG: get_info.reqs.pkg:', pkg
         if not pkg in installed[0]:
             lst.append(pkg)
-    
+
     # if list exists, and packagename isn't in it,
     # something else has listed packagename as a dependency
     # fixme: look back up stream and see who asked for it.
     if lst and packagename not in lst:
         sys.stderr.write('warning: missing package: %s\n' % string.join(lst))
-    
+
     # I think this is out of place. We've only been asked to identify what's missing,
     # not if there are new versions available; scope creep.
     elif packagename in installed[0]:
@@ -595,7 +583,7 @@ def get_missing(packagename):
             pass
         elif packagename not in lst:
             lst.append(packagename)
-    
+
     return lst
 #@+node:maphew.20150201144500.7: *4* get_requires
 def get_requires(packagename):
@@ -628,11 +616,11 @@ def get_requires(packagename):
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''
-    
+
     print '%-20s%-12s%s' % ('Package', 'Installed', 'Available')
-    print '%-20s%-12s%s' % ('-'*17, '-'*9, '-'*10)    
+    print '%-20s%-12s%s' % ('-'*17, '-'*9, '-'*10)
     for p in sorted(get_new()):
-        print '%-20s%-12s(%s)' % (p, 
+        print '%-20s%-12s(%s)' % (p,
                 version_to_string(get_installed_version(p)),
                 version_to_string(get_version(p)),
                 )
@@ -660,14 +648,14 @@ def remove(packages):
 def requires(packages):
     '''What packages does X rely on?'''
     #TODO: return results dictionary so can be used by other functions.
-    
+
     if not packages:
         sys.stderr.write('Please specify package names to list dependencies for.')
         return
     #AMR66:
     if isinstance(packages, basestring): packages = [packages]
     # if type(packages) is str: packages = [packages]
-    
+
     for p in packages:
         print '----- "%s" requires the following to work -----' % p
         depends = get_info(p)['requires'].split()
@@ -679,24 +667,24 @@ def requires(packages):
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):
     '''Search available packages list for X
-    
+
     (doesn't search descriptions yet)'''
-    
+
     global packagename
     # regexp = packagename
     packages = []
     keys = []
-    
+
     # print(pattern)
-    
+
     #pattern comes in as a list, we need bare string
     pattern = ' '.join(pattern)
-    
+
     if not pattern:
         help('search') #stub for when help takes a parameter (print a usage message)
         sys.stderr.write("\n*** Missing what to search for ***\n")
         sys.exit()
-    
+
     if distname in dists:
         # build list of packagenames
         keys = dists[distname].keys()
@@ -707,7 +695,7 @@ def search(pattern):
             for j in dists[i].keys():
                 if not j in keys:
                     keys.append(j)
-    
+
     #search for the regexp pattern
     #fixme: change to search desciption as well
     for i in keys:
@@ -717,7 +705,7 @@ def search(pattern):
                     packages.append(i)
             else:
                 packages.append(i)
-    
+
     for packagename in sorted(packages):
         s = packagename
         d = get_field('sdesc')
@@ -764,19 +752,17 @@ def setup(target):
         update()
     print '''
     Osgeo4w folders and setup config exist; skeleton environment is complete.
-    
+
     You might try `apt available` and `apt install` next.
     '''
 #@+node:maphew.20100223163802.3733: *3* update
 def update():
     '''Fetch updated package list from mirror.
-    
-    Use same mirror as last time:
-        
-        apt update  
-    
-    Specify mirror:
-        
+
+        apt update
+
+    Specify mirror (web server, windows file share, local disk):
+
         apt --mirror=http://example.com/...  update
         apt --mirror=file:////server/share/...  update
         apt --mirror=file://D:/downloads/cache/...  update
@@ -789,27 +775,15 @@ def update():
     #bits = 'x86_64'
     source = '%s/%s/%s' % (mirror, bits, '/setup.ini.bz2')
     archive = downloads + 'setup.ini.bz2'
-   
-   # amr66-urllib: use urlretrieve here
-   
-   # save cached ini-bz2 archive
+
+   # backup cached ini archive
     if os.path.exists(archive):
         shutil.copy(archive, archive + '.bak')
-    # universal retrieve function in apt ;-) 
-    urlretrieve(source, archive)    
-##    a = urllib.urlopen(source)
-##    if not a.getcode() is 200:
-##        print 'Problem getting %s\nServer returned "%s"' % (source, a.getcode())
-##        return IOError
-##
-##    # remove cached ini archive
-##      if os.path.exists(archive):
-##        shutil.copy(archive, archive + '.bak')
-##
-##    print('Fetching %s' % source)
-##    f = urllib.urlretrieve(source, archive, down_stat)
-##    print('')        
-        
+
+    print('Fetching %s' % source)
+    dodo_download(source, archive)
+    print('')
+
     try:
         uncompressedData = bz2.BZ2File(archive).read()
     except Exception as e:
@@ -831,7 +805,7 @@ def update():
 #@+node:maphew.20100223163802.3734: *3* upgrade
 def upgrade(packages):
     '''Upgrade named packages.
-    
+
         apt upgrade all
         apt upgrade gdal-filegdb qgis-grass-plugin
     '''
@@ -844,7 +818,7 @@ def upgrade(packages):
 
     if packages[0] == 'all':
         packages = get_new()
-    
+
     install(packages)
 
 #@+node:maphew.20100223163802.3735: *3* url
@@ -889,13 +863,13 @@ def exceptionHandler(exception_type, exception, traceback, debug_hook=sys.except
         debug_hook(exception_type, exception, traceback)
     else:
         print "\n%s: %s" % (exception_type.__name__, exception)
-        
+
 #@+node:maphew.20141110231213.3: *3* class AttrDict
 class xAttrDict(dict):
     '''Access a dictionary by attributes, like using javascript dotted notation.
-    
+
         dict.mykey  <--- same as --->   dict['mykey']
-    
+
     From http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python
     '''
     def __init__(self, *args, **kwargs):
@@ -926,9 +900,11 @@ def debug_old(s):
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
     '''Download package from mirror and save in local cache folder.
+
     Overwrites existing cached version if md5 sum doesn't match expected from setup.ini.
-    Returns `None` for success (file downloaded, or file with correct md5 is present),
-    and urllib http status code if fails.
+
+    Returns `path\to\archive.bz2` on success (file downloaded, or file with correct md5 is present),
+    and http status code if fails.
     '''
     p_info = get_info(packagename)
     dstFile = p_info['local_zip']
@@ -948,41 +924,65 @@ def urlretrieve(srcFile, dstFile):
     """used in do_download(), would fit into update(), too"""
     cacheDir = os.path.dirname(dstFile)
 
-    try:
-        url = urllib.urlopen(srcFile)
-    except IOError as e:
-        print "Error on opening URL %s: %s" % (srcFile, e.msg)
-        raise
+    if os.path.exists(dstFile)and md5(packagename):
+        print 'Skipping download of %s, exists in cache' % p_info['filename']
+        return
 
-    if not url.getcode() is 200:
-        msg = 'Problem getting "%s"\nServer returned "%s"' % (srcFile, url.getcode())
-        raise AptError(msg)
+    f = dodo_download(srcFile, dstFile)
 
-    print '\nFetching %s' % srcFile
+    return f
+#@+node:maphew.20150322125023.13: *4* dodo_download
+def dodo_download(url, dstFile):
+    ''' Dumbest name for abstracting downloading
+        a file to disk with requests module and progress reporting
 
-    if not os.path.exists(cacheDir):
-        os.makedirs(cacheDir)
+        Returns `path\to\archive.bz2` on success, http status code if fails.
+    '''
+    r = requests.head(url)
+    if not r.ok:
+        print 'Problem getting %s\nServer returned "%s"' % (url, r.status_code)
+        return r.status_code
 
-    try:
-        status = urllib.urlretrieve(srcFile, dstFile, down_stat)
-    except IOError as e:
-        print "I/O error({0}): {1}".format(e.errno, e.strerror)
-        raise
-  
+    with open(dstFile, 'wb') as f:
+        r = requests.get(url, stream=True)
+        total_length = int(r.headers.get('content-length'))
+        block_size = 1024
+        down_bytes = 0
+        for block in r.iter_content(block_size):
+            down_bytes += len(block)
+            if not block:
+                break
+            f.write(block)
+            down_stat(down_bytes, total_length)
+        if not r.ok:
+            print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+            return r.status_code
+
+    return dstFile
+
 #@+node:maphew.20100223163802.3742: *4* down_stat
-def down_stat(count, blockSize, totalSize):
-    '''Report download progress'''
-    #courtesy of http://stackoverflow.com/questions/51212/how-to-write-a-download-progress-indicator-in-python
-    percent = int(count*blockSize*100/totalSize+0.5)#Round percentage
+def down_stat(downloaded_size, total_size):
+    ''' Report download progress in bar, percent, and bytes.
 
-    if not 'last_percent' in vars(down_stat):down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
+        Each bar stroke '=' is approximately 2%
+
+        Adapted from
+            http://stackoverflow.com/questions/51212/how-to-write-a-download-progress-indicator-in-python
+            http://stackoverflow.com/questions/15644964/python-progress-bar-and-downloads
+    '''
+    percent = int(100 * downloaded_size/total_size)
+    bar = percent/2
+
+    if not 'last_percent' in vars(down_stat):
+        down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
 
     if percent > 100: # filesize usually doesn't correspond to blocksize multiple, so flatten overrun
         percent = 100
         down_stat.last_percent=0
 
     if percent > down_stat.last_percent:
-        sys.stdout.write("\r...%d%%  " % percent)
+        msg = '\r[{:<50}] {:>3}% {:,}'.format('=' * bar, percent, downloaded_size)
+        sys.stdout.write(msg)
         sys.stdout.flush()
     down_stat.last_percent=percent
 #@+node:maphew.20100223163802.3740: *3* do_install
@@ -997,7 +997,7 @@ def do_install(packagename):
         filename = get_zipfile(packagename)
     except KeyError as e:
         pass
-      
+
     if not os.path.exists(filename):
         # AMR66: check raise Errors, 15/03/15
         raise AptError('Local archive %s not found' % filename)
@@ -1096,25 +1096,25 @@ def get_filelist(packagename):
 #@+node:maphew.20100223163802.3746: *3* get_installed
 def get_installed ():
     ''' Get list of installed packages from ./etc/setup/installed.db.
-    
+
     Returns nested dictionary (empty when installed.db doesn't exist):
     {status_int : {pkg_name : archive_name}}
-    
+
     I don't know significance of the nesting or leading zero. It appears to be
     extraneous? The db is just a straight name:tarball lookup table.
     In write_installed() the "status" is hard coded as 0 for all packages.
     '''
-    
+
     global installed
-    
+
     # I think the intent here is for performance,
     # don't reread from disk for every invocation.
     # I'm not sure that's wise. What if setup.exe
-    # has modified it in the interim? Or another 
+    # has modified it in the interim? Or another
     # apt instance?
     if installed:
         return installed
-    
+
     installed = {0:{}}
     for i in open (installed_db).readlines ()[1:]:
         name, ball, status = string.split (i)
@@ -1134,7 +1134,7 @@ def get_config(fname):
 #@+node:maphew.20100307230644.3848: *3* get_menu_links
 def get_menu_links(bat):
     '''Parse postinstall batch file for menu and desktop links.
-    
+
     Relies on shlex module which splits on spaces, yet preserves
     spaces within quotes (http://stackoverflow.com/questions/79968)
     '''
@@ -1230,7 +1230,7 @@ def save_config(fname,values):
     # '''save settings like last-mirror, last-cache'''
     # e.g. /etc/setup/last-cache --> d:\downloads\osgeo4w
     return "save_config() is deprecated. Please rewrite to use write_setuprc()"
-    
+
     os.chdir(config)
     pipe = open(fname,'w')
 
@@ -1264,35 +1264,35 @@ def write_filelist (packagename, lst):
 #@+node:maphew.20141130225434.5: *3* write_setuprc
 def write_setuprc(setuprc, fname='setup.rc'):
     '''Write the setuprc dictionary to file, in osgeo4w-setup.exe format.
-    
+
     Dict entries with empty values are left out.
-    
+
     Incoming dict:
         last-mode: None
         last-mirror: http://download.osgeo.org/osgeo4w/
         net-method: None
         last-cache: C:\Users\Matt\Downloads
         last-menu-name: OSGeo4W_default
-    
+
     Out etc/setup/setup.rc:
         last-mirror
                 http://download.osgeo.org/osgeo4w/
         last-cache
                 C:\Users\Matt\Downloads
         last-menu-name
-                OSGeo4W_default        
+                OSGeo4W_default
     '''
     if not 'last-mirror' in setuprc.keys():
         return "Incoming setuprc dict doesn't have expected values, aborting"
-    
+
     fname = os.path.join(config, fname)
-    
+
     f = open(fname, 'w')
     for k,v in setuprc.items():
         if v:
             f.write('{0}\n\t{1}\n'.format(k,v))
     f.close()
-    
+
     if debug:
         print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
         print "Wrote %s" % fname
@@ -1306,7 +1306,7 @@ def parse_setuprc(fname):
     starting with tabs.
 
     Example C:\OSGeo4W\etc\setup\setup.rc:
-    
+
         mirrors-lst
                 http://download.osgeo.org/osgeo4w/;OSGeo;USA;California
         window-placement
@@ -1323,7 +1323,7 @@ def parse_setuprc(fname):
                 OSGeo4W_default
 
     And result:
-        
+
         last-cache:     C:\Users\Matt\Downloads
         last-mirror:    http://download.osgeo.org/osgeo4w/
         mirrors-lst:    http://download.osgeo.org/osgeo4w/;OSGeo;USA;Cal...
@@ -1345,77 +1345,77 @@ def parse_setuprc(fname):
             else:
                 value = line.strip()
                 # print 'value:', line
-                d[key] = value    
+                d[key] = value
         f.close()
-    
+
     except IOError:
         print "Couldn't open %s, setting empty" % fname
         for k in default_keys:
             d[k] = None
-    
+
     if debug == True:
         print '### DEBUG: %s ###' % sys._getframe().f_code.co_name
         for k,v in d.items():
             print '%s:\t%s' % (k, v)
-        
+
     return d
 #@+node:maphew.20141111130056.4: *3* get_info
 def get_info(packagename):
     '''Retrieve details for package X.
-    
+
     Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
-    
+
     Incoming packagename dict duplicates the original key names and values. Here we further parse the compound record values into constituent parts.
-    
+
         {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
-    
+
     becomes:
-        
+
         {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
         {'zip_size':'5430991'}
         {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
-    '''   
+    '''
     d = dists[distname][packagename]
     d['name'] = packagename
     #print d    # debug peek at incoming dict
-    
+
     if 'install' in d.keys():
         # 'install' and 'source keys have compound values, atomize them
         d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
         if not debug:
             del d['install']
-            
+
     if 'source' in d.keys():
         d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
         if not debug:
             del d['source']
-        
+
     #based on current mirror, might be different from when downloaded and/or installed
-    d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
+    d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
     d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
 
     d['filename'] = os.path.basename(d['zip_path'])
-    
+
     # ensure requires key exists even if it's empty
     if not 'requires' in d.keys():
         d['requires'] = ''
-    
+
     if packagename in installed[0].keys():
         d['installed'] = True
     else:
         d['installed'] = False
-    
+
     return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
-    
+
     Args:
         fname: full path to setup.ini
-            
+
     Returns:
         A nested dictionary: {Distribution {Program_name{['category', 'source', 'ldesc', 'version', 'install', 'sdesc', 'requires']}}}
-    
+
         {curr {
             'gdal' {
                 'name': 'gdal',
@@ -1426,7 +1426,7 @@ def parse_setup_ini(fname):
     '''
     # global dists
     dists = {'test': {}, 'curr': {}, 'prev': {}}
-    
+
     chunks = string.split(open(fname).read(), '\n\n@ ')
     for i in chunks[1:]:
         lines = string.split(i, '\n')
@@ -1450,7 +1450,7 @@ def parse_setup_ini(fname):
                 j = j + 1
                 continue
             # split "field: value record for field" into dict record
-            # e.g. "category: Libs Commandline_Utilities" 
+            # e.g. "category: Libs Commandline_Utilities"
             #   --> {'category': 'Libs Commandline_Utilities'}
             try:
                 key, value = map(string.strip,
@@ -1458,7 +1458,7 @@ def parse_setup_ini(fname):
             except:
                 # AMR66: check raise Errors, 15/03/15
                 raise TypeError('parse_setup failed on splitting line %s' % lines[j])
-            
+
             #strip outer quotes?
             if value[0] == '"' and value.find('"', 1) == -1:
                 while 1:
@@ -1466,7 +1466,7 @@ def parse_setup_ini(fname):
                     value += lines[j]
                     if lines[j].find('"') != -1:
                         break
-            
+
             records[key] = value
             j = j + 1
         packages[name] = records
@@ -1495,15 +1495,15 @@ def parse_setup_ini(fname):
                 del d['source']
         except KeyError as e:
             d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-            
+
         #based on current mirror, might be different from when downloaded and/or installed
         d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
         d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
-            
+
         # insert the parsed fields back into parent dict
         dists[distname][p] = d
-        
-    # # print dists[distname]['gdal'].keys()    
+
+    # # print dists[distname]['gdal'].keys()
     return dists
 #@+node:maphew.20100223163802.3760: *3* join_ball
 def join_ball(t):
@@ -1512,21 +1512,21 @@ def join_ball(t):
 #@+node:maphew.20100223163802.3761: *3* split_ball
 def split_ball(filename):
     '''Parse package archive name into a) package name and b) version numbers tuple (to feed into version_to_string)
-    
+
     mc-4.6.0a-20030721-12.tar.bz2
-    
+
         mc              --> package name
         4.6.0a-20030721 --> upstream application version
         12              --> package version
-        
+
     python-numpy-2.7-1.5.1-1.tar.bz2
-    
+
         python-numpy  --> package name
         2.7-1.5.1     --> upstream application version
         1             --> package version
-        
+
     returns:
-    
+
       ('mc', (4, 6, 0a, 20030721, 12))
       ('python-numpy', (2, 7, 1, 5, 1, 1))
     '''
@@ -1547,7 +1547,7 @@ def split_ball(filename):
         print '\n\n*** Error parsing version number from "%s"\n%s\n' % (filename, m)
         # amr66-patch-1: return is missing
         return "u", "0"
-        
+
     return (m.group(1), string_to_version(m.group(2)))
 #@+node:maphew.20100223163802.3762: *3* string_to_version
 def string_to_version(s):
@@ -1678,7 +1678,7 @@ def do_unpack ():
     print ('%s/%s' % (SRC, packagename))
     if not os.path.exists ('%s/%s' % (SRC, packagename)):
         # AMR66: check raise Errors, 15/03/15
-        raise OSError(2, 'do_unpack failed: no such file or directory', '%s/%s' % (SRC, packagename))      
+        raise OSError(2, 'do_unpack failed: no such file or directory', '%s/%s' % (SRC, packagename))
 
 #@+node:maphew.20100223163802.3768: *3* do_build
 def do_build ():
@@ -1686,7 +1686,7 @@ def do_build ():
     if not os.path.exists (src):
         # AMR66: check raise Errors, 15/03/15
         raise OSError(2, 'do_unpack failed: no such file or directory', src)
-        
+
     m = re.match ('^(.*)-([0-9]*)$', packagename)
     if not m:
         # AMR66: check raise Errors, 15/03/15
@@ -1746,7 +1746,7 @@ if __name__ == '__main__':
         # OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/')
     # else:
         # OSGEO4W_ROOT = check_env() # look for root in environment
-        
+
     OSGEO4W_ROOT = check_env() # look for root in environment
     CWD = os.getcwd()
     INSTALL = 'install'
@@ -1764,7 +1764,7 @@ if __name__ == '__main__':
     # # reverse engineering the globals...
     # # after parse_setup_ini() 'dists' is actually contents of setup.ini in a dict
     # # 'distname' is always 'current' (at present)
-    # # 
+    # #
     # print type(dists)
     # print(distname)
 
@@ -1786,7 +1786,7 @@ if __name__ == '__main__':
     (options, params) = getopt.getopt (sys.argv[1:],
                       'dhi:m:r:t:s:xv',
                       ('download', 'help', 'mirror=', 'root='
-                       'ini=', 't=', 'start-menu=', 'no-deps', 
+                       'ini=', 't=', 'start-menu=', 'no-deps',
                        'debug', 'verbose'))
     # the first parameter is our action,
     # and change `list-installed` to `list_installed`
@@ -1848,12 +1848,13 @@ if __name__ == '__main__':
         print 'last-mirror:', last_mirror
         print 'last-cache:', last_cache
 
-        
+
     if not 'mirror' in globals():
         mirror = get_mirror()
 
     # convert mirror url into acceptable folder name
-    mirror_dir = urllib.quote(mirror, '').lower()
+    mirror_dir = requests.utils.quote(mirror, '').lower()
+        # optional quote '' param is to also substitute slashes etc.
 
     if last_cache == None:
         cache_dir = '%s/var/cache/setup' % (root)

@@ -23,6 +23,7 @@ setup(
     keywords='osgeo4w package-manager installer',
     #py_modules=['apt','dapt'],
     #install_requires=['Click'],
+    install_requires=['requests'],
     entry_points='''
         [console_scripts]
         apt = apt:__main__

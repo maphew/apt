@@ -143,10 +143,13 @@ def ball(packages):
     
     shell = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86
 /release/shell/shell-1.0.0-13.tar.bz2
+
+    FIXME: This should either return a list of archive filenames, 
+    or there should be a get_ball(p) which returns 1 filename,
+    or we should rip out all this repetitive code spread across multiple functions,
+    for the purpose of allowing multiple package input. We need a handler for this instead.
     '''
-    #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    # if type(packages) is str: packages = [packages]
 
     if not packages:
         help('ball')
@@ -162,12 +165,12 @@ def ball(packages):
         # print "\n%s = %s" % (p, dists.distname.p.local_zip)
         # #print dists.curr.shell.local_zip
         
-        # these are equivalent in output, but near equally messy
-        # I don't think attrdict will work for this project.
-        # print dists(distname)(p).local_zip
-        print dists[distname][p]['local_zip']
+        # # these are equivalent in output, but near equally messy
+        # # I don't think attrdict will work for this project.
+        # # print dists(distname)(p).local_zip
+        # print dists[distname][p]['local_zip']
     
-        
+    return
 #@+node:maphew.20100223163802.3721: *3* download
 def download(packages):
     '''Download the package(s) from mirror and save in local cache folder:
@@ -827,9 +830,7 @@ def url(packages):
 #@+node:maphew.20100223163802.3736: *3* version
 def version(packages):
     '''Report installed version of X'''
-    #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    # if type(packages) is str: packages = [packages]
 
     if not packages:
         help('version')
@@ -1185,7 +1186,7 @@ def get_url(packagename):
 def get_version(packagename):
     if not dists[distname].has_key(packagename) \
        or not dists[distname][packagename].has_key(INSTALL):
-        no_package()
+        no_package(packagename, distname)
         return (0, 0)
 
     package = dists[distname][packagename]
@@ -1331,7 +1332,8 @@ def parse_setuprc(fname):
 def get_info(packagename):
     '''Retrieve details for package X.
     
-    Returns dict of information for the package from setup.ini (category, version, archive name, etc.)
+    Returns dict of information for the package from dict created by parse_setup_ini()
+        (category, version, archive name, etc.)
     
     Incoming packagename dict duplicates the original key names and values. Here we further parse the compound record values into constituent parts.
     
@@ -1350,8 +1352,10 @@ def get_info(packagename):
     if 'install' in d.keys():
         # 'install' and 'source keys have compound values, atomize them
         d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-        if not debug:
-            del d['install']
+        
+        ## issue #29
+        # if not debug:
+            # del d['install']
             
     if 'source' in d.keys():
         d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
@@ -1370,6 +1374,8 @@ def get_info(packagename):
     
     if packagename in installed[0].keys():
         d['installed'] = True
+        d['installed_ver'] = version_to_string(get_installed_version(packagename))
+            # don't like long key name, but...
     else:
         d['installed'] = False
     
@@ -1451,8 +1457,11 @@ def parse_setup_ini(fname):
         try:
             # 'install' and 'source keys have compound values, atomize them
             d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-            if not debug:
-                del d['install']
+            
+            ## issue #29
+            #if not debug:
+                #del d['install']
+                
         except KeyError as e:
             d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
             print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)

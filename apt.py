@@ -638,24 +638,25 @@ def remove(packages):
 
 #@+node:maphew.20100223163802.3730: *3* requires
 def requires(packages):
-    '''What packages does X rely on?'''
-    #TODO: return results dictionary so can be used by other functions.
-    
+    ''' What packages does X rely on?
+        
+        Returns dictionary of package names and dependencies
+    '''    
     if not packages:
         sys.stderr.write('Please specify package names to list dependencies for.')
         return
-    #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    # if type(packages) is str: packages = [packages]
     
     for p in packages:
         print '----- "%s" requires the following to work -----' % p
-        depends = get_info(p)['requires'].split()
+        depends = {p: get_info(p)['requires'].split()}
         # depends = get_requires(p)
-        if p in depends:
-            depends.remove(p) # don't need to list self ;-)
-        depends.sort()
-        print string.join(depends, '\n')
+        if p in depends[p]:
+            depends[p].remove(p) # don't need to list self ;-)
+        #depends.sort() # don't sort, it changes dependency order
+        print string.join(depends[p], '\n')
+
+    return depends
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):
     '''Search available packages list for X
@@ -915,8 +916,7 @@ def dodo_download(url, dstFile):
         print 'Problem getting %s\nServer returned "%s"' % (url, r.status_code)
         return r.status_code
         
-    if not os.path.exists(os.path.dirname(dstFile)):
-        os.makedirs(os.path.dirname(dstFile))
+    os.makedirs(os.path.dirname(dstFile), exist_ok=True)
     
     with open(dstFile, 'wb') as f:
         r = requests.get(url, stream=True)

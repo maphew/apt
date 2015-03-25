@@ -298,9 +298,7 @@ def install(packages):
     
         C:\> apt install shell gdal
     '''
-    #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    #if type(packages) is str: packages = [packages]
     if debug:
         print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
         print '### pkgs:', packages
@@ -335,7 +333,8 @@ def install(packages):
     for p in packages[:]:
         print '\t %s - %s' % (p, get_info(p)['installed'])
         if get_info(p)['installed']:
-            packages.remove(p)
+            if version_to_string(get_installed_version(p)) >= get_info(p)['version']:
+                packages.remove(p)
 
     # skip installed dependencies
     print 'REQS: Checking dependencies installed:', ' '.join(reqs)
@@ -802,9 +801,7 @@ def upgrade(packages):
     if not packages:
         sys.stderr.write('No packages specified. Use "apt new" and "apt list" for ideas.')
         return
-    #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    # if type(packages) is str: packages = [packages]
 
     if packages[0] == 'all':
         packages = get_new()
@@ -918,6 +915,9 @@ def dodo_download(url, dstFile):
         print 'Problem getting %s\nServer returned "%s"' % (url, r.status_code)
         return r.status_code
         
+    if not os.path.exists(os.path.dirname(dstFile)):
+        os.makedirs(os.path.dirname(dstFile))
+    
     with open(dstFile, 'wb') as f:
         r = requests.get(url, stream=True)
         total_length = int(r.headers.get('content-length'))

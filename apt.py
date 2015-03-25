@@ -915,8 +915,7 @@ def dodo_download(url, dstFile):
         print 'Problem getting %s\nServer returned "%s"' % (url, r.status_code)
         return r.status_code
         
-    if not os.path.exists(os.path.dirname(dstFile)):
-        os.makedirs(os.path.dirname(dstFile))
+    os.makedirs(os.path.dirname(dstFile), exist_ok=True)
     
     with open(dstFile, 'wb') as f:
         r = requests.get(url, stream=True)

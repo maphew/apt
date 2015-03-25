@@ -605,6 +605,23 @@ def get_requires(packagename):
             reqs.update (dict(map(lambda x: (x, 0),
                         string.split (p['requires']))))
     return reqs.keys()
+#@+node:maphew.20150325155203.3: *4* get_dependencies
+def get_dependencies(packages, nestedl, parent=None):
+    """a recursive lookup for required packages in order of dependence"""
+    if isinstance(packages, basestring): packages = [packages]
+
+    for p in packages:
+        mm = get_requires(p)
+        if parent:
+            inspos = nestedl.index(parent)
+            nestedl.insert(inspos, p)
+        else:
+            nestedl.append(p)
+        #delete_in_existing(mm, nestedl) 
+        if mm:
+            nestedl = get_dependencies(mm, nestedl,p)
+
+    return nestedl
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''
@@ -656,6 +673,10 @@ def requires(packages):
         #depends.sort() # don't sort, it changes dependency order
         print string.join(depends[p], '\n')
 
+    dlist = []
+    dlist = get_dependencies(packages, dlist)
+    print dlist
+    
     return depends
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):

@@ -671,7 +671,10 @@ def get_dependencies(packages, nestedl, parent=None):
     if isinstance(packages, basestring): packages = [packages]
 
     for p in packages:
-        mm = get_requires(p)
+        #mm = get_requires(p)
+            # with this, end result has duplicate packages
+        mm = get_info(p)['requires'].split()
+            # end result has no dupes
         if parent:
             inspos = nestedl.index(parent)
             nestedl.insert(inspos, p)

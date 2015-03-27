@@ -667,14 +667,13 @@ def xrequires(packages):
     print dlist
 #@+node:maphew.20150325155203.3: *4* get_dependencies
 def get_dependencies(packages, nestedl, parent=None):
-    """a recursive lookup for required packages in order of dependence"""
+    ''' Recursive lookup for required packages in order of dependence
+        Returns a list
+    '''
     if isinstance(packages, basestring): packages = [packages]
 
     for p in packages:
-        #mm = get_requires(p)
-            # with this, end result has duplicate packages
         mm = get_info(p)['requires'].split()
-            # end result has no dupes
         if parent:
             inspos = nestedl.index(parent)
             nestedl.insert(inspos, p)
@@ -687,6 +686,7 @@ def get_dependencies(packages, nestedl, parent=None):
     return nestedl
 
 def delete_in_existing(delist, exlist):
+    '''Remove any items in "delist" that also exist in "exlist".'''
     delete=[]
     for e in delist:
         if e in exlist:

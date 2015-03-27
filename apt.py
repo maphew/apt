@@ -612,7 +612,8 @@ def remove(packages):
 def requires(packages):
     ''' What packages does X rely on?
         
-        Returns dictionary of package names and dependencies
+        Returns dictionary of package names and dependencies.
+        Reports sub-dependencies, but they aren't in the dict (yet).
     '''    
     if not packages:
         sys.stderr.write('Please specify package names to list dependencies for.')
@@ -1023,7 +1024,7 @@ def do_run_preremove(root, packagename):
 #@+node:maphew.20150325155203.3: *3* get_all_dependencies
 def get_all_dependencies(packages, nested_deps, parent=None):
     ''' Recursive lookup for required packages in order of dependence.
-        Returns an ordered list with duplicates removed.
+        Returns an ordered list <strike>with duplicates removed [FIXME]</strike>.
     '''
     if isinstance(packages, basestring): packages = [packages]
 

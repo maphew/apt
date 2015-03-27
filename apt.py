@@ -620,13 +620,14 @@ def requires(packages):
     if isinstance(packages, basestring): packages = [packages]
     
     for p in packages:
-        print '----- "%s" requires the following to work -----' % p
+        print '----- "%s" requires the following directly to work -----' % p
         depends = {p: get_info(p)['requires'].split()}
-        # depends = get_requires(p)
         if p in depends[p]:
             depends[p].remove(p) # don't need to list self ;-)
-        #depends.sort() # don't sort, it changes dependency order
         print string.join(depends[p], '\n')
+        
+    print '----- Sub dependencies are ----'
+    print string.join(get_all_dependencies(packages, []), '\n')
     
     return depends
 #@+node:maphew.20150327024923.2: *3* xrequires

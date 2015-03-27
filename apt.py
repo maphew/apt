@@ -679,22 +679,14 @@ def get_dependencies(packages, nestedl, parent=None):
             nestedl.insert(inspos, p)
         else:
             nestedl.append(p)
-        delete_in_existing(mm, nestedl) 
+        #delete_in_existing(mm, nestedl)
+        mm = [x for x in mm if x not in nestedl]
+            # list comprehension can do it one line
+            # http://stackoverflow.com/questions/17934785/remove-elements-in-one-list-present-in-another-list 
         if mm:
             nestedl = get_dependencies(mm, nestedl,p)
 
     return nestedl
-
-def delete_in_existing(delist, exlist):
-    '''Remove any items in "delist" that also exist in "exlist".'''
-    delete=[]
-    for e in delist:
-        if e in exlist:
-            delete.append(e)
-
-    for d in delete:
-        delist.remove(d)
-    return delist
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):
     '''Search available packages list for X

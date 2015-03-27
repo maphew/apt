@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #@+leo-ver=5-thin
-#@+node:maphew.20120709214653.1686: * @file apt.py
+#@+node:maphew.20150327024628.2: * @file apt.py
 #@@first
 #@+<<docstring>>
 #@+node:maphew.20100307230644.3846: ** <<docstring>>
@@ -617,11 +617,21 @@ def get_dependencies(packages, nestedl, parent=None):
             nestedl.insert(inspos, p)
         else:
             nestedl.append(p)
-        #delete_in_existing(mm, nestedl) 
+        delete_in_existing(mm, nestedl) 
         if mm:
             nestedl = get_dependencies(mm, nestedl,p)
 
     return nestedl
+
+def delete_in_existing(delist, exlist):
+    delete=[]
+    for e in delist:
+        if e in exlist:
+            delete.append(e)
+
+    for d in delete:
+        delist.remove(d)
+    return delist
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''

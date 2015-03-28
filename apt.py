@@ -864,6 +864,14 @@ def debug_old(s):
     s
     print s
 
+#@+node:maphew.20150327181149.2: *3* uniq
+def uniq(alist):
+    ''' Returns a list with unique items (removes duplicates), 
+        without losing item order.
+        From @jamylak, http://stackoverflow.com/a/17016257/14420
+    '''
+    from collections import OrderedDict
+    return list(OrderedDict.fromkeys(alist))
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
@@ -1024,7 +1032,7 @@ def do_run_preremove(root, packagename):
 #@+node:maphew.20150325155203.3: *3* get_all_dependencies
 def get_all_dependencies(packages, nested_deps, parent=None):
     ''' Recursive lookup for required packages in order of dependence.
-        Returns an ordered list <strike>with duplicates removed [FIXME]</strike>.
+        Returns an ordered list.
     '''
     if isinstance(packages, basestring): packages = [packages]
 
@@ -1035,25 +1043,12 @@ def get_all_dependencies(packages, nested_deps, parent=None):
             nested_deps.insert(inspos, p)
         else:
             nested_deps.append(p)
-        print 'Before delete_in_existing:', deps
-        delete_in_existing(deps, nested_deps)
-        #deps = [x for x in deps if x not in nested_deps]
+        deps = [x for x in deps if x not in nested_deps]
             # remove nested_deps items from deps
-        print 'After  delete_in_existing:', deps
         if deps:
             nested_deps = get_all_dependencies(deps, nested_deps,p)
-
-    return nested_deps
-
-def delete_in_existing(delist, exlist):
-    delete=[]
-    for e in delist:
-        if e in exlist:
-            delete.append(e)
-
-    for d in delete:
-        delist.remove(d)
-    return delist
+    
+    return uniq(nested_deps)
 #@+node:maphew.20141112222311.3: *3* get_zipfile
 def get_zipfile(packagename):
     '''Return full path name of locally downloaded package archive.'''

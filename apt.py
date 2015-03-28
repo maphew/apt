@@ -1035,12 +1035,25 @@ def get_all_dependencies(packages, nested_deps, parent=None):
             nested_deps.insert(inspos, p)
         else:
             nested_deps.append(p)
-        deps = [x for x in deps if x not in nested_deps]
+        print 'Before delete_in_existing:', deps
+        delete_in_existing(deps, nested_deps)
+        #deps = [x for x in deps if x not in nested_deps]
             # remove nested_deps items from deps
+        print 'After  delete_in_existing:', deps
         if deps:
             nested_deps = get_all_dependencies(deps, nested_deps,p)
 
     return nested_deps
+
+def delete_in_existing(delist, exlist):
+    delete=[]
+    for e in delist:
+        if e in exlist:
+            delete.append(e)
+
+    for d in delete:
+        delist.remove(d)
+    return delist
 #@+node:maphew.20141112222311.3: *3* get_zipfile
 def get_zipfile(packagename):
     '''Return full path name of locally downloaded package archive.'''

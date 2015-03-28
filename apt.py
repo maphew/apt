@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #@+leo-ver=5-thin
-#@+node:maphew.20120709214653.1686: * @file apt.py
+#@+node:maphew.20150327024628.2: * @file apt.py
 #@@first
 #@+<<docstring>>
 #@+node:maphew.20100307230644.3846: ** <<docstring>>
@@ -577,34 +577,6 @@ def get_missing(packagename):
             lst.append(packagename)
     
     return lst
-#@+node:maphew.20150201144500.7: *4* get_requires
-def get_requires(packagename):
-    ''' identify dependencies of package'''
-    dist = dists[distname]
-    if not dists[distname].has_key(packagename):
-        no_package(packagename, distname)
-        #return []
-        sys.exit(1)
-    if depend_p:
-        return [packagename]
-    reqs = {packagename:0}
-    n = 0
-    while len(reqs) > n:
-        n = len(reqs)
-        for i in reqs.keys():
-            if not dist.has_key(i):
-                sys.stderr.write("error: %s not in [%s]\n" \
-                          % (i, distname))
-                if i != packagename:
-                    del reqs[i]
-                continue
-            reqs[i] = '0'
-            p = dist[i]
-            if not p.has_key('requires'):
-                continue
-            reqs.update (dict(map(lambda x: (x, 0),
-                        string.split (p['requires']))))
-    return reqs.keys()
 #@+node:maphew.20100223163802.3728: *3* new
 def new(dummy):
     '''List available upgrades to currently installed packages'''
@@ -640,7 +612,8 @@ def remove(packages):
 def requires(packages):
     ''' What packages does X rely on?
         
-        Returns dictionary of package names and dependencies
+        Returns dictionary of package names and dependencies.
+        Reports sub-dependencies, but they aren't in the dict (yet).
     '''    
     if not packages:
         sys.stderr.write('Please specify package names to list dependencies for.')
@@ -648,15 +621,24 @@ def requires(packages):
     if isinstance(packages, basestring): packages = [packages]
     
     for p in packages:
-        print '----- "%s" requires the following to work -----' % p
+        print '----- "%s" requires the following directly to work -----' % p
         depends = {p: get_info(p)['requires'].split()}
-        # depends = get_requires(p)
         if p in depends[p]:
             depends[p].remove(p) # don't need to list self ;-)
-        #depends.sort() # don't sort, it changes dependency order
         print string.join(depends[p], '\n')
-
+        
+    print '----- Sub dependencies are ----'
+    print string.join(get_all_dependencies(packages, []), '\n')
+    
     return depends
+#@+node:maphew.20150327024923.2: *3* xrequires
+def xrequires(packages):
+    ''' https://github.com/maphew/apt/issues/32 '''
+    if isinstance(packages, basestring): packages = [packages]
+
+    dlist = []
+    dlist = get_all_dependencies(packages, dlist)
+    print dlist
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):
     '''Search available packages list for X
@@ -1039,6 +1021,26 @@ def do_run_preremove(root, packagename):
         except OSError, e:
             print >>sys.stderr, "Execution failed:", e
 #@+node:maphew.20100308085005.1380: ** Getters
+#@+node:maphew.20150325155203.3: *3* get_all_dependencies
+def get_all_dependencies(packages, nested_deps, parent=None):
+    ''' Recursive lookup for required packages in order of dependence.
+        Returns an ordered list <strike>with duplicates removed [FIXME]</strike>.
+    '''
+    if isinstance(packages, basestring): packages = [packages]
+
+    for p in packages:
+        deps = get_info(p)['requires'].split()
+        if parent:
+            inspos = nested_deps.index(parent)
+            nested_deps.insert(inspos, p)
+        else:
+            nested_deps.append(p)
+        deps = [x for x in deps if x not in nested_deps]
+            # remove nested_deps items from deps
+        if deps:
+            nested_deps = get_all_dependencies(deps, nested_deps,p)
+
+    return nested_deps
 #@+node:maphew.20141112222311.3: *3* get_zipfile
 def get_zipfile(packagename):
     '''Return full path name of locally downloaded package archive.'''
@@ -1141,6 +1143,39 @@ def get_new():
             lst.append(packagename)
     return lst
 
+#@+node:maphew.20150201144500.7: *3* get_requires
+def get_requires(packagename):
+    ''' identify dependencies of package [deprecated]
+    
+        use get_all_dependencies() for recursive dependencies list
+        and get_info(p)['requires'] for just one level
+    '''
+    print '+++ get_requires() is depcrecated. Please use get_all_dependencies().'
+    dist = dists[distname]
+    if not dists[distname].has_key(packagename):
+        no_package(packagename, distname)
+        #return []
+        sys.exit(1)
+    if depend_p:
+        return [packagename]
+    reqs = {packagename:0}
+    n = 0
+    while len(reqs) > n:
+        n = len(reqs)
+        for i in reqs.keys():
+            if not dist.has_key(i):
+                sys.stderr.write("error: %s not in [%s]\n" \
+                          % (i, distname))
+                if i != packagename:
+                    del reqs[i]
+                continue
+            reqs[i] = '0'
+            p = dist[i]
+            if not p.has_key('requires'):
+                continue
+            reqs.update (dict(map(lambda x: (x, 0),
+                        string.split (p['requires']))))
+    return reqs.keys()
 #@+node:maphew.20100223163802.3755: *3* get_special_folder
 def get_special_folder(intFolder):
     ''' Fetch paths of Windows special folders: Program Files, Desktop, Startmenu, etc.

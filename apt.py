@@ -257,7 +257,7 @@ def info(packages):
         if debug:            
             # This guaranteed to print entire dict contents,
             # but not in a logical order.
-            print '\n----- Complete get_info() dict -----'
+            print '\n----- DEBUG: %s -----' % sys._getframe().f_code.co_name
             for k in d.keys():
                 print('{0:8}:\t{1}'.format(k,d[k]))
             print '-' * 36
@@ -1119,8 +1119,8 @@ def get_zipfile(packagename):
     return dists[distname][packagename]['local_zip']
 #@+node:maphew.20100223163802.3747: *3* get_installed_version
 def get_installed_version(packagename):
+    '''Derive version number from archive filename in 'installed' dict.'''
     return split_ball(installed[0][packagename])[1]
-
 #@+node:maphew.20100223163802.3744: *3* get_field
 def get_field(field, default=''):
     for d in (distname,) + distnames:
@@ -1370,8 +1370,9 @@ def write_setuprc(setuprc, fname='setup.rc'):
     f.close()
     
     if debug:
-        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
+        print '\n---- DEBUG: %s -----' % sys._getframe().f_code.co_name
         print "Wrote %s" % fname
+        print '-' * 40
 #@+node:maphew.20100308085005.1382: ** Parsers
 #@+node:maphew.20141128231605.7: *3* parse_setuprc
 def parse_setuprc(fname):
@@ -1430,10 +1431,10 @@ def parse_setuprc(fname):
             d[k] = None
     
     if debug == True:
-        print '### DEBUG: %s ###' % sys._getframe().f_code.co_name
+        print '\n---- DEBUG: %s ----' % sys._getframe().f_code.co_name
         for k,v in d.items():
             print '%s:\t%s' % (k, v)
-        
+        print '-' * 40
     return d
 #@+node:maphew.20141111130056.4: *3* get_info
 def get_info(packagename):
@@ -1924,11 +1925,6 @@ if __name__ == '__main__':
     except KeyError:
         last_mirror = None
         last_cache = None
-    if debug:
-        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
-        print 'last-mirror:', last_mirror
-        print 'last-cache:', last_cache
-
         
     if not 'mirror' in globals():
         mirror = get_mirror()
@@ -1944,10 +1940,13 @@ if __name__ == '__main__':
 
     downloads = '%s/%s' % (cache_dir, mirror_dir)
 
-    ##fixme: this is useful, but too noisy to report every time
-    #print "Last cache:\t%s\nLast mirror:\t%s" % (last_cache, last_mirror)
-    #print "Using mirror:\t%s" % (mirror)
-    #print "Saving to:\t%s" % (cache_dir)
+    if debug:
+        print '\n---- DEBUG: %s ----' % sys._getframe().f_code.co_name
+        print 'last-mirror:', last_mirror
+        print 'last-cache:', last_cache
+        print "Using mirror:\t", mirror
+        print "Saving to:\t", cache_dir
+        print '-' * 40
     #@-<<post-parse globals>>
     #@+<<run the commands>>
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>

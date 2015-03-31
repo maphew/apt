@@ -2,6 +2,9 @@
 #@+leo-ver=5-thin
 #@+node:maphew.20150327024628.2: * @file apt.py
 #@@first
+# Added for urltime_to_datetime, datetime_to_unixtime
+from __future__ import division
+from datetime import datetime, timedelta
 #@+<<docstring>>
 #@+node:maphew.20100307230644.3846: ** <<docstring>>
 '''
@@ -18,8 +21,6 @@
 '''
 apt_version = '0.3-1-dev'
 #@-<<docstring>>
-#@@language python
-#@@tabwidth -4
 #@+<<imports>>
 #@+node:maphew.20100307230644.3847: ** <<imports>>
 import __main__
@@ -38,7 +39,10 @@ import subprocess
 import shlex
 import locale
 #from attrdict import AttrDict
+
 #@-<<imports>>
+#@@language python
+#@@tabwidth -4
 #@+others
 #@+node:maphew.20100223163802.3718: ** usage
 def usage ():
@@ -741,7 +745,6 @@ def update():
         apt --mirror=http://example.com/...  update
         apt --mirror=file:////server/share/...  update
         apt --mirror=file://D:/downloads/cache/...  update
-
     '''
     if not os.path.exists(downloads):
         os.makedirs(downloads)
@@ -749,7 +752,7 @@ def update():
     bits = 'x86'
     #bits = 'x86_64'
     source = '%s/%s/%s' % (mirror, bits, '/setup.ini.bz2')
-    archive = downloads + 'setup.ini.bz2'
+    archive = os.path.join(downloads, 'setup.ini.bz2')
 
    # backup cached ini archive
     if os.path.exists(archive):
@@ -864,6 +867,36 @@ def debug_old(s):
     s
     print s
 
+#@+node:maphew.20150327181149.2: *3* uniq
+def uniq(alist):
+    ''' Returns a list with unique items (removes duplicates), 
+        without losing item order.
+        From @jamylak, http://stackoverflow.com/a/17016257/14420
+    '''
+    from collections import OrderedDict
+    return list(OrderedDict.fromkeys(alist))
+#@+node:maphew.20150329144423.2: *3* url_time_to_datetime
+def url_time_to_datetime(s): 
+    ''' Convert "last-modified" string time from a web server header to a python
+        datetime object.
+        
+        Assumes the string looks like "Fri, 27 Mar 2015 08:05:42 GMT". There is
+        no attempt to use locale or similar, so the function is'nt very robust.
+    '''
+    return datetime.strptime(s, '%a, %d %b %Y %X %Z')
+#@+node:maphew.20150329144423.3: *3* datetime_to_unixtime
+def datetime_to_unixtime(dt, epoch=datetime(1970,1,1)): 
+    ''' Convert a datetime object to unix UTC time (seconds since beginning).
+    
+        Adapted from http://stackoverflow.com/questions/8777753/converting-datetime-date-to-utc-timestamp-in-python/
+    '''    
+    td = dt - epoch
+    # return td.total_seconds()
+    return (td.microseconds + (td.seconds + td.days * 86400) * 10**6) / 10**6     
+        # FIXME: According to official docs, this should only be necessary in
+        # py2.6 and earlier # yet it fails for me in py2.7.4! Is osgeo4w's python
+        # corrupt?
+    
 #@+node:maphew.20100308085005.1379: ** Doers
 #@+node:maphew.20100223163802.3739: *3* do_download
 def do_download(packagename):
@@ -883,6 +916,11 @@ def do_download(packagename):
         print 'Skipping download of %s, exists in cache' % p_info['filename']
         return
 
+    if debug:
+        print 'do_download():'
+        print '\tsrcFile:\t', srcFile
+        print '\tdstFile:\t', dstFile
+
     f = dodo_download(srcFile, dstFile)
                 
     return f
@@ -897,8 +935,23 @@ def dodo_download(url, dstFile):
     if not r.ok:
         print 'Problem getting %s\nServer returned "%s"' % (url, r.status_code)
         return r.status_code
+    
+    url_time = url_time_to_datetime(r.headers['last-modified'])
+    if os.path.exists(dstFile):
+        file_time = datetime.utcfromtimestamp(os.path.getmtime(dstFile))
+    else:
+        file_time = datetime(1970, 1, 1)
+    if debug: 
+        print '\tServer URL Last-modified:\t', r.headers['last-modified']
+        print '\tDT obj URL Last-modified:\t', url_time
+        print '\tLocal cache file modified:\t', file_time
         
-    os.makedirs(os.path.dirname(dstFile), exist_ok=True)
+    if url_time <= file_time:
+        print "Skipping download - url modified time isn't newer than local file"
+        return dstFile
+        
+    if not os.path.exists(os.path.dirname(dstFile)):
+        os.makedirs(os.path.dirname(dstFile))
     
     with open(dstFile, 'wb') as f:
         r = requests.get(url, stream=True)
@@ -914,9 +967,16 @@ def dodo_download(url, dstFile):
         if not r.ok:
             print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
             return r.status_code
-            
-    return dstFile    
+    
+    # maintain server's file timestamp
+    tstamp = datetime_to_unixtime(url_time)
+    os.utime(dstFile, (tstamp, tstamp))
+    if debug:
+        print '\tFile timestamp:\t', datetime.utcfromtimestamp(tstamp)
         
+    print 'Saved', dstFile
+    return dstFile    
+
 #@+node:maphew.20100223163802.3742: *4* down_stat
 def down_stat(downloaded_size, total_size):
     ''' Report download progress in bar, percent, and bytes.
@@ -928,7 +988,7 @@ def down_stat(downloaded_size, total_size):
             http://stackoverflow.com/questions/15644964/python-progress-bar-and-downloads
     '''
     percent = int(100 * downloaded_size/total_size)
-    bar = percent/2
+    bar = int(percent/2)
     
     if not 'last_percent' in vars(down_stat):
         down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
@@ -942,6 +1002,9 @@ def down_stat(downloaded_size, total_size):
         sys.stdout.write(msg)
         sys.stdout.flush()
     down_stat.last_percent=percent
+    
+    if percent == 100:
+        print '' #stop linefeed suppression
 #@+node:maphew.20100223163802.3740: *3* do_install
 def do_install(packagename):
     ''' Unpack the package in appropriate locations, write file list to installed manifest, run postinstall confguration.'''
@@ -1024,7 +1087,7 @@ def do_run_preremove(root, packagename):
 #@+node:maphew.20150325155203.3: *3* get_all_dependencies
 def get_all_dependencies(packages, nested_deps, parent=None):
     ''' Recursive lookup for required packages in order of dependence.
-        Returns an ordered list <strike>with duplicates removed [FIXME]</strike>.
+        Returns an ordered list.
     '''
     if isinstance(packages, basestring): packages = [packages]
 
@@ -1039,8 +1102,8 @@ def get_all_dependencies(packages, nested_deps, parent=None):
             # remove nested_deps items from deps
         if deps:
             nested_deps = get_all_dependencies(deps, nested_deps,p)
-
-    return nested_deps
+    
+    return uniq(nested_deps)
 #@+node:maphew.20141112222311.3: *3* get_zipfile
 def get_zipfile(packagename):
     '''Return full path name of locally downloaded package archive.'''

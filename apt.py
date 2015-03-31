@@ -1562,7 +1562,8 @@ def parse_setup_ini(fname):
                 
         except KeyError as e:
             d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-            print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
+            if debug:
+              print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
 
         try:
             d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()

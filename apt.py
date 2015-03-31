@@ -218,12 +218,15 @@ def info(packages):
     zip_size : 3763
     md5      : c38f03d2b7160f891fc36ec776ca4685
     local_zip: d:/temp/o4w-cache/setup/http%3.../shell-1.0.0-13.tar.bz2
+    installed: True
+    install_v: 1.0.0-11
         
-    Note: "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
+    Notes:
+        - "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
+        - "version" is from setup.ini, what is available on the mirror server
+        - "install_v" is the version currently installed
     '''
-        #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    #if type(packages) is str: packages = [packages]
 
     if not packages:
         help('info')
@@ -248,12 +251,16 @@ def info(packages):
             'installed']
         for k in fields:
             print('{0:9}: {1}'.format(k,d[k]))
+        if d['installed']:
+            print('{0:9}: {1}'.format('install_v',d['install_v']))
 
         if debug:            
             # This guaranteed to print entire dict contents,
             # but not in a logical order.
+            print '\n----- Complete get_info() dict -----'
             for k in d.keys():
                 print('{0:8}:\t{1}'.format(k,d[k]))
+            print '-' * 36
 #@+node:maphew.20100223163802.3722: *3* find
 def find(patterns):
     '''Search installed packages for filenames matching the specified text string.'''
@@ -1474,8 +1481,8 @@ def get_info(packagename):
     
     if packagename in installed[0].keys():
         d['installed'] = True
-        d['installed_ver'] = version_to_string(get_installed_version(packagename))
-            # don't like long key name, but...
+        d['install_v'] = version_to_string(get_installed_version(packagename))
+            # don't like key name, but...
     else:
         d['installed'] = False
     

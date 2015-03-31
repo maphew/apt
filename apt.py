@@ -2,9 +2,8 @@
 #@+leo-ver=5-thin
 #@+node:maphew.20150327024628.2: * @file apt.py
 #@@first
-# Added for urltime_to_datetime, datetime_to_unixtime
-from __future__ import division
-from datetime import datetime, timedelta
+#@@language python
+#@@tabwidth -4
 #@+<<docstring>>
 #@+node:maphew.20100307230644.3846: ** <<docstring>>
 '''
@@ -14,10 +13,8 @@ from datetime import datetime, timedelta
 
   License: GNU GPL
 
-
   Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
   beginning July 2008
-
 '''
 apt_version = '0.3-1-dev'
 #@-<<docstring>>
@@ -38,11 +35,10 @@ import requests
 import subprocess
 import shlex
 import locale
+from datetime import datetime, timedelta
 #from attrdict import AttrDict
 
 #@-<<imports>>
-#@@language python
-#@@tabwidth -4
 #@+others
 #@+node:maphew.20100223163802.3718: ** usage
 def usage ():
@@ -889,6 +885,11 @@ def datetime_to_unixtime(dt, epoch=datetime(1970,1,1)):
     ''' Convert a datetime object to unix UTC time (seconds since beginning).
     
         Adapted from http://stackoverflow.com/questions/8777753/converting-datetime-date-to-utc-timestamp-in-python/
+
+    It wants `from __future__ import division`, but that caused issues in other
+    functions, automatically coverting what used to produce integers into floats
+    (e.g. "50/2"). It seems to be safe to not use it, but leaving this note just
+    in case...
     '''    
     td = dt - epoch
     # return td.total_seconds()
@@ -948,6 +949,7 @@ def dodo_download(url, dstFile):
         
     if url_time <= file_time:
         print "Skipping download - url modified time isn't newer than local file"
+        print dstFile
         return dstFile
         
     if not os.path.exists(os.path.dirname(dstFile)):

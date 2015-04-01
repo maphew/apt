@@ -555,7 +555,8 @@ def get_missing(packagename):
     # build list of required packages
     reqs = get_info(packagename)['requires'].split()
     
-    depends = get_requires(packagename)
+    #depends = get_requires(packagename)
+    depends = get_all_dependencies(packagename, [])
         #debug: #21
     # print reqs
     # print depends

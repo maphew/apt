@@ -492,7 +492,8 @@ def md5(package):
 
             > apt md5 shell
 
-        Returns: True or False
+        Returns: True or False for md5 match status
+                 None when cache file not found
         
         If passed a list it only processes the first item.
     '''
@@ -516,7 +517,8 @@ def md5(package):
             match = True
 
     except IOError:
-       sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
+       sys.stderr.write('*** local {}\'s .bz2 not found ***'.format(package))
+       return
 
     print('\t%s' % match)
     print('\tremote: %s' % their_md5)

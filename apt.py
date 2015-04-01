@@ -51,12 +51,12 @@ Commands:
     ball - print full path name of package archive
     download - download package
     find - package containing file (from installed packages)
+    hashcheck - check md5 sum of local package vs mirror
     help - show help for COMMAND
     info - report name, version, category etc. for specified packages
     install - download and install packages, including dependencies
     list-installed - report installed packages
     listfiles - installed with package X
-    md5 - check md5 sum
     missing - print missing dependencies for X
     new - list available upgrades to currently installed packages
     remove - uninstall packages
@@ -201,7 +201,7 @@ def download(packages):
     for p in packages:
         do_download(p)
         ball(p)
-        md5(p)
+        hashcheck(p)
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
     '''info - report name, version, category, etc. about the package(s)
@@ -487,10 +487,10 @@ def listfiles(packages):
             print i
     
 #@+node:maphew.20100223163802.3726: *3* md5
-def md5(package):
+def hashcheck(package):
     '''Check if the md5 hash for "package" in local cache matches mirror
 
-            > apt md5 shell
+            > apt hashcheck shell
 
         Returns: True or False for md5 match status
                  None when cache file not found
@@ -922,7 +922,7 @@ def do_download(packagename):
     srcFile = p_info['mirror_path']
     cacheDir = os.path.dirname(dstFile)
                 
-    if os.path.exists(dstFile)and md5(packagename):
+    if os.path.exists(dstFile)and hashcheck(packagename):
         print 'Skipping download of %s, exists in cache' % p_info['filename']
         return
 
@@ -1289,8 +1289,8 @@ def get_url(packagename):
             sys.exit(1)
     else:
         install = dists[distname][packagename][INSTALL]
-    filename, size, md5 = string.split(install)
-    return filename, md5
+    filename, size, md5_sum = string.split(install)
+    return filename, md5_sum
 #@+node:maphew.20100223163802.3757: *3* get_version
 def get_version(packagename):
     if not dists[distname].has_key(packagename) \

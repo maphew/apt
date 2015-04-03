@@ -101,10 +101,13 @@ def check_setup(installed_db, setup_ini):
             sys.exit(2)
 #@+node:maphew.20100302221232.1487: ** Commands
 #@+node:maphew.20100223163802.3719: *3* available
-def available(dummy):
-    '''Show packages available to be installed from the package mirror.
-    
-    Specify an alternate source with `--mirror=...`
+def available(dummy):    
+    ''' Show packages available on the mirror (specify an alternate with
+        `--mirror=...`).
+        
+        Installed packages marked with `*` in console report.
+        
+        Returns: list of package names (without install mark).
     '''
     # All packages mentioned in setup.ini for the specified distribution
     a_list = dists[distname].keys()
@@ -790,7 +793,8 @@ def upgrade(packages):
         apt upgrade gdal-filegdb qgis-grass-plugin
     '''
     if not packages:
-        sys.stderr.write('No packages specified. Use "apt new" and "apt list" for ideas.')
+        help('upgrade')
+        sys.stderr.write('*** No packages specified. Use `apt new` for ideas.\n')
         return
     if isinstance(packages, basestring): packages = [packages]
 
@@ -798,7 +802,6 @@ def upgrade(packages):
         packages = get_new()
     
     install(packages)
-
 #@+node:maphew.20100223163802.3735: *3* url
 def url(packages):
     '''Print remote package archive path, relative to mirror root'''

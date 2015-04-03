@@ -699,27 +699,6 @@ def search(pattern):
         # print s
 
     return packages
-#@+node:maphew.20141112222311.4: *3* xsearch
-def xsearch(pattern):
-    '''Search all of parsed setup ini for text pattern.'''
-    #http://stackoverflow.com/questions/22162321/search-for-a-value-in-a-nested-dictionary-python
-    pattern = pattern[-1]
-    print pattern
-    global dists
-    print get_dpath(dists, pattern)
-
-def get_dpath(nested_dict, pattern, prepath=()):
-    hits = []
-    for k,v in nested_dict.items():
-        path = prepath + (k,)
-        if pattern in v:
-            hits.append(path)
-            return path
-        elif hasattr(v, 'items'):
-            p = get_dpath(v, pattern, path)
-            if p is not None:
-                return p
-    return hits
 #@+node:maphew.20100223163802.3732: *3* setup
 def setup(target):
     '''Create skeleton Osgeo4W folders and setup database environment'''

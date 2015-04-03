@@ -1,7 +1,7 @@
 call build-exe.bat
 
 setlocal
-set ver=0.3-1
+set ver=0.3-2
 set pkgdir=\o4w-packages\apt\apt-%ver%
 
 if not exist "%pkgdir%" mkdir "%pkgdir%"
@@ -24,7 +24,7 @@ echo @^"%%~dp0\..\apps\apt\apt.exe^" %%* > "%pkgdir%"\bin\apt.bat
 explorer "%pkgdir%"
 
 :: create distribution archive
-tar cvjf ../apt-0.3-1.tar.bz2
+tar cvjf ../apt-%ver%.tar.bz2
 
 :: upload to /osgeo/download/osgeo4w/x86/release/apt
 :: run http://upload.osgeo.org/cgi-bin/osgeo4w-regen.sh

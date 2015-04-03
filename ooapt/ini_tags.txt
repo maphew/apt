@@ -1,0 +1,10 @@
+'sdesc'
+'ldesc'
+'category'
+'requires'
+'version'
+'install'
+'license'
+'source'
+
+d = {'sdesc': "ticket to ride", 'ldesc': "ticket to ride, but she don't care", 'category' : "Beatles", 'requires': "Vox, Hofner, Rickenbacker", 'version': '1.0.0', 'install': "ticket_to_ride.tar.gz2, 1000, 8165553b6b72338a53105301269aee92", 'license': "Lucy in the sky", 'source': "paul_john_george_ringo.tar.gz2, 100, 8db10fd3782fc99a4bf69ecdbe2c3747"}

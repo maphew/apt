@@ -20,15 +20,25 @@ class Setup(O4w):
             if not e.errno == 17:
                 raise
         # load setup.ini
-        url = self.ow4url + self.archs['x32'] + "/setup.ini.bz2"
-        dst = self.setup_dir + "setup.ini.bz2"
+        # url = self.ow4url + self.archs['x32'] + "/setup.ini.bz2"
+        url = self.server_ini_path('x32') + "/setup.ini.bz2"
+        # dst = self.setup_dir + "setup.ini.bz2"
+        dst = self.local_pkg_path() + self.archs['x32'] + "/setup.ini.bz2"
         copyme.download(url, dst)
         fname = self.setup_dir + "/setup.ini"
         copyme.bz2uncompress(dst, fname)
 
         # create config-file setup.rc
         fname = self.setup_dir + "/setup.rc"
-        rcstr = "".join([k + "\n\n" for k in self.rc_keys])
+        # rcstr = "".join([k + "\n\n" for k in self.rc_keys])
+        rcdata = {'last-cache': self.var_dir + "cache/", \
+        'last-mirror': self.o4wurl, \
+        'mirrors-lst': 'http://download.osgeo.org/osgeo4w/;OSGeo;USA;California', \
+        'window-placement': '44,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,154,1,0,0,4,0,0,0,156,4,0,0,72,2,0,0', \
+        'last-mode': 'Advanced', \
+        'last-menu-name': 'OSGeo4W', \
+        'net-method': 'Direct'}
+        rcstrng = "".join( ["".join( (str(k), '\n\t' + str(rcdata[k]) + '\n') ) for k in self.rc_keys] )
         try:
             file = open(fname, "wb")
             file.write(rcstr)

@@ -692,11 +692,6 @@ def search(pattern):
     for packagename in sorted(packages):
         pi = get_info(packagename)
         print '{:>30} - {}'.format(pi['name'], pi['sdesc'])
-        # s = packagename
-        # d = get_field('sdesc')
-        # if d:
-            # s += ' - %s' % d[1:-1]
-        # print s
 
     return packages
 #@+node:maphew.20100223163802.3732: *3* setup

@@ -106,35 +106,26 @@ def available(dummy):
     
     Specify an alternate source with `--mirror=...`
     '''
-    '''
-    Args:
-        dummy: required but not used.
-
-    This function requires a parameter only because of the command 
-    calling structure of the module. The parameter is not used. When the 
-    command structure is fixed remove the parameter (or perhaps make it 
-    useful by saying (available(at_url_of_package_mirror_x)`
-    '''
-
-    # All packages mentioned in setup.ini
-    # TODO: pass distribution as parameter instead of hardcoding
-    list = dists['curr'].keys()
+    # All packages mentioned in setup.ini for the specified distribution
+    a_list = dists[distname].keys()
 
     # mark installed packages
-    for pkg in installed[0].keys():
-        list.remove(pkg)
-        list.append('%s*' % pkg)
+    i_list = list(a_list)
+    for p in installed[0].keys():
+        i_list.remove(p)
+        i_list.append('%s*' % p)
 
-    # Report to user
-    # courtesy of Aaron Digulla,
+    # Report to user, in columns, courtesy of Aaron Digulla,
     # http://stackoverflow.com/questions/1524126/how-to-print-a-list-more-nicely
-    print '\n Packages available to install (* = already installed)\n'
-    list = sorted(list)
-    split = len(list)/2
-    col1 = list[0:split]
-    col2 = list[split:]
+    print '\n {} Packages available to install (* = already installed)\n'.format(len(i_list))
+    i_list.sort()
+    split = len(i_list)/2
+    col1 = i_list[0:split]
+    col2 = i_list[split:]
     for key, value in zip(col1,col2):
-        print '%-20s\t\t%s' % (key, value)
+        print '{:<30}{}'.format(key, value)
+
+    return a_list
 #@+node:maphew.20100223163802.3720: *3* ball
 def ball(packages):
     '''Print full local path name of package archive
@@ -651,16 +642,13 @@ def xrequires(packages):
     print dlist
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):
-    '''Search available packages list for X
+    ''' Search available packages list and descriptions for X
     
-    (doesn't search descriptions yet)'''
-    
+        Returns list of package names
+    '''    
     global packagename
-    # regexp = packagename
     packages = []
     keys = []
-    
-    # print(pattern)
     
     #pattern comes in as a list, we need bare string
     pattern = ' '.join(pattern)
@@ -668,23 +656,30 @@ def search(pattern):
     if not pattern:
         help('search') #stub for when help takes a parameter (print a usage message)
         sys.stderr.write("\n*** Missing what to search for ***\n")
-        sys.exit()
+        return
     
     if distname in dists:
         # build list of packagenames
         keys = dists[distname].keys()
-        ##print('---keys:', keys)
     else:
-        print('this "else:" does not get used???')
+        print '*** this "else:" does not get used???'
+        # finally understand some of the intent for this block:
+        # if the distribution name is unknown, dig through all
+        # dists. Each key should be a package name.
         for i in dists.keys():
             for j in dists[i].keys():
                 if not j in keys:
                     keys.append(j)
     
     #search for the regexp pattern
-    #fixme: change to search desciption as well
     for i in keys:
-        if not pattern or re.search(pattern, i):
+        pi = get_info(i)
+        text = '{} {} {}'.format(pi['name'], pi['sdesc'], pi['ldesc'])
+
+        # append pkg name (key) when pattern is found in text
+        if not pattern or re.search(pattern, text):
+            # Don't understand this if/else at all. It seems to say
+            #   "if True: p.append(i); if False p.append(i)"
             if distname in dists:
                 if dists[distname][i].has_key(INSTALL):
                     packages.append(i)
@@ -692,11 +687,15 @@ def search(pattern):
                 packages.append(i)
     
     for packagename in sorted(packages):
-        s = packagename
-        d = get_field('sdesc')
-        if d:
-            s += ' - %s' % d[1:-1]
-        print s
+        pi = get_info(packagename)
+        print '{:>30} - {}'.format(pi['name'], pi['sdesc'])
+        # s = packagename
+        # d = get_field('sdesc')
+        # if d:
+            # s += ' - %s' % d[1:-1]
+        # print s
+
+    return packages
 #@+node:maphew.20141112222311.4: *3* xsearch
 def xsearch(pattern):
     '''Search all of parsed setup ini for text pattern.'''

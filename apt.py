@@ -1198,14 +1198,32 @@ def get_mirror():
 #@+node:maphew.20100223163802.3753: *3* get_new
 def get_new():
     '''Return list of packages with newer versions than those installed.'''
+    import pkg_resources
     lst = []
+
+    if debug:
+        print 'Version source, retrieved by:\t\t\t(version)\t "ini > installed"?'
+        print '-'*80
+        
     for packagename in installed[0].keys():
         new = get_version(packagename)
-        ins = get_installed_version(packagename)
+        ins = get_installed_version(packagename)          
+        
         if new > ins:
             lst.append(packagename)
+            
+        if debug:
+            print '---', packagename
+            print 'setup.ini ver, from get_version():\t\t%s\t%s' % (new, new > ins)
+            print 'installed ver, from get_installed_version():\t', ins
+           
+            # snew = pkg_resources.parse_version(version_to_string(new))
+            # sins = pkg_resources.parse_version(version_to_string(ins))
+            # print 'setup.ini ver, from parse_version():\t\t', snew, snew > sins
+            # print 'installed ver, from parse_version():\t\t', sins
+    print ''
+            
     return lst
-
 #@+node:maphew.20150201144500.7: *3* get_requires
 def get_requires(packagename):
     ''' identify dependencies of package [deprecated]

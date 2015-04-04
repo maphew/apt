@@ -2,9 +2,8 @@
 #@+leo-ver=5-thin
 #@+node:maphew.20150327024628.2: * @file apt.py
 #@@first
-# Added for urltime_to_datetime, datetime_to_unixtime
-from __future__ import division
-from datetime import datetime, timedelta
+#@@language python
+#@@tabwidth -4
 #@+<<docstring>>
 #@+node:maphew.20100307230644.3846: ** <<docstring>>
 '''
@@ -14,10 +13,8 @@ from datetime import datetime, timedelta
 
   License: GNU GPL
 
-
   Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
   beginning July 2008
-
 '''
 apt_version = '0.3-1-dev'
 #@-<<docstring>>
@@ -39,6 +36,7 @@ import subprocess
 import shlex
 import locale
 import pkg_resources # for version comparing
+from datetime import datetime, timedelta
 #from attrdict import AttrDict
 
 #@-<<imports>>
@@ -56,12 +54,12 @@ Commands:
     ball - print full path name of package archive
     download - download package
     find - package containing file (from installed packages)
+    hashcheck - check md5 sum of local package vs mirror
     help - show help for COMMAND
     info - report name, version, category etc. for specified packages
     install - download and install packages, including dependencies
     list-installed - report installed packages
     listfiles - installed with package X
-    md5 - check md5 sum
     missing - print missing dependencies for X
     new - list available upgrades to currently installed packages
     remove - uninstall packages
@@ -106,40 +104,34 @@ def check_setup(installed_db, setup_ini):
             sys.exit(2)
 #@+node:maphew.20100302221232.1487: ** Commands
 #@+node:maphew.20100223163802.3719: *3* available
-def available(dummy):
-    '''Show packages available to be installed from the package mirror.
-    
-    Specify an alternate source with `--mirror=...`
+def available(dummy):    
+    ''' Show packages available on the mirror (specify an alternate with
+        `--mirror=...`).
+        
+        Installed packages marked with `*` in console report.
+        
+        Returns: list of package names (without install mark).
     '''
-    '''
-    Args:
-        dummy: required but not used.
-
-    This function requires a parameter only because of the command 
-    calling structure of the module. The parameter is not used. When the 
-    command structure is fixed remove the parameter (or perhaps make it 
-    useful by saying (available(at_url_of_package_mirror_x)`
-    '''
-
-    # All packages mentioned in setup.ini
-    # TODO: pass distribution as parameter instead of hardcoding
-    list = dists['curr'].keys()
+    # All packages mentioned in setup.ini for the specified distribution
+    a_list = dists[distname].keys()
 
     # mark installed packages
-    for pkg in installed[0].keys():
-        list.remove(pkg)
-        list.append('%s*' % pkg)
+    i_list = list(a_list)
+    for p in installed[0].keys():
+        i_list.remove(p)
+        i_list.append('%s*' % p)
 
-    # Report to user
-    # courtesy of Aaron Digulla,
+    # Report to user, in columns, courtesy of Aaron Digulla,
     # http://stackoverflow.com/questions/1524126/how-to-print-a-list-more-nicely
-    print '\n Packages available to install (* = already installed)\n'
-    list = sorted(list)
-    split = len(list)/2
-    col1 = list[0:split]
-    col2 = list[split:]
+    print '\n {} Packages available to install (* = already installed)\n'.format(len(i_list))
+    i_list.sort()
+    split = len(i_list)/2
+    col1 = i_list[0:split]
+    col2 = i_list[split:]
     for key, value in zip(col1,col2):
-        print '%-20s\t\t%s' % (key, value)
+        print '{:<30}{}'.format(key, value)
+
+    return a_list
 #@+node:maphew.20100223163802.3720: *3* ball
 def ball(packages):
     '''Print full local path name of package archive
@@ -206,7 +198,7 @@ def download(packages):
     for p in packages:
         do_download(p)
         ball(p)
-        md5(p)
+        hashcheck(p)
 #@+node:maphew.20141101125304.3: *3* info
 def info(packages):
     '''info - report name, version, category, etc. about the package(s)
@@ -223,12 +215,15 @@ def info(packages):
     zip_size : 3763
     md5      : c38f03d2b7160f891fc36ec776ca4685
     local_zip: d:/temp/o4w-cache/setup/http%3.../shell-1.0.0-13.tar.bz2
+    installed: True
+    install_v: 1.0.0-11
         
-    Note: "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
+    Notes:
+        - "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
+        - "version" is from setup.ini, what is available on the mirror server
+        - "install_v" is the version currently installed
     '''
-        #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    #if type(packages) is str: packages = [packages]
 
     if not packages:
         help('info')
@@ -253,12 +248,16 @@ def info(packages):
             'installed']
         for k in fields:
             print('{0:9}: {1}'.format(k,d[k]))
+        if d['installed']:
+            print('{0:9}: {1}'.format('install_v',d['install_v']))
 
         if debug:            
             # This guaranteed to print entire dict contents,
             # but not in a logical order.
+            print '\n----- DEBUG: %s -----' % sys._getframe().f_code.co_name
             for k in d.keys():
                 print('{0:8}:\t{1}'.format(k,d[k]))
+            print '-' * 36
 #@+node:maphew.20100223163802.3722: *3* find
 def find(patterns):
     '''Search installed packages for filenames matching the specified text string.'''
@@ -485,12 +484,13 @@ def listfiles(packages):
             print i
     
 #@+node:maphew.20100223163802.3726: *3* md5
-def md5(package):
+def hashcheck(package):
     '''Check if the md5 hash for "package" in local cache matches mirror
 
-            > apt md5 shell
+            > apt hashcheck shell
 
-        Returns: True or False
+        Returns: True or False for md5 match status
+                 None when cache file not found
         
         If passed a list it only processes the first item.
     '''
@@ -514,7 +514,8 @@ def md5(package):
             match = True
 
     except IOError:
-       sys.stderr.write('local:   {1:33} *** {2}\'s .bz2 not found ***'.format("local:", "", p))
+       sys.stderr.write('*** local {}\'s .bz2 not found ***'.format(package))
+       return
 
     print('\t%s' % match)
     print('\tremote: %s' % their_md5)
@@ -551,7 +552,8 @@ def get_missing(packagename):
     # build list of required packages
     reqs = get_info(packagename)['requires'].split()
     
-    depends = get_requires(packagename)
+    #depends = get_requires(packagename)
+    depends = get_all_dependencies(packagename, [])
         #debug: #21
     # print reqs
     # print depends
@@ -646,16 +648,13 @@ def xrequires(packages):
     print dlist
 #@+node:maphew.20100223163802.3731: *3* search
 def search(pattern):
-    '''Search available packages list for X
+    ''' Search available packages list and descriptions for X
     
-    (doesn't search descriptions yet)'''
-    
+        Returns list of package names
+    '''    
     global packagename
-    # regexp = packagename
     packages = []
     keys = []
-    
-    # print(pattern)
     
     #pattern comes in as a list, we need bare string
     pattern = ' '.join(pattern)
@@ -663,23 +662,30 @@ def search(pattern):
     if not pattern:
         help('search') #stub for when help takes a parameter (print a usage message)
         sys.stderr.write("\n*** Missing what to search for ***\n")
-        sys.exit()
+        return
     
     if distname in dists:
         # build list of packagenames
         keys = dists[distname].keys()
-        ##print('---keys:', keys)
     else:
-        print('this "else:" does not get used???')
+        print '*** this "else:" does not get used???'
+        # finally understand some of the intent for this block:
+        # if the distribution name is unknown, dig through all
+        # dists. Each key should be a package name.
         for i in dists.keys():
             for j in dists[i].keys():
                 if not j in keys:
                     keys.append(j)
     
     #search for the regexp pattern
-    #fixme: change to search desciption as well
     for i in keys:
-        if not pattern or re.search(pattern, i):
+        pi = get_info(i)
+        text = '{} {} {}'.format(pi['name'], pi['sdesc'], pi['ldesc'])
+
+        # append pkg name (key) when pattern is found in text
+        if not pattern or re.search(pattern, text):
+            # Don't understand this if/else at all. It seems to say
+            #   "if True: p.append(i); if False p.append(i)"
             if distname in dists:
                 if dists[distname][i].has_key(INSTALL):
                     packages.append(i)
@@ -687,32 +693,10 @@ def search(pattern):
                 packages.append(i)
     
     for packagename in sorted(packages):
-        s = packagename
-        d = get_field('sdesc')
-        if d:
-            s += ' - %s' % d[1:-1]
-        print s
-#@+node:maphew.20141112222311.4: *3* xsearch
-def xsearch(pattern):
-    '''Search all of parsed setup ini for text pattern.'''
-    #http://stackoverflow.com/questions/22162321/search-for-a-value-in-a-nested-dictionary-python
-    pattern = pattern[-1]
-    print pattern
-    global dists
-    print get_dpath(dists, pattern)
+        pi = get_info(packagename)
+        print '{:>30} - {}'.format(pi['name'], pi['sdesc'])
 
-def get_dpath(nested_dict, pattern, prepath=()):
-    hits = []
-    for k,v in nested_dict.items():
-        path = prepath + (k,)
-        if pattern in v:
-            hits.append(path)
-            return path
-        elif hasattr(v, 'items'):
-            p = get_dpath(v, pattern, path)
-            if p is not None:
-                return p
-    return hits
+    return packages
 #@+node:maphew.20100223163802.3732: *3* setup
 def setup(target):
     '''Create skeleton Osgeo4W folders and setup database environment'''
@@ -786,7 +770,8 @@ def upgrade(packages):
         apt upgrade gdal-filegdb qgis-grass-plugin
     '''
     if not packages:
-        sys.stderr.write('No packages specified. Use "apt new" and "apt list" for ideas.')
+        help('upgrade')
+        sys.stderr.write('*** No packages specified. Use `apt new` for ideas.\n')
         return
     if isinstance(packages, basestring): packages = [packages]
 
@@ -794,7 +779,6 @@ def upgrade(packages):
         packages = get_new()
     
     install(packages)
-
 #@+node:maphew.20100223163802.3735: *3* url
 def url(packages):
     '''Print remote package archive path, relative to mirror root'''
@@ -892,6 +876,11 @@ def datetime_to_unixtime(dt, epoch=datetime(1970,1,1)):
     ''' Convert a datetime object to unix UTC time (seconds since beginning).
     
         Adapted from http://stackoverflow.com/questions/8777753/converting-datetime-date-to-utc-timestamp-in-python/
+
+    It wants `from __future__ import division`, but that caused issues in other
+    functions, automatically coverting what used to produce integers into floats
+    (e.g. "50/2"). It seems to be safe to not use it, but leaving this note just
+    in case...
     '''    
     td = dt - epoch
     # return td.total_seconds()
@@ -915,7 +904,7 @@ def do_download(packagename):
     srcFile = p_info['mirror_path']
     cacheDir = os.path.dirname(dstFile)
                 
-    if os.path.exists(dstFile)and md5(packagename):
+    if os.path.exists(dstFile)and hashcheck(packagename):
         print 'Skipping download of %s, exists in cache' % p_info['filename']
         return
 
@@ -951,6 +940,7 @@ def dodo_download(url, dstFile):
         
     if url_time <= file_time:
         print "Skipping download - url modified time isn't newer than local file"
+        print dstFile
         return dstFile
         
     if not os.path.exists(os.path.dirname(dstFile)):
@@ -1113,8 +1103,8 @@ def get_zipfile(packagename):
     return dists[distname][packagename]['local_zip']
 #@+node:maphew.20100223163802.3747: *3* get_installed_version
 def get_installed_version(packagename):
+    '''Derive version number from archive filename in 'installed' dict.'''
     return split_ball(installed[0][packagename])[1]
-
 #@+node:maphew.20100223163802.3744: *3* get_field
 def get_field(field, default=''):
     for d in (distname,) + distnames:
@@ -1282,8 +1272,8 @@ def get_url(packagename):
             sys.exit(1)
     else:
         install = dists[distname][packagename][INSTALL]
-    filename, size, md5 = string.split(install)
-    return filename, md5
+    filename, size, md5_sum = string.split(install)
+    return filename, md5_sum
 #@+node:maphew.20100223163802.3757: *3* get_version
 def get_version(packagename):
     if not dists[distname].has_key(packagename) \
@@ -1365,8 +1355,9 @@ def write_setuprc(setuprc, fname='setup.rc'):
     f.close()
     
     if debug:
-        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
+        print '\n---- DEBUG: %s -----' % sys._getframe().f_code.co_name
         print "Wrote %s" % fname
+        print '-' * 40
 #@+node:maphew.20100308085005.1382: ** Parsers
 #@+node:maphew.20141128231605.7: *3* parse_setuprc
 def parse_setuprc(fname):
@@ -1425,10 +1416,10 @@ def parse_setuprc(fname):
             d[k] = None
     
     if debug == True:
-        print '### DEBUG: %s ###' % sys._getframe().f_code.co_name
+        print '\n---- DEBUG: %s ----' % sys._getframe().f_code.co_name
         for k,v in d.items():
             print '%s:\t%s' % (k, v)
-        
+        print '-' * 40
     return d
 #@+node:maphew.20141111130056.4: *3* get_info
 def get_info(packagename):
@@ -1476,8 +1467,8 @@ def get_info(packagename):
     
     if packagename in installed[0].keys():
         d['installed'] = True
-        d['installed_ver'] = version_to_string(get_installed_version(packagename))
-            # don't like long key name, but...
+        d['install_v'] = version_to_string(get_installed_version(packagename))
+            # don't like key name, but...
     else:
         d['installed'] = False
     
@@ -1566,7 +1557,8 @@ def parse_setup_ini(fname):
                 
         except KeyError as e:
             d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-            print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
+            if debug:
+              print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
 
         try:
             d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
@@ -1918,11 +1910,6 @@ if __name__ == '__main__':
     except KeyError:
         last_mirror = None
         last_cache = None
-    if debug:
-        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
-        print 'last-mirror:', last_mirror
-        print 'last-cache:', last_cache
-
         
     if not 'mirror' in globals():
         mirror = get_mirror()
@@ -1938,10 +1925,13 @@ if __name__ == '__main__':
 
     downloads = '%s/%s' % (cache_dir, mirror_dir)
 
-    ##fixme: this is useful, but too noisy to report every time
-    #print "Last cache:\t%s\nLast mirror:\t%s" % (last_cache, last_mirror)
-    #print "Using mirror:\t%s" % (mirror)
-    #print "Saving to:\t%s" % (cache_dir)
+    if debug:
+        print '\n---- DEBUG: %s ----' % sys._getframe().f_code.co_name
+        print 'last-mirror:', last_mirror
+        print 'last-cache:', last_cache
+        print "Using mirror:\t", mirror
+        print "Saving to:\t", cache_dir
+        print '-' * 40
     #@-<<post-parse globals>>
     #@+<<run the commands>>
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>

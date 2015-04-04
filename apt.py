@@ -16,7 +16,7 @@
   Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
   beginning July 2008
 '''
-apt_version = '0.3-1-dev'
+apt_version = '0.3-2-dev'
 #@-<<docstring>>
 #@+<<imports>>
 #@+node:maphew.20100307230644.3847: ** <<imports>>
@@ -297,15 +297,15 @@ def help(*args):
     else:
         print 'Sorry, function "%s" not found in __main__' % action
 #@+node:maphew.20100223163802.3724: *3* install
-def install(packages):
+def install(packages, force=False):
     '''Download and install packages, including dependencies
     
         C:\> apt install shell gdal
     '''
     if isinstance(packages, basestring): packages = [packages]
     if debug:
-        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
-        print '### pkgs:', packages
+        print '\n--- DEBUG: %s ---' % sys._getframe().f_code.co_name
+        print '--- pkgs:', packages
     
     if not packages:
         sys.stderr.write('\n*** No packages specified. Use "apt available" for ideas. ***\n')
@@ -315,7 +315,7 @@ def install(packages):
     # build list of dependencies
     reqs = []
     for p in packages:
-        reqs.extend(get_requires(p))
+        reqs.extend(get_all_dependencies(p, []))
     if debug: print 'PKGS: %s, REQS: %s' % (packages, reqs)
     
     # remove duplicates and empty items
@@ -337,7 +337,14 @@ def install(packages):
     for p in packages[:]:
         print '\t %s - %s' % (p, get_info(p)['installed'])
         if get_info(p)['installed']:
-            if version_to_string(get_installed_version(p)) >= get_info(p)['version']:
+            #ini_v = get_info(p)['version']
+            ini_v = version_to_string(get_version(p))
+            local_v = version_to_string(get_installed_version(p))
+            if pkg_resources.parse_version(local_v) >= pkg_resources.parse_version(ini_v):
+                print '--- local >= ini:', pkg_resources.parse_version(local_v) >= pkg_resources.parse_version(ini_v)
+                print 'local:', local_v
+                print 'remote:', ini_v
+            #if version_to_string(get_installed_version(p)) >= get_info(p)['version']:
                 packages.remove(p)
 
     # skip installed dependencies

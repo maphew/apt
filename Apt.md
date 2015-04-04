@@ -24,8 +24,18 @@ save metadata (cache folder, mirror list).
  - [Coding conventions](Conventions.md)
 
 
-Structure
----------
+Apt Structure
+-------------
+### Globals ###
+
+**`installed`** - in memory dictionary of *installed.db*, created by `get_installed()`
+
+    {status_int : {pkg_name : archive_name}}
+
+
+
+Osgeo4W Structure
+-----------------
 
 `etc/setup` is the core data library. 
 

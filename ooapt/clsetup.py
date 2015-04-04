@@ -10,24 +10,92 @@ debug = False
 class Setup(O4w):
     def __init__(self, root):
         O4w.__init__(self, root)
-        self.data = None
+        self.data = []
+
+        # do an initial config-setup
+        self.config = self.setup_dir + O4w.files['conf']
+
+        # read setup_rc here
+        if os.path.exists(os.path.normpath(self.config)):
+            self.data.append(self.parse_setuprc(self.config))
+        else:
+            self.data.append({})
+
+        # find mirror-url
+        if self.data[0].has_key('last_mirror'):
+            O4w.last_mirror = self.data[0]['last_mirror']
+
+        if O4w.last_mirror:
+            O4w.mirror = O4w.last_mirror
+        else:
+            O4w.mirror = o4wurl
+
+        # find cache_dir
+        if self.data[0].has_key('last_cache'):
+            O4w.last_cache = self.data[0]['last_cache']
+
+        if O4w.last_cache:
+            O4w.cache_dir = O4w.last_cache
+        else:
+            O4w.cache_dir= self.var_dir + "cache/"
+
+        # arch[itecture] has default value
+
+        # find setup.ini
+        O4w.setupini_dir = self.local_pkg_path(O4w.cache_dir) + self.archs[self.arch] + "/" \
+                                           + self.files['ini']
+        # find installed.db
+        O4w.installdb_dir = self.setup_dir + self.files['installed']
+
+        # dist is 'curr'
+
+    def setConfigByData(self, data):
+        """Use this to overwrite default config parameters, see also getConfigData()"""
+        O4w.mirror = data['mirror'] if data.has_key('mirror') else O4w.mirror
+        O4w.setupini_dir = data['setupini_dir'] if data.has_key('setupini_dir') else O4w.setupini_dir
+        O4w.installdb_dir = data['installdb'] if data.has_key('installdb') else O4w.installdb_dir
+        O4w.cache_dir = data['cache_dir'] if data.has_key('cache_dir') else O4w.cache_dir
+        O4w.arch = data['arch'] if data.has_key('arch') else O4w.arch
+        O4w.dist = data['dist'] if data.has_key('dist') else O4w.dist
+        self.root = data['root'] if data.has_key('root') else self.root
+
+    def getConfigData(self):
+        """Use this to get config data as a dictionary. Can be written back with setConfigByData()"""
+        d = { 'mirror': O4w.mirror,
+              'setupini_dir': O4w.setupini_dir,
+              'installdb': O4w.installdb_dir,
+              'cache_dir': O4w.cache_dir,
+              'arch': O4w.arch,
+              'dist': O4w.dist,
+              'root': self.root }
+        return d
+
 
     def create(self):
-        # create dir
+        """if you install from scratch, create() will build the skeleton structure and files"""
+
+        # create dir for setup.ini
+        sdir = os.path.dirname(self.setupini_dir)
+        # sdir = self.local_pkg_path() + self.archs['x32']
+        try:
+            os.makedirs(os.path.normpath(sdir))
+        except WindowsError as e:
+            if not e.errno == 17:
+                raise
+        # get setup.ini
+        # url = self.ow4url + self.archs['x32'] + "/setup.ini.bz2"
+        url = self.server_ini_path('x32') + "/setup.ini.bz2"
+        # dst = self.setup_dir + "setup.ini.bz2"
+        dst = sdir + "/setup.ini.bz2"
+        copyme.download(url, dst)
+        copyme.bz2uncompress(dst, O4w.setupini_dir)
+
+        # setup.rc
         try:
             os.makedirs(os.path.normpath(self.setup_dir))
         except WindowsError as e:
             if not e.errno == 17:
                 raise
-        # load setup.ini
-        # url = self.ow4url + self.archs['x32'] + "/setup.ini.bz2"
-        url = self.server_ini_path('x32') + "/setup.ini.bz2"
-        # dst = self.setup_dir + "setup.ini.bz2"
-        dst = self.local_pkg_path() + self.archs['x32'] + "/setup.ini.bz2"
-        copyme.download(url, dst)
-        fname = self.setup_dir + "/setup.ini"
-        copyme.bz2uncompress(dst, fname)
-
         # create config-file setup.rc
         fname = self.setup_dir + "/setup.rc"
         # rcstr = "".join([k + "\n\n" for k in self.rc_keys])
@@ -38,7 +106,7 @@ class Setup(O4w):
         'last-mode': 'Advanced', \
         'last-menu-name': 'OSGeo4W', \
         'net-method': 'Direct'}
-        rcstrng = "".join( ["".join( (str(k), '\n\t' + str(rcdata[k]) + '\n') ) for k in self.rc_keys] )
+        rcstr = "".join( ["".join( (str(k), '\n\t' + str(rcdata[k]) + '\n') ) for k in self.rc_keys] )
         try:
             file = open(fname, "wb")
             file.write(rcstr)
@@ -47,16 +115,15 @@ class Setup(O4w):
             print '\n*** Error writing: %s' % fname
 
         # create installed.db
-        fname = self.setup_dir + self.files["installed"]
         try:
-            file = open (fname, 'w')
+            file = open (self.installdb_dir, 'w')
             file.write ('INSTALLED.DB 2\n')
             file.close()
         except IOError as e:
             print "Error (#%d):%s:%s" % (e.errno, e.message, e.filename)
 
     def parse_setuprc(self, fname):
-        """returns a dict object"""
+        """reads the config file and returns a dict object"""
         d = {}
 
         default_keys = self.rc_keys
@@ -85,6 +152,7 @@ class Setup(O4w):
         return d
 
     def parse_setupini(self, fname):
+        """reads available packages from setup.ini, returns a dict"""
         # changed string.method to method calls on string instances
         dists = {'test': {}, 'curr': {}, 'prev': {}}
 
@@ -140,6 +208,8 @@ class Setup(O4w):
         return dists
 
     def parse_installed (self, fname):
+        """reads in the information on installed packages from installed.db, returns a dict.
+        It gives {name: {'ball':..., 'status':...}"""
         # new! data structure
         # installed is now : {name: {'ball':..., 'status':...}
         # installed = {0:{}}
@@ -154,40 +224,32 @@ class Setup(O4w):
         return installed
 
     def load_files(self):
-        self.data = []
+        """Setup files will be loaded and parsed. returns the entire data as list of dict"""
 
-        fname = self.setup_dir + self.files['conf']
-        self.data.append(self.parse_setuprc(fname))
+        # availlable from setup.ini: parse to dict
+        ini = self.parse_setupini(O4w.setupini_dir)
+        c = ini['curr']
+        t = ini['test']
+        p = ini['prev']
+        # one package name may have several dists,
+        # we add them here under 'curr'
+        for name in c.keys():
+            if t.has_key(name):
+                c[name]['test'] = t[name]
+            if p.has_key(name):
+                c[name]['prev'] = p[name]
+        # save to list
+        self.data.append(c)
 
-        if self.data[0].has_key('last_mirror'):
-            O4w.last_mirror = self.data[0]['last_mirror']
-
-        if self.data[0].has_key('last_cache'):
-            O4w.last_cache = self.data[0]['last_cache']
-
-
-        fname = self.setup_dir + self.files['ini']
-        # now has dists
-        ini = self.parse_setupini(fname)
-        curr = ini['curr']
-        test = ini['test']
-        prev = ini['prev']
-        for name in curr.keys():
-            if test.has_key(name):
-                curr[name]['test'] = test[name]
-            if prev.has_key(name):
-                curr[name]['prev'] = prev[name]
-
-        self.data.append(curr)
-
-        fname = self.setup_dir + self.files['installed']
-        idb = self.parse_installed(fname)
+        # installed from installed.db, parce to dict
+        idb = self.parse_installed(O4w.installdb_dir)
+        # save to list
         self.data.append(idb)
 
         return self.data
 
 if __name__=='__main__':
-    root = r"d:\gp2go\osgeo4w"
+    root = r"D:\gp2go\dev\apt_oo"
     apt_setup = Setup(root)
     setup_data = apt_setup.load_files()
 
@@ -205,5 +267,5 @@ if __name__=='__main__':
     print "from list", avail_list.server_pkg_path()
     print "Package properties", pkg.source_dir
     print "                  ", pkg.install_dir
-    print "Methods (disabled)", pkg.download()
-    print "                  ", type(pkg.asData())
+    print "Methods (download)", pkg.download()
+    print "           (data) ", type(pkg.asData())

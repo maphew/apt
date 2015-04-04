@@ -7,6 +7,7 @@ import copyme
 #### #### #### #### ####
 
 class AptInformation(O4w):
+    """Main class for information, no need to instance"""
     def __init__(self, root):
         O4w.__init__(self, root)
         self.packages = {}
@@ -23,26 +24,37 @@ class AptInformation(O4w):
         pass
 
     def getPackage(self, name):
+        """returns the package object by name"""
         if self.packages.has_key(name):
             return self.packages[name]
 
     def getPackageData(self, name):
+        """retuns package's internal data as a dict"""
         pkg = self.getPackage(name)
         if pkg:
             return pkg.asData()
 
     def getInfo(self, name):
+        """more an example to access information: return info string for package 'name'"""
         data = self.getPackageData(name)
         aStr = """----- INFO %s:""" % name
         i = len(aStr)
         for k in self.ini_keys:
             aStr += "\n" + k + ": " + str(data[k] if data.has_key(k) else '')
-        aStr += "\n" + "-"*i
+        aStr += "\n" + "-"*i + '\n'
+        pkg = self.getPackage(name)
+        if isinstance(pkg, AptPackageAvailable):
+            if pkg.dist_test:
+                aStr += "Dist. 'test' available: Version:%s\n" % pkg.version
+
+            if pkg.dist_prev:
+                aStr += "Dist. 'prev' available: Version:%s\n" % pkg.version
+
         return aStr
 #### ####
 
 class AptInstalled(AptInformation):
-
+    """creates a collection to add information on installed packages"""
     def __init__(self, root):
         AptInformation.__init__(self, root)
         self.ref_available = None
@@ -74,10 +86,26 @@ class AptInstalled(AptInformation):
         ind['name'] = name
         return ind
 
-    def extract(self):
-        if self.instd['download_exists']:
-            print (self.instd['file_name'], self.list.root)
+    def extract(self, name):
+        pkg = self.getPackage(name)
+        if not pkg: return
+
+        if pkg.download_exists:
+            print (pkg.file_name, self.root)
             # copyme.untar(pkg.instd['file_name'], self.list.root)
+
+    def uninstall(self, name):
+        pkg = self.getPackage(name)
+        if not pkg: return
+        """remove from osgeo4w install"""
+        pass
+
+    def remove(self, name):
+        """remove a downloaded package ball (tar file)"""
+        pkg = self.getPackage(name)
+        if not pkg: return
+        pass
+
 #### #####
 
 class AptAvailable(AptInformation):
@@ -92,6 +120,18 @@ class AptAvailable(AptInformation):
         if not d: return
         pkg = AptPackageAvailable(name, self)
         pkg.addData(d)
+        # store test package as a sub-package
+        if d.has_key('test'):
+            testpkg = AptPackageAvailable(name, self)
+            testpkg.addData(d['test'])
+            pkg.dist_test = testpkg
+
+        # store prev package as a sub-package
+        if d.has_key('prev'):
+            prevpkg = AptPackageAvailable(name, self)
+            prevpkg.addData(d['prev'])
+            pkg.dist_prev = prevpkg
+
         # store
         self.packages[name] = pkg
 
@@ -113,6 +153,11 @@ class AptAvailable(AptInformation):
             avl['requires'] = avl['requires'].split()
         # add package name
         avl['name'] = name
+
+        if avl.has_key('test'):
+            avl["dist_test"] = self.dataHelper(name, avl['test'])
+        if avl.has_key('prev'):
+            avl["dist_prev"] = self.dataHelper(name, avl['prev'])
         return avl
 
 #### #### #### ####
@@ -133,6 +178,8 @@ class AptPackageAvailable(AptPackage):
         self.install = ''
         self.license = ''
         self.source = ''
+        self.dist_test = None
+        self.dist_prev = None
 
     def addData(self, data):
         self.sdesc    = data['sdesc'] if data.has_key('sdesc') else ''
@@ -164,12 +211,17 @@ class AptPackageAvailable(AptPackage):
         data['install']  = self.install
         data['license']  = self.license
         data['source']   = self.source
+        # add test and prev?
+##        if self.dist_test:
+##            data['test'] = self.dist_test.asData()
+##        if self.dist_prev:
+##            data['prev'] = self.dist_prev.asData()
         return data
 
     def download(self):
-        print self.parent.o4wurl + self.install_dir, \
-              self.parent.root + "/" + self.install_dir
-        # copyme.download(self.o4wurl + self.install_dir, self.parent.root + "/" + self.install_dir)
+        print self.parent.mirror + self.install_dir, \
+              self.parent.local_pkg_path()  +  self.install_dir
+        # copyme.download(self.mirror + self.install_dir, self.parent.local_pkg_path() + self.install_dir)
         pass
 
 class AptPackageInstalled(AptPackage):

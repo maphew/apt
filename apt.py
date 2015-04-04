@@ -340,8 +340,8 @@ def install(packages, force=False):
             #ini_v = get_info(p)['version']
             ini_v = version_to_string(get_version(p))
             local_v = version_to_string(get_installed_version(p))
-            if pkg_resources.parse_version(local_v) >= pkg_resources.parse_version(ini_v):
-                print '--- local >= ini:', pkg_resources.parse_version(local_v) >= pkg_resources.parse_version(ini_v)
+            if parse_version(local_v) >= parse_version(ini_v):
+                print '--- local >= ini:', parse_version(local_v) >= parse_version(ini_v)
                 print 'local:', local_v
                 print 'remote:', ini_v
             #if version_to_string(get_installed_version(p)) >= get_info(p)['version']:
@@ -1201,8 +1201,8 @@ def get_new():
     for packagename in installed[0].keys():
         remote = get_version(packagename)
         local = get_installed_version(packagename)
-        remote = pkg_resources.parse_version(version_to_string(remote))
-        local = pkg_resources.parse_version(version_to_string(local))
+        remote = parse_version(version_to_string(remote))
+        local = parse_version(version_to_string(local))
         
         if remote > local:
             lst.append(packagename)

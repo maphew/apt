@@ -822,7 +822,9 @@ def version(packages):
         return
 
     for p in packages:
-        print '%-20s%-12s' % (p, get_info(p)['version'])
+        #print '%-20s%-12s' % (p, get_info(p)['version'])
+            #broken! this reports Setup.ini version!
+        print '%-20s%-12s' % (p, version_to_string(get_installed_version(p)))
 
 #@+node:maphew.20100302221232.1485: ** Helpers
 #@+node:maphew.20141228100517.4: *3* exceptionHandler
@@ -1132,7 +1134,7 @@ def get_filelist(packagename):
     return lst
 
 #@+node:maphew.20100223163802.3746: *3* get_installed
-def get_installed ():
+def get_installed():
     ''' Get list of installed packages from ./etc/setup/installed.db.
     
     Returns nested dictionary (empty when installed.db doesn't exist):
@@ -1141,8 +1143,7 @@ def get_installed ():
     I don't know significance of the nesting or leading zero. It appears to be
     extraneous? The db is just a straight name:tarball lookup table.
     In write_installed() the "status" is hard coded as 0 for all packages.
-    '''
-    
+    '''    
     global installed
     
     # I think the intent here is for performance,
@@ -1154,9 +1155,9 @@ def get_installed ():
         return installed
     
     installed = {0:{}}
-    for i in open (installed_db).readlines ()[1:]:
-        name, ball, status = string.split (i)
-        installed[int (status)][name] = ball
+    for i in open (installed_db).readlines()[1:]:
+        name, ball, status = string.split(i)
+        installed[int(status)][name] = ball
     return installed
 
 #@+node:maphew.20100223163802.3749: *3* get_config

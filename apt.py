@@ -16,7 +16,7 @@
   Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
   beginning July 2008
 '''
-apt_version = '0.3-1-dev'
+apt_version = '0.3-2-dev'
 #@-<<docstring>>
 #@+<<imports>>
 #@+node:maphew.20100307230644.3847: ** <<imports>>
@@ -35,10 +35,13 @@ import requests
 import subprocess
 import shlex
 import locale
+import pkg_resources # for version comparing
 from datetime import datetime, timedelta
 #from attrdict import AttrDict
 
 #@-<<imports>>
+#@@language python
+#@@tabwidth -4
 #@+others
 #@+node:maphew.20100223163802.3718: ** usage
 def usage ():
@@ -294,15 +297,15 @@ def help(*args):
     else:
         print 'Sorry, function "%s" not found in __main__' % action
 #@+node:maphew.20100223163802.3724: *3* install
-def install(packages):
+def install(packages, force=False):
     '''Download and install packages, including dependencies
     
         C:\> apt install shell gdal
     '''
     if isinstance(packages, basestring): packages = [packages]
     if debug:
-        print '\n### DEBUG: %s ###' % sys._getframe().f_code.co_name
-        print '### pkgs:', packages
+        print '\n--- DEBUG: %s ---' % sys._getframe().f_code.co_name
+        print '--- pkgs:', packages
     
     if not packages:
         sys.stderr.write('\n*** No packages specified. Use "apt available" for ideas. ***\n')
@@ -312,7 +315,7 @@ def install(packages):
     # build list of dependencies
     reqs = []
     for p in packages:
-        reqs.extend(get_requires(p))
+        reqs.extend(get_all_dependencies(p, []))
     if debug: print 'PKGS: %s, REQS: %s' % (packages, reqs)
     
     # remove duplicates and empty items
@@ -334,7 +337,14 @@ def install(packages):
     for p in packages[:]:
         print '\t %s - %s' % (p, get_info(p)['installed'])
         if get_info(p)['installed']:
-            if version_to_string(get_installed_version(p)) >= get_info(p)['version']:
+            #ini_v = get_info(p)['version']
+            ini_v = version_to_string(get_version(p))
+            local_v = version_to_string(get_installed_version(p))
+            if parse_version(local_v) >= parse_version(ini_v):
+                print '--- local >= ini:', parse_version(local_v) >= parse_version(ini_v)
+                print 'local:', local_v
+                print 'remote:', ini_v
+            #if version_to_string(get_installed_version(p)) >= get_info(p)['version']:
                 packages.remove(p)
 
     # skip installed dependencies
@@ -803,7 +813,9 @@ def version(packages):
         return
 
     for p in packages:
-        print '%-20s%-12s' % (p, get_info(p)['version'])
+        #print '%-20s%-12s' % (p, get_info(p)['version'])
+            #broken! this reports Setup.ini version!
+        print '%-20s%-12s' % (p, version_to_string(get_installed_version(p)))
 
 #@+node:maphew.20100302221232.1485: ** Helpers
 #@+node:maphew.20141228100517.4: *3* exceptionHandler
@@ -1119,7 +1131,7 @@ def get_filelist(packagename):
     return lst
 
 #@+node:maphew.20100223163802.3746: *3* get_installed
-def get_installed ():
+def get_installed():
     ''' Get list of installed packages from ./etc/setup/installed.db.
     
     Returns nested dictionary (empty when installed.db doesn't exist):
@@ -1128,8 +1140,7 @@ def get_installed ():
     I don't know significance of the nesting or leading zero. It appears to be
     extraneous? The db is just a straight name:tarball lookup table.
     In write_installed() the "status" is hard coded as 0 for all packages.
-    '''
-    
+    '''    
     global installed
     
     # I think the intent here is for performance,
@@ -1141,9 +1152,9 @@ def get_installed ():
         return installed
     
     installed = {0:{}}
-    for i in open (installed_db).readlines ()[1:]:
-        name, ball, status = string.split (i)
-        installed[int (status)][name] = ball
+    for i in open (installed_db).readlines()[1:]:
+        name, ball, status = string.split(i)
+        installed[int(status)][name] = ball
     return installed
 
 #@+node:maphew.20100223163802.3749: *3* get_config
@@ -1185,15 +1196,17 @@ def get_mirror():
 
 #@+node:maphew.20100223163802.3753: *3* get_new
 def get_new():
-    '''Return list of packages with newer versions than those installed.'''
+    '''Return list of mirror packages of newer versions than those installed.'''
     lst = []
     for packagename in installed[0].keys():
-        new = get_version(packagename)
-        ins = get_installed_version(packagename)
-        if new > ins:
+        remote = get_version(packagename)
+        local = get_installed_version(packagename)
+        remote = parse_version(version_to_string(remote))
+        local = parse_version(version_to_string(local))
+        
+        if remote > local:
             lst.append(packagename)
     return lst
-
 #@+node:maphew.20150201144500.7: *3* get_requires
 def get_requires(packagename):
     ''' identify dependencies of package [deprecated]

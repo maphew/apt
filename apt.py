@@ -38,7 +38,9 @@ import locale
 from pkg_resources import parse_version # for version comparing
 from datetime import datetime, timedelta
 #from attrdict import AttrDict
-
+#
+# DELETE ME
+os.environ['OSGEO4W_ROOT'] = "C:\OSGeo4W"
 #@-<<imports>>
 #@@language python
 #@@tabwidth -4
@@ -307,7 +309,7 @@ def install(packages, force=False):
     while '' in packages:
         packages.remove('')
         if debug: print "--- Found and removed extraneous '' in `packages`"
-    
+
     if debug:
         print '\n--- DEBUG: %s ---' % sys._getframe().f_code.co_name
         print '--- pkgs:', packages
@@ -362,21 +364,21 @@ def install(packages, force=False):
 # for p in packages:
 #     #missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
 #         # don't think we need a dict for this, but postponing changing it
-# 
+#
 #     missing.update (dict (map (lambda x: (x, 0), xx_get_requires(p))))
 #         #debug: #21
-# 
+#
 #     #missing.append(string.join(get_missing(p)))
-# 
+#
 # if len(missing) > 0:
 #     sys.stderr.write ('to install:')
 #     sys.stderr.write ('    %s' % string.join(missing.keys()))
 #     # sys.stderr.write ('    %s' % string.join(missing))
 #     sys.stderr.write ('\n')
-# 
+#
 # if debug:
 #     print '### missing:', missing
-# 
+#
 #     if missing:
 #         for p in missing.keys():
 #             download(p)
@@ -386,7 +388,7 @@ def install(packages, force=False):
 #     else:
 #         print('Already installed:')
 #         version(packages) # display versions
-# 
+#
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
 def install_next(packages, resolved, seen):
 ##    global packagename
@@ -1071,7 +1073,12 @@ def get_all_dependencies(packages, nested_deps, parent=None):
     if isinstance(packages, basestring): packages = [packages]
 
     for p in packages:
-        deps = get_info(p)['requires'].split()
+        try:
+            deps = get_info(p)['requires'].split()
+        except KeyError as e:
+            print e.message
+            print "leaving out: ", p
+            continue
         if parent:
             inspos = nested_deps.index(parent)
             nested_deps.insert(inspos, p)
@@ -1428,7 +1435,7 @@ def get_info(packagename):
         d = dists[distname][packagename]
     except KeyError:
         raise KeyError('*** Package "{}" not found in distribution "{}"'.format(packagename, distname))
-        
+
     d['name'] = packagename
     #print d    # debug peek at incoming dict
 

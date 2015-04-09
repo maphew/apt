@@ -303,6 +303,11 @@ def install(packages, force=False):
         C:\> apt install shell gdal
     '''
     if isinstance(packages, basestring): packages = [packages]
+    # where do we get those...?
+    while '' in packages:
+		packages.remove('')
+		if debug: print "--- Found and removed extraneous '' in `packages`"
+
     if debug:
         print '\n--- DEBUG: %s ---' % sys._getframe().f_code.co_name
         print '--- pkgs:', packages
@@ -314,27 +319,12 @@ def install(packages, force=False):
 
     # build list of dependencies
     reqs = []
-    for p in packages:
-        reqs.extend(get_all_dependencies(p, []))
+    reqs = get_all_dependencies(packages, reqs)
     if debug: print 'PKGS: %s, REQS: %s' % (packages, reqs)
 
-    # remove duplicates and empty items
-    packages = unique(packages)
-    reqs = unique(reqs)
-    # don't need pkg dupes listed in requires
-    for p in packages:
-        while p in reqs[:]:
-            reqs.remove(p)
-    if debug: print 'Unique PKGS: %s, REQS: %s' % (packages, reqs)
-    pkgs_requested = packages[:] # save copy for later
-    reqs_requested = reqs[:]
-
-    # skip everything already installed
-    # for p in packages:
-        # Skips items! See "Remove items from a list while iterating in Python"
-        # http://stackoverflow.com/a/1207427/14420
     print 'PKGS: Checking install status:', ' '.join(packages)
-    for p in packages[:]:
+    delete = []
+    for p in reqs:
         print '\t %s - %s' % (p, get_info(p)['installed'])
         if get_info(p)['installed']:
             #ini_v = get_info(p)['version']
@@ -345,31 +335,20 @@ def install(packages, force=False):
                 print 'local:', local_v
                 print 'remote:', ini_v
             #if version_to_string(get_installed_version(p)) >= get_info(p)['version']:
-                packages.remove(p)
+                delete.append(p)
 
-    # skip installed dependencies
-    print 'REQS: Checking dependencies installed:', ' '.join(reqs)
-    for r in reqs[:]:
-        print '\t %s - %s' % (r, get_info(r)['installed'])
-        if get_info(r)['installed']:
-            reqs.remove(r)
+    # safety first: delete after loop
+    reqs = [x for x in reqs if x not in delete]
 
-    if debug: print 'Not installed PKGS: %s, REQS: %s' % (packages, reqs)
+   # if debug: print 'Not installed PKGS: %s, REQS: %s' % (packages, reqs)
 
     if reqs:
         print 'REQS: --- To install:', reqs
         for r in reversed(reqs):
             download(r)
             if download_p:  # quit if download only flag is set
-                sys.exit(0)
+                continue
             do_install(r)
-    if packages:
-        print 'PKGS: --- To install:', packages
-        for p in packages:
-            download(p)
-        if download_p:  # quit if download only flag is set
-            sys.exit(0)
-        do_install(p)
 
     else:
         print '\nPackages and required dependencies are installed.\n'

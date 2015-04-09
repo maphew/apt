@@ -1424,7 +1424,11 @@ def get_info(packagename):
         {'zip_size':'5430991'}
         {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
     '''
-    d = dists[distname][packagename]
+    try:
+        d = dists[distname][packagename]
+    except KeyError:
+        raise KeyError('*** Package "{}" not found in distribution "{}"'.format(packagename, distname))
+        
     d['name'] = packagename
     #print d    # debug peek at incoming dict
 

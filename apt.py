@@ -305,9 +305,9 @@ def install(packages, force=False):
     if isinstance(packages, basestring): packages = [packages]
     # where do we get those...?
     while '' in packages:
-		packages.remove('')
-		if debug: print "--- Found and removed extraneous '' in `packages`"
-
+        packages.remove('')
+        if debug: print "--- Found and removed extraneous '' in `packages`"
+    
     if debug:
         print '\n--- DEBUG: %s ---' % sys._getframe().f_code.co_name
         print '--- pkgs:', packages

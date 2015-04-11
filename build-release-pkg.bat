@@ -1,7 +1,7 @@
 @echo off
 call build-exe.bat
 setlocal enabledelayedexpansion
-set ver=0.3-2
+set ver=0.3-3
 set pkgdir=\o4w-packages\apt\apt-%ver%
 
 call :make_exe !pkgdir!
@@ -55,6 +55,9 @@ goto :eof
 ::      apt -i setup_test.ini new
 ::      apt -i setup_test.ini upgrade
 
+:: Generate ini for specific day (useful for testing upgrades)
+:: must be run in remote shell
+REM  /osgeo/download/osgeo4w/genini --date=2015-01-01 --arch=x86 --recursive --output=old.ini /osgeo/download/osgeo4w/x86/release
 
 REM  pushd ..
 REM  if not exist setup.hint wget http://download.osgeo.org/osgeo4w/x86/release/apt/setup.hint

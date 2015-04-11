@@ -1,51 +1,52 @@
+@echo off
 call build-exe.bat
-
 setlocal enabledelayedexpansion
 set ver=0.3-2
 set pkgdir=\o4w-packages\apt\apt-%ver%
 
-call :Structure !pkgdir!
 call :make_exe !pkgdir!
+call :archive !pkgdir! exe
+call :archive !pkgdir! lib
 
+explorer "%pkgdir%"
 goto :eof
-
+:: ---------------------------------------------------------------------
 :make_exe 
     :: Copy apt distribution files (from pyinstaller) into o4w structure
     :: then move apt.exe into it's own container.
     :: Finally wrap up each into archives ready for uploading to package mirror.
-    ::
+    ::    
     set pkgdir=%1
     if not exist "%pkgdir%" mkdir "%pkgdir%"
     pushd "%pkgdir%"
     
-    xcopy /s \dist\apt\* "lib\apps\apt"
-    mkdir exe\apps\apt
-    move lib\apps\apt\apt.exe exe\apps\apt
+    call :make_skeleton lib
+    xcopy /s \dist\apt\* lib\apps\apt
+
+    call :make_skeleton exe
+    move lib\apps\apt\apt.exe exe\apps\apt    
+    echo @^"%%~dp0\..\apps\apt\apt.exe^" %%* > exe\bin\apt.bat
     
     popd
     goto :eof
 
-:Structure
-    set pkgdir=%1
-    if not exist "%pkgdir%" mkdir "%pkgdir%"
-    pushd "%pkgdir%"
-    
-    xcopy /s/e ..\apt-skeleton .
-        :: contains pre/posinstall actions, update as needed.
-        
+:make_skeleton
+    :: Create "as installed" folder structure
+    mkdir "%1" & pushd "%1"
     mkdir bin
     mkdir apps\apt
-    
-    xcopy /s \dist\apt\* "%pkgdir%\apps\apt"
-    
-    
-    echo @^"%%~dp0\..\apps\apt\apt.exe^" %%* > "%pkgdir%"\bin\apt.bat
-    
-    explorer "%pkgdir%"
-    
-:: create distribution archive
-tar --exclude=setup.hint cvjf ../apt-%ver%.tar.bz2 ./
+    popd
+    goto :eof
 
+
+:archive
+    :: create distribution archive
+    pushd "%1\%2"
+    set type=%2
+    tar --exclude=setup.hint -cvjf ../apt-%type%-%ver%.tar.bz2 *
+    popd
+    goto :eof
+    
 :: upload to /osgeo/download/osgeo4w/x86/release/apt
 :: run http://upload.osgeo.org/cgi-bin/osgeo4w-regen.sh
 

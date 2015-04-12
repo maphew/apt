@@ -855,15 +855,15 @@ def setup_ini_from(path):
     '''
     local_indicators = [':', '/', '.', '..', '\\', '\\\\']
     for s in local_indicators:
-      if s in a[0:1]:
-          setup_ini = a
-      elif 'file:' in a[0:4]:
-          print "Please use local syntax, don't use `file://`"
-          return
-      else:
-          setup_ini = urllib.urlretrieve(a)[0]
-
-    return setup_ini
+        if s in a[0:1]:
+            setup_ini = a
+        elif 'file:' in a[0:5]:
+            print "Please use local path syntax, `D:\` not `file://`)"
+            return
+        else:
+            setup_ini = urllib.urlretrieve(a)[0]
+        
+        return setup_ini
 #@+node:maphew.20150327181149.2: *3* uniq
 def uniq(alist):
     ''' Returns a list with unique items (removes duplicates),

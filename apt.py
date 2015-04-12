@@ -321,72 +321,32 @@ def install(packages, force=False):
     reqs = []
     reqs = get_all_dependencies(packages, reqs)
     if debug: print 'PKGS: %s, REQS: %s' % (packages, reqs)
-
-    print 'PKGS: Checking install status:', ' '.join(packages)
+    
+    print '\nPKGS: Checking install status: {}\n'.format(' '.join(packages))
     delete = []
+    print '{:20}{:12}({})\n{}'.format('Requirement', 'Installed', 'Available', '-'*43)
     for p in reqs:
-        print '\t %s - %s' % (p, get_info(p)['installed'])
-        if get_info(p)['installed']:
-            #ini_v = get_info(p)['version']
-            ini_v = version_to_string(get_version(p))
+        p_installed = get_info(p)['installed']
+        ini_v = version_to_string(get_version(p))
+        print '{:19}'.format(p),
+        if p_installed:
             local_v = version_to_string(get_installed_version(p))
             if parse_version(local_v) >= parse_version(ini_v):
-                print '--- local >= ini:', parse_version(local_v) >= parse_version(ini_v)
-                print 'local:', local_v
-                print 'remote:', ini_v
-            #if version_to_string(get_installed_version(p)) >= get_info(p)['version']:
+                print '{:12}({})'.format(local_v, ini_v)
                 delete.append(p)
-
+        else:
+            print '{:12}({})'.format('-', ini_v)
+            
     # safety first: delete after loop
     reqs = [x for x in reqs if x not in delete]
 
-   # if debug: print 'Not installed PKGS: %s, REQS: %s' % (packages, reqs)
-
     if reqs:
-        print 'REQS: --- To install:', reqs
+        print '\nREQS: --- To install: {}\n'.format(' '.join(reqs))
         for r in reqs:
             download(r)
             if download_p:  # quit if download only flag is set
                 continue
             do_install(r)
-
-    else:
-        print '\nPackages and required dependencies are installed.\n'
-        version(pkgs_requested)
-        print ''
-        version(reqs_requested)
-#@+node:maphew.20150204213908.5: *4* #identify which dependent pkgs are not yet installed
-#@+at
-# missing = {}
-# #missing = []
-# for p in packages:
-#     #missing.update (dict (map (lambda x: (x, 0), get_missing(p))))
-#         # don't think we need a dict for this, but postponing changing it
-# 
-#     missing.update (dict (map (lambda x: (x, 0), xx_get_requires(p))))
-#         #debug: #21
-# 
-#     #missing.append(string.join(get_missing(p)))
-# 
-# if len(missing) > 0:
-#     sys.stderr.write ('to install:')
-#     sys.stderr.write ('    %s' % string.join(missing.keys()))
-#     # sys.stderr.write ('    %s' % string.join(missing))
-#     sys.stderr.write ('\n')
-# 
-# if debug:
-#     print '### missing:', missing
-# 
-#     if missing:
-#         for p in missing.keys():
-#             download(p)
-#         if download_p:  # quit if download only flag is set
-#             sys.exit(0)
-#         install_next(missing.keys(), set([]), set([]))
-#     else:
-#         print('Already installed:')
-#         version(packages) # display versions
-# 
 #@+node:maphew.20100510140324.2366: *4* install_next (missing_packages)
 def install_next(packages, resolved, seen):
 ##    global packagename

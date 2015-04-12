@@ -840,6 +840,30 @@ def debug_old(s):
     s
     print s
 
+#@+node:maphew.20150411174910.1: *3* setup_ini_from
+def setup_ini_from(path):
+    ''' Return path to setup.ini, from either local or remote url resource.
+    
+        "path" is a local or url-style path to the setup.ini resource file:
+            
+            http://download.osgeo.org/osgeo4w/x86/setup.ini
+            ftp://ftp.download.osgeo.org/osgeo4w/x86/setup.ini
+            D:\testing\osgeo4w\setup_2014-06-31.ini
+            \testing\osgeo4w\setup_2014-06-31.ini
+            ..\testing\osgeo4w\setup_2014-06-31.ini
+            .\testing\osgeo4w\setup_2014-06-31.ini
+    '''
+    local_indicators = [':', '/', '.', '..', '\\', '\\\\']
+    for s in local_indicators:
+      if s in a[0:1]:
+          setup_ini = a
+      elif 'file:' in a[0:4]:
+          print "Please use local syntax, don't use `file://`"
+          return
+      else:
+          setup_ini = urllib.urlretrieve(a)[0]
+
+    return setup_ini
 #@+node:maphew.20150327181149.2: *3* uniq
 def uniq(alist):
     ''' Returns a list with unique items (removes duplicates),
@@ -1869,17 +1893,8 @@ if __name__ == '__main__':
         elif o == '--help' or o == '-h':
             command = 'help'
             break
-            
         elif o == '--ini' or o == '-i':
-            # use either local or url file for setup.ini, was:
-            # setup_ini = a
-            local_indicators = [':', '/', '.', '..']
-            for s in local_indicators:
-              if s in a[0:1]:
-                  setup_ini = a
-              else:
-                  setup_ini = urllib.urlretrieve(a)[0]
-            
+            setup_ini = setup_ini_from(a)
         elif o == '--mirror' or o == '-m':
             mirror = a
         elif o == '--root' or o == '-r':

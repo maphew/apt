@@ -84,13 +84,20 @@ Options:
        --debug             display debugging statements (very noisy)
 ''' % {'setup_ini':setup_ini,'mirror':mirror,'root':root}) #As they were just printing as "%(setup_ini)s" etc...
 #@+node:maphew.20121113004545.1577: ** check_env
-def check_env():
+## amr66: added parameter o4w, for command line option
+def check_env(o4w=''):
     '''Verify we're running in an Osgeo4W-ready shell'''
     #OSGEO4W_ROOT = ''
     if 'OSGEO4W_ROOT' in os.environ.keys():
         OSGEO4W_ROOT = os.environ['OSGEO4W_ROOT']
         os.putenv('OSGEO4W_ROOT_MSYS', OSGEO4W_ROOT) # textreplace.exe needs this (post_install)
         OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/') # convert 2x backslash to foreslash
+    ## amr66: change root from command line option
+    elif o4w:
+        OSGEO4W_ROOT = o4w
+        os.environ['OSGEO4W_ROOT'] = o4w
+        os.environ['OSGEO4W_ROOT_MSYS'] = OSGEO4W_ROOT # textreplace.exe needs this (post_install)
+        OSGEO4W_ROOT = OSGEO4W_ROOT.replace('\\', '/')
     else:
        sys.stderr.write('error: Please set OSGEO4W_ROOT\n')
        sys.exit(2)
@@ -354,9 +361,8 @@ def install(packages, force=False):
 
     else:
         print '\nPackages and required dependencies are installed.\n'
-        version(pkgs_requested)
+        version(reqs)
         print ''
-        version(reqs_requested)
 #@+node:maphew.20150204213908.5: *4* #identify which dependent pkgs are not yet installed
 #@+at
 # missing = {}
@@ -1165,7 +1171,12 @@ def get_menu_links(bat):
     links = []
     for line in open(bat,'r'):
         if 'xxmklink' in line:
-            link = shlex.split(line)[1]
+            try:
+                link = shlex.split(line)[1]
+            except ValueError as e:
+                print "Parsing error in bat %s. May causes erorrs when removing package." % bat
+                link = line.split()[1]
+
             link = link.replace('%OSGEO4W_ROOT%',OSGEO4W_ROOT)
             link = link.replace('%OSGEO4W_STARTMENU%',OSGEO4W_STARTMENU)
             link = link.replace('%ALLUSERSPROFILE%',os.environ['ALLUSERSPROFILE'])
@@ -1810,42 +1821,20 @@ if __name__ == '__main__':
         # OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/')
     # else:
         # OSGEO4W_ROOT = check_env() # look for root in environment
-
-    OSGEO4W_ROOT = check_env() # look for root in environment
-    CWD = os.getcwd()
-    INSTALL = 'install'
-    installed = 0
-    root = OSGEO4W_ROOT
-    config = root + '/etc/setup/'
-    setup_ini = config + '/setup.ini'
-    setup_bak = config + '/setup.bak'
-    installed_db = config + '/installed.db'
-    installed_db_magic = 'INSTALLED.DB 2\n'
-
-    dists = 0
-    distnames = ('curr', 'test', 'prev')
-    distname = 'curr'
-    # # reverse engineering the globals...
-    # # after parse_setup_ini() 'dists' is actually contents of setup.ini in a dict
-    # # 'distname' is always 'current' (at present)
-    # #
-    # print type(dists)
-    # print(distname)
-
+    ## amr66: globals
     depend_p = 0
     download_p = 0
+    command = ""
+    setup_ini = ""
+    distname = ""
     start_menu_name = 'OSGeo4W'
     debug = False
     verbose = False
-
-    # Thank you Luke Pinner for answering how to get path of "Start > Programs"
-    # http://stackoverflow.com/questions/2216173
-    #PROGRAMS=2
-    ALLUSERSPROGRAMS=23
-    OSGEO4W_STARTMENU = get_special_folder(ALLUSERSPROGRAMS) + "\\" + start_menu_name
-    os.putenv('OSGEO4W_STARTMENU', OSGEO4W_STARTMENU)
-    #@-<<globals>>
-    #@+<<parse command line>>
+    distname = 'curr'
+    dists = 0
+    distnames = ('curr', 'test', 'prev')
+    ## amr66: moved this up, make --root/-r work
+    root = ''
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
     (options, params) = getopt.getopt (sys.argv[1:],
                       'dhi:m:r:t:s:xv',
@@ -1877,16 +1866,18 @@ if __name__ == '__main__':
             command = 'help'
             break
         elif o == '--ini' or o == '-i':
-          # use either local or url file for setup.ini, was:
-          # setup_ini = a
-          setup_ini = urllib.urlretrieve(a)
-          setup_ini = setup_ini[0]
+            # use either local or url file for setup.ini, was:
+            # setup_ini = a
+            if os.path.exists(a):
+                setup_ini = a
+            else:
+                setup_ini = urllib.urlretrieve(a)[0]
         elif o == '--mirror' or o == '-m':
             mirror = a
         elif o == '--root' or o == '-r':
             root = a
         elif o == '--t' or o == '-t':
-            distname = a
+            distname = a if a in distnames else 'curr'
         elif o == '--no-deps' or o == '-x':
             depend_p = 1
         elif o == '--start-menu' or o == '-s':
@@ -1896,10 +1887,43 @@ if __name__ == '__main__':
         elif o == '--verbose' or o == '-v':
             verbose = True
     #@-<<parse command line>>
+    ## amr66: root is not set, take default env
+    OSGEO4W_ROOT = check_env(root) # look for root in environment
+
+    if not root:
+        root = OSGEO4W_ROOT
+
+    CWD = os.getcwd()
+    INSTALL = 'install'
+    installed = 0
+
+    config = root + '/etc/setup/'
+    setup_ini = config + '/setup.ini'
+    setup_bak = config + '/setup.bak'
+    installed_db = config + '/installed.db'
+    installed_db_magic = 'INSTALLED.DB 2\n'
+
+    # # reverse engineering the globals...
+    # # after parse_setup_ini() 'dists' is actually contents of setup.ini in a dict
+    # # 'distname' is always 'current' (at present)
+    # #
+    # print type(dists)
+    # print(distname)
+
+    # Thank you Luke Pinner for answering how to get path of "Start > Programs"
+    # http://stackoverflow.com/questions/2216173
+    #PROGRAMS=2
+    ALLUSERSPROGRAMS=23
+    OSGEO4W_STARTMENU = get_special_folder(ALLUSERSPROGRAMS) + "\\" + start_menu_name
+    os.putenv('OSGEO4W_STARTMENU', OSGEO4W_STARTMENU)
+    #@-<<globals>>
+    #@+<<parse command line>>
+
     #@+<<post-parse globals>>
     #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>
     #last_mirror = get_config('last-mirror')
     #last_cache = get_config('last-cache')
+
     setuprc = parse_setuprc(config + '/setup.rc')
     try:
         last_mirror = setuprc['last-mirror']

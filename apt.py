@@ -323,8 +323,8 @@ def install(packages, force=False):
     if debug: print 'PKGS: %s, REQS: %s' % (packages, reqs)
     
     print '\nPKGS: Checking install status: {}\n'.format(' '.join(packages))
-    delete = []
     print '{:20}{:12}({})\n{}'.format('Requirement', 'Installed', 'Available', '-'*43)
+    delete = []
     for p in reqs:
         p_installed = get_info(p)['installed']
         ini_v = version_to_string(get_version(p))

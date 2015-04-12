@@ -852,10 +852,11 @@ def setup_ini_from(path):
             \testing\osgeo4w\setup_2014-06-31.ini
             ..\testing\osgeo4w\setup_2014-06-31.ini
             .\testing\osgeo4w\setup_2014-06-31.ini
+            \\server\share\osgeo4w_mirror_x86\setup.ini
     '''
-    local_indicators = [':', '/', '.', '..', '\\', '\\\\']
+    local_indicators = [':', '/', '.', '..', '\\']
     for s in local_indicators:
-        if s in a[0:1]:
+        if s in a[0:2]:
             setup_ini = a
         elif 'file:' in a[0:5]:
             print "Please use local path syntax, `D:\` not `file://`)"

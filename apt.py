@@ -344,7 +344,7 @@ def install(packages, force=False):
 
     if reqs:
         print 'REQS: --- To install:', reqs
-        for r in reversed(reqs):
+        for r in reqs:
             download(r)
             if download_p:  # quit if download only flag is set
                 continue

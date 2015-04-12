@@ -1869,11 +1869,17 @@ if __name__ == '__main__':
         elif o == '--help' or o == '-h':
             command = 'help'
             break
+            
         elif o == '--ini' or o == '-i':
-          # use either local or url file for setup.ini, was:
-          # setup_ini = a
-          setup_ini = urllib.urlretrieve(a)
-          setup_ini = setup_ini[0]
+            # use either local or url file for setup.ini, was:
+            # setup_ini = a
+            local_indicators = [':', '/', '.', '..']
+            for s in local_indicators:
+              if s in a[0:1]:
+                  setup_ini = a
+              else:
+                  setup_ini = urllib.urlretrieve(a)[0]
+            
         elif o == '--mirror' or o == '-m':
             mirror = a
         elif o == '--root' or o == '-r':

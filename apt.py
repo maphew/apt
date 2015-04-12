@@ -40,7 +40,7 @@ from datetime import datetime, timedelta
 #from attrdict import AttrDict
 #
 # DELETE ME
-os.environ['OSGEO4W_ROOT'] = "C:\OSGeo4W"
+# os.environ['OSGEO4W_ROOT'] = "C:\OSGeo4W"
 #@-<<imports>>
 #@@language python
 #@@tabwidth -4
@@ -353,7 +353,8 @@ def install(packages, force=False):
 
     if reqs:
         print 'REQS: --- To install:', reqs
-        for r in reversed(reqs):
+        # do not reverse
+        for r in reqs:
             download(r)
             if download_p:  # quit if download only flag is set
                 continue

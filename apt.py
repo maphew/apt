@@ -1142,6 +1142,13 @@ def get_menu_links(bat):
     # and interpret known variables.
     links = []
     for line in open(bat,'r'):
+        
+        # super ugly kludge for unmatched quotes in a specific package
+        # see https://github.com/maphew/apt/issues/40
+        # DO NOT LET THIS LIVE LONG, AND ESPECIALLY NOT GET RELEASED!!
+        if 'ApacheMonitor.exe"' in line:
+            line = line[-1]
+            
         if 'xxmklink' in line:
             link = shlex.split(line)[1]
             link = link.replace('%OSGEO4W_ROOT%',OSGEO4W_ROOT)

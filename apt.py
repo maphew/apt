@@ -349,8 +349,6 @@ def install(packages, force=False):
 
     if reqs:
         print '\nREQS: --- To install: {}\n'.format(' '.join(reqs))
-        print 'REQS: --- To install:', reqs
-        for r in reqs:
         for r in reqs:
             download(r)
             if download_p:  # quit if download only flag is set
@@ -1809,6 +1807,8 @@ if __name__ == '__main__':
     distnames = ('curr', 'test', 'prev')
     ## amr66: moved this up, make --root/-r work
     root = ''
+    #@-<<globals>>
+    #@+<<parse command line>>
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
     (options, params) = getopt.getopt (sys.argv[1:],
                       'dhi:m:r:t:s:xv',
@@ -1888,8 +1888,6 @@ if __name__ == '__main__':
     ALLUSERSPROGRAMS=23
     OSGEO4W_STARTMENU = get_special_folder(ALLUSERSPROGRAMS) + "\\" + start_menu_name
     os.putenv('OSGEO4W_STARTMENU', OSGEO4W_STARTMENU)
-    #@-<<globals>>
-    #@+<<parse command line>>
 
     #@+<<post-parse globals>>
     #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>

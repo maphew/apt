@@ -328,7 +328,7 @@ def install(packages, force=False):
     reqs = []
     reqs = get_all_dependencies(packages, reqs)
     if debug: print 'PKGS: %s, REQS: %s' % (packages, reqs)
-    
+
     print '\nPKGS: Checking install status: {}\n'.format(' '.join(packages))
     print '{:20}{:12}({})\n{}'.format('Requirement', 'Installed', 'Available', '-'*43)
     delete = []
@@ -343,7 +343,7 @@ def install(packages, force=False):
                 delete.append(p)
         else:
             print '{:12}({})'.format('-', ini_v)
-            
+
     # safety first: delete after loop
     reqs = [x for x in reqs if x not in delete]
 
@@ -859,6 +859,11 @@ def do_download(packagename):
     and http status code if fails.
     '''
     p_info = get_info(packagename)
+    # amr66: error with no install-tag, grass71-devel
+    # if not p_info['zip_path']:
+    #     print "*** no download path for package", p
+    #     return ''
+
     dstFile = p_info['local_zip']
     srcFile = p_info['mirror_path']
     cacheDir = os.path.dirname(dstFile)
@@ -1135,13 +1140,13 @@ def get_menu_links(bat):
     # and interpret known variables.
     links = []
     for line in open(bat,'r'):
-        
+
         # super ugly kludge for unmatched quotes in a specific package
         # see https://github.com/maphew/apt/issues/40
         # DO NOT LET THIS LIVE LONG, AND ESPECIALLY NOT GET RELEASED!!
         if 'ApacheMonitor.exe"' in line:
             line = line[-1]
-            
+
         if 'xxmklink' in line:
             try:
                 link = shlex.split(line)[1]
@@ -1422,22 +1427,50 @@ def get_info(packagename):
     d['name'] = packagename
     #print d    # debug peek at incoming dict
 
-    if 'install' in d.keys():
-        # 'install' and 'source keys have compound values, atomize them
-        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-
-        ## issue #29
-        # if not debug:
-            # del d['install']
-
-    if 'source' in d.keys():
-        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-        if not debug:
-            del d['source']
-
-    #based on current mirror, might be different from when downloaded and/or installed
-    d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
-    d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
+####    if 'install' in d.keys():
+####        # 'install' and 'source keys have compound values, atomize them
+####        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+####
+####        ## issue #29
+####        # if not debug:
+####            # del d['install']
+##    try:
+##        # 'install' and 'source keys have compound values, atomize them
+##        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+##
+##        ## issue #29
+##        #if not debug:
+##            #del d['install']
+##
+##    except KeyError as e:
+##        d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
+##        if debug:
+##          print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
+##    except Exception as e:
+##        print "unknown error parsing package", d
+##        print "*** %s" % e.message
+##        d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
+##
+####    if 'source' in d.keys():
+####        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
+####        if not debug:
+####            del d['source']
+##    try:
+##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
+##        if not debug:
+##            del d['source']
+##    except KeyError as e:
+##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
+##    except Exception as e:
+##        print "unknown error", d
+##        print "*** %s" % e.message
+##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
+##
+##    #based on current mirror, might be different from when downloaded and/or installed
+##    d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
+##    d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
+##
+    d = set_extended_info(d)
 
     d['filename'] = os.path.basename(d['zip_path'])
 
@@ -1453,6 +1486,42 @@ def get_info(packagename):
         d['installed'] = False
 
     return d
+
+# amr66: new function: set_extended_info(p)
+def set_extended_info(d):
+    """set extended information into package-info-dictionary, as used by
+    get_info() or parse_setup_ini()"""
+    try:
+        # 'install' and 'source keys have compound values, atomize them
+        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+
+    except KeyError as e:
+        d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
+        if debug:
+          print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
+    except Exception as e:
+        print "unknown error parsing package", d
+        print "*** %s" % e.message
+        d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
+
+    try:
+        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
+        if not debug:
+            del d['source']
+    except KeyError as e:
+        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
+    except Exception as e:
+        print "unknown error", d
+        print "*** %s" % e.message
+        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
+
+    #based on current mirror, might be different from when downloaded and/or installed
+    d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
+    d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
+
+
+    return d
+
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
@@ -1526,30 +1595,40 @@ def parse_setup_ini(fname):
         # print dists[distname][p]['install']
         d = dists[distname][p]
         d['name'] = p
-        #print d    # debug peek at incoming dict
-        try:
-            # 'install' and 'source keys have compound values, atomize them
-            d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
 
-            ## issue #29
-            #if not debug:
-                #del d['install']
-
-        except KeyError as e:
-            d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-            if debug:
-              print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
-
-        try:
-            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-            if not debug:
-                del d['source']
-        except KeyError as e:
-            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-
-        #based on current mirror, might be different from when downloaded and/or installed
-        d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
-        d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
+        d = set_extended_info(d)
+##        print d    # debug peek at incoming dict
+##        try:
+##            # 'install' and 'source keys have compound values, atomize them
+##            d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
+##
+##            ## issue #29
+##            #if not debug:
+##                #del d['install']
+##        except KeyError as e:
+##            d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
+##            if debug:
+##              print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
+##        except Exception as e:
+##            print "unknown error parsing package", d
+##            print "*** %s" % e.message
+##            d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
+##
+##
+##        try:
+##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
+##            if not debug:
+##                del d['source']
+##        except KeyError as e:
+##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
+##        except Exception as e:
+##            print "unknown error", d
+##            print "*** %s" % e.message
+##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
+##
+##        #based on current mirror, might be different from when downloaded and/or installed
+##        d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
+##        d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
 
         # insert the parsed fields back into parent dict
         dists[distname][p] = d

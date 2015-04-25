@@ -1457,7 +1457,7 @@ def set_extended_info(d):
     except KeyError as e:
         d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
         if debug:
-          print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
+          print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (d['name'], e)
     except Exception as e:
         print "unknown error parsing package", d
         print "*** %s" % e.message

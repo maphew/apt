@@ -1403,22 +1403,13 @@ def parse_setuprc(fname):
         print '-' * 40
     return d
 #@+node:maphew.20141111130056.4: *3* get_info
-def get_info(packagename):
+def get_info(packagename):    
     '''Retrieve details for package X.
 
     Returns dict of information for the package from dict created by parse_setup_ini()
-        (category, version, archive name, etc.)
-
-    Incoming packagename dict duplicates the original key names and values. Here we further parse the compound record values into constituent parts.
-
-        {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
-
-    becomes:
-
-        {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
-        {'zip_size':'5430991'}
-        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
+    (category, version, archive name, etc.)
     '''
+    
     try:
         d = dists[distname][packagename]
     except KeyError:
@@ -1427,49 +1418,6 @@ def get_info(packagename):
     d['name'] = packagename
     #print d    # debug peek at incoming dict
 
-####    if 'install' in d.keys():
-####        # 'install' and 'source keys have compound values, atomize them
-####        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-####
-####        ## issue #29
-####        # if not debug:
-####            # del d['install']
-##    try:
-##        # 'install' and 'source keys have compound values, atomize them
-##        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-##
-##        ## issue #29
-##        #if not debug:
-##            #del d['install']
-##
-##    except KeyError as e:
-##        d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-##        if debug:
-##          print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
-##    except Exception as e:
-##        print "unknown error parsing package", d
-##        print "*** %s" % e.message
-##        d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-##
-####    if 'source' in d.keys():
-####        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-####        if not debug:
-####            del d['source']
-##    try:
-##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-##        if not debug:
-##            del d['source']
-##    except KeyError as e:
-##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-##    except Exception as e:
-##        print "unknown error", d
-##        print "*** %s" % e.message
-##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-##
-##    #based on current mirror, might be different from when downloaded and/or installed
-##    d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
-##    d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
-##
     d = set_extended_info(d)
 
     d['filename'] = os.path.basename(d['zip_path'])
@@ -1487,10 +1435,21 @@ def get_info(packagename):
 
     return d
 
-# amr66: new function: set_extended_info(p)
+#@+node:maphew.20150418200003.11: *4* set_extended_info
 def set_extended_info(d):
     """set extended information into package-info-dictionary, as used by
-    get_info() or parse_setup_ini()"""
+    get_info() or parse_setup_ini()
+    
+    We take compound values in single keys and explode them into their own keys.
+
+        {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
+
+    becomes:
+
+        {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
+        {'zip_size':'5430991'}
+        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}    
+    """
     try:
         # 'install' and 'source keys have compound values, atomize them
         d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
@@ -1519,9 +1478,7 @@ def set_extended_info(d):
     d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
     d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
 
-
     return d
-
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
@@ -1597,38 +1554,6 @@ def parse_setup_ini(fname):
         d['name'] = p
 
         d = set_extended_info(d)
-##        print d    # debug peek at incoming dict
-##        try:
-##            # 'install' and 'source keys have compound values, atomize them
-##            d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-##
-##            ## issue #29
-##            #if not debug:
-##                #del d['install']
-##        except KeyError as e:
-##            d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-##            if debug:
-##              print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
-##        except Exception as e:
-##            print "unknown error parsing package", d
-##            print "*** %s" % e.message
-##            d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-##
-##
-##        try:
-##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-##            if not debug:
-##                del d['source']
-##        except KeyError as e:
-##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-##        except Exception as e:
-##            print "unknown error", d
-##            print "*** %s" % e.message
-##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-##
-##        #based on current mirror, might be different from when downloaded and/or installed
-##        d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
-##        d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
 
         # insert the parsed fields back into parent dict
         dists[distname][p] = d

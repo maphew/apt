@@ -1914,7 +1914,15 @@ if __name__ == '__main__':
         # optional quote '' param is to also substitute slashes etc.
 
     if last_cache == None:
-        cache_dir = '%s/var/cache/setup' % (root)
+        #cache_dir = '%s/var/cache/setup' % (root)
+        ## Attempt to use Public Download folder in preference to ./var/cache
+        import knownpaths
+        pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
+        if not os.path.exists(pubdown):
+            print 'Public downloads "%s" not found, using ./var/cache instead'
+            cache_dir = '%s/var/cache/setup' % (root)
+        else:
+            cache_dir = os.path.join(pubdown, 'OSGeo4W-cache')
     else:
         cache_dir = last_cache
 

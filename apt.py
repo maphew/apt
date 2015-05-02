@@ -16,7 +16,7 @@
   Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
   beginning July 2008
 '''
-apt_version = '0.3-2-dev'
+apt_version = '0.3-3-dev'
 #@-<<docstring>>
 #@+<<imports>>
 #@+node:maphew.20100307230644.3847: ** <<imports>>

@@ -1066,6 +1066,18 @@ def get_all_dependencies(packages, nested_deps, parent=None):
             nested_deps = get_all_dependencies(deps, nested_deps,p)
 
     return uniq(nested_deps)
+#@+node:maphew.20150501221304.43: *3* get_cache_dir
+def get_cache_dir():
+    '''Return path to use for cached downloads. Attempt to use Public Download folder in preference to ./var/cache'''
+    import knownpaths
+    pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
+    if not os.path.exists(pubdown):
+        if debug: print 'Public downloads "%s" not found, using ./var/cache instead'
+        cache_dir = '%s/var/cache/setup' % (root)
+    else:
+        cache_dir = os.path.join(pubdown, 'OSGeo4W-setup-cache')
+
+    return cache_dir
 #@+node:maphew.20141112222311.3: *3* get_zipfile
 def get_zipfile(packagename):
     '''Return full path name of locally downloaded package archive.'''
@@ -1914,15 +1926,7 @@ if __name__ == '__main__':
         # optional quote '' param is to also substitute slashes etc.
 
     if last_cache == None:
-        #cache_dir = '%s/var/cache/setup' % (root)
-        ## Attempt to use Public Download folder in preference to ./var/cache
-        import knownpaths
-        pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
-        if not os.path.exists(pubdown):
-            print 'Public downloads "%s" not found, using ./var/cache instead'
-            cache_dir = '%s/var/cache/setup' % (root)
-        else:
-            cache_dir = os.path.join(pubdown, 'OSGeo4W-cache')
+        cache_dir = get_cache_dir()
     else:
         cache_dir = last_cache
 

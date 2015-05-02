@@ -130,6 +130,7 @@ _SHGetKnownFolderPath.argtypes = [
 
 class PathNotFoundException(Exception): pass
 
+
 def get_path(folderid, user_handle=UserHandle.common):
     fid = GUID(folderid)
     pPath = ctypes.c_wchar_p()

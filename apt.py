@@ -35,6 +35,7 @@ import requests
 import subprocess
 import shlex
 import locale
+import knownpaths # for fetching Windows special folders
 from pkg_resources import parse_version # for version comparing
 from datetime import datetime, timedelta
 #from attrdict import AttrDict
@@ -1069,7 +1070,6 @@ def get_all_dependencies(packages, nested_deps, parent=None):
 #@+node:maphew.20150501221304.43: *3* get_cache_dir
 def get_cache_dir():
     '''Return path to use for cached downloads. Attempt to use Public Download folder in preference to ./var/cache'''
-    import knownpaths
     pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
     if not os.path.exists(pubdown):
         if debug: print 'Public downloads "%s" not found, using ./var/cache instead'

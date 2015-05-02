@@ -140,16 +140,37 @@ def get_path(folderid, user_handle=UserHandle.common):
     _CoTaskMemFree(pPath)
     return path
 
+def list_folders():
+    '''Display list of Windows KnowFolders (a.k.a. FOLDERID)'''
+    i_list = dir(FOLDERID)
+    i_list.remove('__doc__')
+    i_list.remove('__module__')
+    i_list.sort()
+    split = len(i_list)/2
+    col1 = i_list[0:split]
+    col2 = i_list[split:]
+    
+    print '-' * 60
+    print 'Windows KnownFolders (FOLDERIDs)'
+    print '-' * 60
+    for key, value in zip(col1,col2):
+        print '{:<30}{}'.format(key, value)
+    
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in ['-?', '/?']:
-        print('python knownpaths.py FOLDERID {current|common}')
+        print 'python knownpaths.py --list'
+        print 'python knownpaths.py FOLDERID {current|common}'
         sys.exit(0)
 
+    if sys.argv[1] == '--list':
+        list_folders()
+        sys.exit(0)
+    
     try:
         folderid = getattr(FOLDERID, sys.argv[1])
     except AttributeError:
 ##        print('Unknown folder id "%s"' % sys.argv[1], file=sys.stderr)
-        print('Unknown folder id "%s"' % sys.argv[1])
+        print 'Unknown folder id "%s"' % sys.argv[1]
         sys.exit(1)
 
     try:
@@ -159,7 +180,7 @@ if __name__ == '__main__':
             print(get_path(folderid, getattr(UserHandle, sys.argv[2])))
     except PathNotFoundException:
 ##        print('Folder not found "%s"' % ' '.join(sys.argv[1:]), file=sys.stderr)
-        print('Folder not found "%s"' % ' '.join(sys.argv[1:]))
+        print 'Folder not found "%s"' % ' '.join(sys.argv[1:])
         sys.exit(1)
 
 # [1] http://msdn.microsoft.com/en-us/library/windows/desktop/aa373931.aspx

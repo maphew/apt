@@ -1886,7 +1886,8 @@ if __name__ == '__main__':
     installed = 0
 
     config = root + '/etc/setup/'
-    setup_ini = config + '/setup.ini'
+    if not setup_ini:
+        setup_ini = config + '/setup.ini'
     setup_bak = config + '/setup.bak'
     installed_db = config + '/installed.db'
     installed_db_magic = 'INSTALLED.DB 2\n'

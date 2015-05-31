@@ -1069,14 +1069,24 @@ def get_all_dependencies(packages, nested_deps, parent=None):
     return uniq(nested_deps)
 #@+node:maphew.20150501221304.43: *3* get_cache_dir
 def get_cache_dir():
-    '''Return path to use for cached downloads. Attempt to use Public Download folder in preference to ./var/cache'''
+    '''Return path to use for cached downloads
+    
+    Precedence order:
+        - command line option (-c, --cache)
+        - last used cache (read from setup.rc)
+        - Public Downloads folder
+        - Osgeo default (%osgeo4w_root%/var/...) 
+    '''
+    if cache_dir:
+        return cache_dir
+    if last_cache:
+        return last_cache
     pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
     if not os.path.exists(pubdown):
         if debug: print 'Public downloads "%s" not found, using ./var/cache instead'
         cache_dir = '%s/var/cache/setup' % (root)
     else:
         cache_dir = os.path.join(pubdown, 'OSGeo4W-setup-cache')
-
     return cache_dir
 #@+node:maphew.20141112222311.3: *3* get_zipfile
 def get_zipfile(packagename):
@@ -1827,8 +1837,8 @@ if __name__ == '__main__':
     #@+<<parse command line>>
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
     (options, params) = getopt.getopt (sys.argv[1:],
-                      'dhi:m:r:t:s:xv',
-                      ('download', 'help', 'mirror=', 'root='
+                      'cdhi:m:r:t:s:xv',
+                      ('cache=', 'download', 'help', 'mirror=', 'root='
                        'ini=', 't=', 'start-menu=', 'no-deps',
                        'debug', 'verbose'))
     # the first parameter is our action,
@@ -1850,6 +1860,8 @@ if __name__ == '__main__':
 
         if 0:
             pass
+        elif o == '--cache' or o == '-c':
+                cache_dir = a
         elif o == '--download' or o == '-d':
                 download_p = 1
         elif o == '--help' or o == '-h':
@@ -1926,10 +1938,11 @@ if __name__ == '__main__':
     mirror_dir = requests.utils.quote(mirror, '').lower()
         # optional quote '' param is to also substitute slashes etc.
 
-    if last_cache == None:
-        cache_dir = get_cache_dir()
-    else:
-        cache_dir = last_cache
+    # if last_cache == None:
+        # cache_dir = get_cache_dir()
+    # else:
+        # cache_dir = last_cache
+    cache_dir = get_cache_dir()
 
     downloads = '%s/%s' % (cache_dir, mirror_dir)
 

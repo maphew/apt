@@ -1069,7 +1069,7 @@ def get_all_dependencies(packages, nested_deps, parent=None):
     return uniq(nested_deps)
 #@+node:maphew.20150501221304.43: *3* get_cache_dir
 def get_cache_dir():
-    '''Return path to use for cached downloads
+    '''Return path to use for saving downloads.
     
     Precedence order:
         - command line option (-c, --cache)
@@ -1079,8 +1079,8 @@ def get_cache_dir():
     '''
     if 'cache_dir' in globals():
         return globals()['cache_dir']
-    if last_cache:
-        return last_cache
+    if 'last_cache' in globals():
+        return globals()['last_cache']
     
     pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
     if not os.path.exists(pubdown):

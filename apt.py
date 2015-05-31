@@ -1077,10 +1077,11 @@ def get_cache_dir():
         - Public Downloads folder
         - Osgeo default (%osgeo4w_root%/var/...) 
     '''
-    if cache_dir:
-        return cache_dir
+    if 'cache_dir' in globals():
+        return globals()['cache_dir']
     if last_cache:
         return last_cache
+    
     pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
     if not os.path.exists(pubdown):
         if debug: print 'Public downloads "%s" not found, using ./var/cache instead'

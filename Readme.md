@@ -44,6 +44,7 @@ Where I know we depart from Setup:
 
 These fine people have made this program better than I could have managed on my own:
 
+- Andreas Müller (@amr66), Universitaet Trier, Germany (improved return signals, exception handling, lots of other stuff); 
 - Jeremy Palmer, Land Information New Zealand (dependencies 1st, menu name);   
 - Luke Pinner, Australia Department of the Environment, Water, Heritage and the Arts (windows special folders);  
 - Jan Nieuwenhuizen (original cyg-apt author). 

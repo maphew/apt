@@ -8,24 +8,23 @@ Welcome to Apt's documentation!
 
 What does apt do? In essence:
 
-    (a) Install applications from `Osgeo4W`_
+Install applications from `Osgeo4W`_
+
+    - Download a package from the mirror,  
+    - unpack it under OSGEO4W_ROOT,  
+    - run any post-install scripts,  
+    - update installed applications list,  
+    - save metadata (cache folder, mirror list).
     
-        - Download a package from the mirror,  
-        - unpack it under OSGEO4W_ROOT,  
-        - run any post-install scripts,  
-        - update installed applications list,  
-        - save metadata (cache folder, mirror list).
-        
-    (b) Show information about (a)
-    
-    (c) Remove installed packages
-    
+Show information about installed applications
+
+Remove installed packages
+
 .. _Osgeo4W: http://trac.osgeo.org/osgeo4w/
 
 
-..  test force rtd autobuild
-
 Module Reference:
+----------------
 
 .. toctree::
    :maxdepth: 2
@@ -33,10 +32,12 @@ Module Reference:
    apt
 
 
-Contribute:
+Links:
+------
 
 - Issue Tracker: https://github.com/maphew/apt/issues
 - Source Code: https://github.com/maphew/apt
+- Docs: http://apt.readthedocs.org/en/latest/
 
 * :ref:`genindex`
 

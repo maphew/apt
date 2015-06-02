@@ -40,7 +40,7 @@ Where I know we depart from Setup:
 - Apt doesn't know about the `%OSGEO4W_MENU_LINKS%` and `%OSGEO4W_DESKTOP_LINKS%` variables introduced in setup.exe v1.0.6-5. This needs to be added, issue #16. 
 
 
-### Contributors ###
+### Contributors and Contributing ###
 
 These fine people have made this program better than I could have managed on my own:
 
@@ -48,6 +48,8 @@ These fine people have made this program better than I could have managed on my 
 - Jeremy Palmer, Land Information New Zealand (dependencies 1st, menu name);   
 - Luke Pinner, Australia Department of the Environment, Water, Heritage and the Arts (windows special folders);  
 - Jan Nieuwenhuizen (original cyg-apt author). 
+
+If you'd like to help, see **[the code](https://github.com/maphew/apt/)** and auto-generated **module docs**: http://apt.readthedocs.org/en/latest/
 
 ### Similar projects ###
 

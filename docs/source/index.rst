@@ -23,6 +23,8 @@ What does apt do? In essence:
 .. _Osgeo4W: http://trac.osgeo.org/osgeo4w/
 
 
+..  test force rtd autobuild
+
 Module Reference:
 
 .. toctree::

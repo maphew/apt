@@ -24,7 +24,7 @@ except ImportError:
     #py27 import
     from mock import Mock as MagicMock
         
-class Mock(MagickMock):
+class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
         return Mock()

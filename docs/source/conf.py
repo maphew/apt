@@ -16,6 +16,17 @@ import sys
 import os
 import shlex
 
+# https://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
+from mock import Mock as MagicMock
+
+class Mock(MagickMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return Mock()
+
+MOCK_MODULES = ['ctypes']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -53,8 +64,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Apt'
-copyright = u'2015, Matt Wilkie, shoulders of giants'
-author = u'Matt Wilkie, shoulders of giants'
+copyright = u'2015, Matt Wilkie'
+author = u'Matt Wilkie'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -236,7 +247,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'Apt.tex', u'Apt Documentation',
-   u'Matt Wilkie, shoulders of giants', 'manual'),
+   u'Matt Wilkie', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -280,7 +291,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'Apt', u'Apt Documentation',
-   author, 'Apt', 'One line description of project.',
+   author, 'Apt', 'command line installer and package manager for Osgeo4W.',
    'Miscellaneous'),
 ]
 

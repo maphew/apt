@@ -6,9 +6,7 @@
 Welcome to Apt's documentation!
 ===============================
 
-What does apt do? In essence:
-
-Install applications from `Osgeo4W`_
+What does apt do? In essence, install applications from `Osgeo4W`_ :
 
     - Download a package from the mirror,  
     - unpack it under OSGEO4W_ROOT,  

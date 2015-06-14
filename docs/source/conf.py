@@ -17,11 +17,13 @@ import os
 import shlex
 
 # https://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
-#from mock import Mock as MagicMock
-    #py27 import
-from unittest.mock import MagicMock
+try:
     #py3 import
-
+    from unittest.mock import MagicMock
+except ImportError:
+    #py27 import
+    from mock import Mock as MagicMock
+        
 class Mock(MagickMock):
     @classmethod
     def __getattr__(cls, name):

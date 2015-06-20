@@ -12,7 +12,7 @@
 <vnodes>
 <v t="maphew.20150613204824.4"><vh>@persistence</vh>
 <v t="maphew.20150613204824.5" a="E"><vh>@data:@auto conf.py</vh>
-<v t="maphew.20150613204824.12"><vh>@gnxs</vh></v>
+<v t="maphew.20150619234753.3"><vh>@gnxs</vh></v>
 </v>
 </v>
 <v t="maphew.20150601230033.5" a="E"><vh>Apt - Read The Docs</vh>
@@ -24,11 +24,15 @@
 <tnodes>
 <t tx="maphew.20150601230033.5">@path b:\code\apt\docs\source
 </t>
-<t tx="maphew.20150613204824.12">gnx: maphew.20150613204824.3
-unl: conf declarations
-</t>
 <t tx="maphew.20150613204824.4"></t>
 <t tx="maphew.20150613204824.5">gnx: maphew.20150613204824.2
+</t>
+<t tx="maphew.20150619234753.3">gnx: maphew.20150613204824.3
+unl: conf declarations
+gnx: maphew.20150619234753.1
+unl: class Mock
+gnx: maphew.20150619234753.2
+unl: class Mock--&gt;__getattr__
 </t>
 </tnodes>
 </leo_file>

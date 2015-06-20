@@ -6,15 +6,38 @@
 #@@tabwidth -4
 #@+<<docstring>>
 #@+node:maphew.20100307230644.3846: ** <<docstring>>
-'''
-  cyg-apt - Cygwin installer to keep cygwin root up to date
+'''Apt command line installer and package manager for Osgeo4W.
 
-  (c) 2002--2003  Jan Nieuwenhuizen <janneke@gnu.org>
+Examples
+--------
+Typical daily use::
+    
+    apt update                   (fetch up-to-date setup.ini)
+    apt install gdal gdal-python (install packages "gdal" and "gdal-python", and dependencies)
+    apt new                      (show possible upgrades)
+    apt list                     (show installed packages)
+    apt available                (show installation candidates)
+    apt remove xxx yyy           (uninstall packages xxx and yyy)
 
-  License: GNU GPL
+Notes
+-----
+Apt strives to match Osgeo4wSetup.exe's results as closely as possible, and uses
+the same configuration and install manifest files. A prime directive is that
+user's should never be put in a position where they feel the need to choose
+between the tools and not go back.
 
-  Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
-  beginning July 2008
+That's the aspiration. There's no guarantee it's been achieved.
+
+At the moment apt can only install the 32bit Osgeo4W packages.
+
+References
+----------
+.. [1] Based on ``cyg-apt`` - "Cygwin installer to keep cygwin root up to date"
+    (c) 2002--2003  Jan Nieuwenhuizen <janneke@gnu.org>
+    License: GNU GPL
+
+    Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
+    beginning July 2008
 '''
 apt_version = '0.3-3-dev'
 #@-<<docstring>>

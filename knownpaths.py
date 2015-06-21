@@ -4,7 +4,6 @@ knownpaths.py, from https://gist.github.com/mkropat/7550097
 import sys
 import ctypes
 try:
-
     from ctypes import windll, wintypes
 except ImportError, ValueError:
     # catch ImportError and ValueError due to issue16396
@@ -12,6 +11,7 @@ except ImportError, ValueError:
     pass
 
 from uuid import UUID
+
 class GUID(ctypes.Structure):   # [1]
     _fields_ = [
         ("Data1", wintypes.DWORD),

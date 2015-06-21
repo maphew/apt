@@ -17,20 +17,20 @@ import os
 import shlex
 
 # https://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
-#try:
-    #py3 import
-#    from unittest.mock import MagicMock
-#except ImportError:
-    #py27 import
-#    from mock import Mock as MagicMock
+try:
+    py3 import
+    from unittest.mock import MagicMock
+except ImportError:
+    py27 import
+    from mock import Mock as MagicMock
         
-#class Mock(MagicMock):
-#    @classmethod
-#    def __getattr__(cls, name):
-#        return Mock()
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return Mock()
 
-#MOCK_MODULES = ['ctypes']
-#sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+MOCK_MODULES = ['ctypes', 'wintypes']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

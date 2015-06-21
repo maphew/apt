@@ -16,6 +16,7 @@ import sys
 import os
 import shlex
 
+# Read The Docs requires modules relying on Windows-only DLLs etc. be "mocked".
 # https://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
 try:
     from unittest.mock import MagicMock #py3 import

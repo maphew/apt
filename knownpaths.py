@@ -3,13 +3,7 @@ knownpaths.py, from https://gist.github.com/mkropat/7550097
 '''
 import sys
 import ctypes
-try:
-    from ctypes import windll, wintypes
-except ImportError, ValueError:
-    # catch ImportError and ValueError due to issue16396
-    # http://bugs.python.org/issue16396
-    pass
-
+from ctypes import windll, wintypes
 from uuid import UUID
 
 class GUID(ctypes.Structure):   # [1]

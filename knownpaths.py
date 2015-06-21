@@ -1,10 +1,17 @@
 '''Python wrapper around the SHGetKnownFolderPath Windows Shell function
 knownpaths.py, from https://gist.github.com/mkropat/7550097
 '''
-import ctypes, sys
-from ctypes import windll, wintypes
-from uuid import UUID
+import sys
+import ctypes
+try:
 
+    from ctypes import windll, wintypes
+except ImportError, ValueError:
+    # catch ImportError and ValueError due to issue16396
+    # http://bugs.python.org/issue16396
+    pass
+
+from uuid import UUID
 class GUID(ctypes.Structure):   # [1]
     _fields_ = [
         ("Data1", wintypes.DWORD),

@@ -138,8 +138,8 @@ def check_setup(installed_db, setup_ini):
 def available(dummy):
     '''Show packages available on the mirror.
     
-    Display packages available on the mirror, with installed packages marked `*`.
-    Specify an alternate mirror with `--mirror=...`
+    Display packages available on the mirror, with installed packages marked ``*``.
+    Specify an alternate mirror with ``--mirror=...``
     
     Parameters
     ----------
@@ -149,7 +149,7 @@ def available(dummy):
     Returns
     -------
     list
-    list of package names (without install mark).
+        Package names (without install mark).
     '''
     # All packages mentioned in setup.ini for the specified distribution
     a_list = dists[distname].keys()

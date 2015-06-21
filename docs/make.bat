@@ -19,6 +19,7 @@ if "%1" == "help" (
 	:help
 	echo.Please use `make ^<target^>` where ^<target^> is one of
 	echo.  html       to make standalone HTML files
+	echo.  livehtml   to make standalone HTML and auto-rebuild them when changed
 	echo.  dirhtml    to make HTML files named index.html in directories
 	echo.  singlehtml to make a single large HTML file
 	echo.  pickle     to make pickle files
@@ -77,6 +78,22 @@ if "%1" == "html" (
 	if errorlevel 1 exit /b 1
 	echo.
 	echo.Build finished. The HTML pages are in %BUILDDIR%/html.
+	goto end
+)
+
+if "%1" == "livehtml" (
+    echo.
+    echo. Visit the webpage served at http://localhost:8000. Each time a change 
+    echo. to the documentation source is detected, the HTML is rebuilt and the 
+    echo. browser automatically reloaded.
+    echo.
+    start "" http://localhost:8000
+    echo. Press [Ctrl-C] to stop
+    echo.
+    sphinx-autobuild -b html %ALLSPHINXOPTS% %BUILDDIR%/html -w ..
+	if errorlevel 1 exit /b 1
+	echo.
+rem 	echo.Build finished. The HTML pages are in %BUILDDIR%/html.
 	goto end
 )
 

@@ -136,12 +136,20 @@ def check_setup(installed_db, setup_ini):
 #@+node:maphew.20100302221232.1487: ** Commands
 #@+node:maphew.20100223163802.3719: *3* available
 def available(dummy):
-    ''' Show packages available on the mirror (specify an alternate with
-        `--mirror=...`).
-
-        Installed packages marked with `*` in console report.
-
-        Returns: list of package names (without install mark).
+    '''Show packages available on the mirror.
+    
+    Display packages available on the mirror, with installed packages marked `*`.
+    Specify an alternate mirror with `--mirror=...`
+    
+    Parameters
+    ----------
+    dummy : str
+        Parameter is not used at present.
+    
+    Returns
+    -------
+    list
+    list of package names (without install mark).
     '''
     # All packages mentioned in setup.ini for the specified distribution
     a_list = dists[distname].keys()

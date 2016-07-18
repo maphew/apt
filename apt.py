@@ -1870,7 +1870,7 @@ if __name__ == '__main__':
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
     (options, params) = getopt.getopt (sys.argv[1:],
                       'cdhi:m:r:t:s:xv',
-                      ('cache=', 'download', 'help', 'mirror=', 'root='
+                      ('cache=', 'download', 'help', 'mirror=', 'root=',
                        'ini=', 't=', 'start-menu=', 'no-deps',
                        'debug', 'verbose'))
     # the first parameter is our action,

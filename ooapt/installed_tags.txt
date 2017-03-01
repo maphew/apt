@@ -1,7 +1,0 @@
-'ball'
-'status'
-'version'
-'file_name'
-'download_exists'
-'file_list'
-'extracted'

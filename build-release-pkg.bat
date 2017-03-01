@@ -24,7 +24,7 @@ goto :eof
     xcopy /s \dist\apt\* lib\apps\apt
 
     call :make_skeleton exe
-    move lib\apps\apt\apt.exe exe\apps\apt    
+    move lib\apps\apt\apt.exe exe\apps\apt
     echo @^"%%~dp0\..\apps\apt\apt.exe^" %%* > exe\bin\apt.bat
     
     popd
@@ -33,8 +33,13 @@ goto :eof
 :make_skeleton
     :: Create "as installed" folder structure
     mkdir "%1" & pushd "%1"
-    mkdir bin
-    mkdir apps\apt
+    xcopy /s/e/y %pkgdir%\..\apt-skeleton .
+    if "%1"=="lib" (
+        rmdir /s/q bin
+        rmdir /s/q etc
+        )
+    REM  mkdir bin
+    REM  mkdir apps\apt
     popd
     goto :eof
 

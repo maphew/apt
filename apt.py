@@ -6,17 +6,40 @@
 #@@tabwidth -4
 #@+<<docstring>>
 #@+node:maphew.20100307230644.3846: ** <<docstring>>
+'''Apt command line installer and package manager for Osgeo4W.
+
+Examples
+--------
+Typical daily use::
+    
+    apt update                   (fetch up-to-date setup.ini)
+    apt install gdal gdal-python (install packages "gdal" and "gdal-python", and dependencies)
+    apt new                      (show possible upgrades)
+    apt list                     (show installed packages)
+    apt available                (show installation candidates)
+    apt remove xxx yyy           (uninstall packages xxx and yyy)
+
+Notes
+-----
+Apt strives to match Osgeo4wSetup.exe's results as closely as possible, and uses
+the same configuration and install manifest files. A prime directive is that
+user's should never be put in a position where they feel the need to choose
+between the tools and not go back.
+
+That's the aspiration. There's no guarantee it's been achieved.
+
+At the moment apt can only install the 32bit Osgeo4W packages.
+
+References
+----------
+.. [1] Based on ``cyg-apt`` - "Cygwin installer to keep cygwin root up to date"
+    (c) 2002--2003  Jan Nieuwenhuizen <janneke@gnu.org>
+    License: GNU GPL
+
+    Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
+    beginning July 2008
 '''
-  cyg-apt - Cygwin installer to keep cygwin root up to date
-
-  (c) 2002--2003  Jan Nieuwenhuizen <janneke@gnu.org>
-
-  License: GNU GPL
-
-  Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
-  beginning July 2008
-'''
-apt_version = '0.3-2-dev'
+apt_version = '0.3-3-dev'
 #@-<<docstring>>
 #@+<<imports>>
 #@+node:maphew.20100307230644.3847: ** <<imports>>
@@ -35,6 +58,7 @@ import requests
 import subprocess
 import shlex
 import locale
+import knownpaths # for fetching Windows special folders
 from pkg_resources import parse_version # for version comparing
 from datetime import datetime, timedelta
 #from attrdict import AttrDict
@@ -112,12 +136,20 @@ def check_setup(installed_db, setup_ini):
 #@+node:maphew.20100302221232.1487: ** Commands
 #@+node:maphew.20100223163802.3719: *3* available
 def available(dummy):
-    ''' Show packages available on the mirror (specify an alternate with
-        `--mirror=...`).
-
-        Installed packages marked with `*` in console report.
-
-        Returns: list of package names (without install mark).
+    '''Show packages available on the mirror.
+    
+    Display packages available on the mirror, with installed packages marked ``*``.
+    Specify an alternate mirror with ``--mirror=...``
+    
+    Parameters
+    ----------
+    dummy : str
+        Parameter is not used at present.
+    
+    Returns
+    -------
+    list
+        Package names (without install mark).
     '''
     # All packages mentioned in setup.ini for the specified distribution
     a_list = dists[distname].keys()
@@ -1066,6 +1098,28 @@ def get_all_dependencies(packages, nested_deps, parent=None):
             nested_deps = get_all_dependencies(deps, nested_deps,p)
 
     return uniq(nested_deps)
+#@+node:maphew.20150501221304.43: *3* get_cache_dir
+def get_cache_dir():
+    '''Return path to use for saving downloads.
+    
+    Precedence order:
+        - command line option (-c, --cache)
+        - last used cache (read from setup.rc)
+        - Public Downloads folder
+        - Osgeo default (%osgeo4w_root%/var/...) 
+    '''
+    if 'cache_dir' in globals():
+        return globals()['cache_dir']
+    if 'last_cache' in globals():
+        return globals()['last_cache']
+    
+    pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
+    if not os.path.exists(pubdown):
+        if debug: print 'Public downloads "%s" not found, using ./var/cache instead'
+        cache_dir = '%s/var/cache/setup' % (root)
+    else:
+        cache_dir = os.path.join(pubdown, 'OSGeo4W-setup-cache')
+    return cache_dir
 #@+node:maphew.20141112222311.3: *3* get_zipfile
 def get_zipfile(packagename):
     '''Return full path name of locally downloaded package archive.'''
@@ -1403,22 +1457,13 @@ def parse_setuprc(fname):
         print '-' * 40
     return d
 #@+node:maphew.20141111130056.4: *3* get_info
-def get_info(packagename):
+def get_info(packagename):    
     '''Retrieve details for package X.
 
     Returns dict of information for the package from dict created by parse_setup_ini()
-        (category, version, archive name, etc.)
-
-    Incoming packagename dict duplicates the original key names and values. Here we further parse the compound record values into constituent parts.
-
-        {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
-
-    becomes:
-
-        {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
-        {'zip_size':'5430991'}
-        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
+    (category, version, archive name, etc.)
     '''
+    
     try:
         d = dists[distname][packagename]
     except KeyError:
@@ -1427,49 +1472,6 @@ def get_info(packagename):
     d['name'] = packagename
     #print d    # debug peek at incoming dict
 
-####    if 'install' in d.keys():
-####        # 'install' and 'source keys have compound values, atomize them
-####        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-####
-####        ## issue #29
-####        # if not debug:
-####            # del d['install']
-##    try:
-##        # 'install' and 'source keys have compound values, atomize them
-##        d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-##
-##        ## issue #29
-##        #if not debug:
-##            #del d['install']
-##
-##    except KeyError as e:
-##        d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-##        if debug:
-##          print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
-##    except Exception as e:
-##        print "unknown error parsing package", d
-##        print "*** %s" % e.message
-##        d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-##
-####    if 'source' in d.keys():
-####        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-####        if not debug:
-####            del d['source']
-##    try:
-##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-##        if not debug:
-##            del d['source']
-##    except KeyError as e:
-##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-##    except Exception as e:
-##        print "unknown error", d
-##        print "*** %s" % e.message
-##        d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-##
-##    #based on current mirror, might be different from when downloaded and/or installed
-##    d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
-##    d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
-##
     d = set_extended_info(d)
 
     d['filename'] = os.path.basename(d['zip_path'])
@@ -1487,10 +1489,21 @@ def get_info(packagename):
 
     return d
 
-# amr66: new function: set_extended_info(p)
+#@+node:maphew.20150418200003.11: *4* set_extended_info
 def set_extended_info(d):
     """set extended information into package-info-dictionary, as used by
-    get_info() or parse_setup_ini()"""
+    get_info() or parse_setup_ini()
+    
+    We take compound values in single keys and explode them into their own keys.
+
+        {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
+
+    becomes:
+
+        {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
+        {'zip_size':'5430991'}
+        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}    
+    """
     try:
         # 'install' and 'source keys have compound values, atomize them
         d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
@@ -1498,7 +1511,7 @@ def set_extended_info(d):
     except KeyError as e:
         d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
         if debug:
-          print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
+          print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (d['name'], e)
     except Exception as e:
         print "unknown error parsing package", d
         print "*** %s" % e.message
@@ -1519,9 +1532,7 @@ def set_extended_info(d):
     d['local_zip'] = os.path.normpath(os.path.join(downloads, d['zip_path']))
     d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
 
-
     return d
-
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
@@ -1597,38 +1608,6 @@ def parse_setup_ini(fname):
         d['name'] = p
 
         d = set_extended_info(d)
-##        print d    # debug peek at incoming dict
-##        try:
-##            # 'install' and 'source keys have compound values, atomize them
-##            d['zip_path'],d['zip_size'],d['md5'] = d['install'].split()
-##
-##            ## issue #29
-##            #if not debug:
-##                #del d['install']
-##        except KeyError as e:
-##            d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-##            if debug:
-##              print "\n*** Warning: '%s' is missing %s entry in setup.ini. This might cause problems.\n" % (p, e)
-##        except Exception as e:
-##            print "unknown error parsing package", d
-##            print "*** %s" % e.message
-##            d['zip_path'],d['zip_size'],d['md5'] = ('', '', '')
-##
-##
-##        try:
-##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = d['source'].split()
-##            if not debug:
-##                del d['source']
-##        except KeyError as e:
-##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-##        except Exception as e:
-##            print "unknown error", d
-##            print "*** %s" % e.message
-##            d['src_zip_path'],d['src_zip_size'],d['src_md5'] = ('', '', '')
-##
-##        #based on current mirror, might be different from when downloaded and/or installed
-##        d['local_zip'] = '%s/%s' % (downloads, d['zip_path'])
-##        d['mirror_path'] = '%s/%s' % (mirror, d['zip_path'])
 
         # insert the parsed fields back into parent dict
         dists[distname][p] = d
@@ -1890,8 +1869,8 @@ if __name__ == '__main__':
     #@+<<parse command line>>
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
     (options, params) = getopt.getopt (sys.argv[1:],
-                      'dhi:m:r:t:s:xv',
-                      ('download', 'help', 'mirror=', 'root='
+                      'cdhi:m:r:t:s:xv',
+                      ('cache=', 'download', 'help', 'mirror=', 'root=',
                        'ini=', 't=', 'start-menu=', 'no-deps',
                        'debug', 'verbose'))
     # the first parameter is our action,
@@ -1913,6 +1892,8 @@ if __name__ == '__main__':
 
         if 0:
             pass
+        elif o == '--cache' or o == '-c':
+                cache_dir = a
         elif o == '--download' or o == '-d':
                 download_p = 1
         elif o == '--help' or o == '-h':
@@ -1949,7 +1930,8 @@ if __name__ == '__main__':
     installed = 0
 
     config = root + '/etc/setup/'
-    setup_ini = config + '/setup.ini'
+    if not setup_ini:
+        setup_ini = config + '/setup.ini'
     setup_bak = config + '/setup.bak'
     installed_db = config + '/installed.db'
     installed_db_magic = 'INSTALLED.DB 2\n'
@@ -1988,10 +1970,11 @@ if __name__ == '__main__':
     mirror_dir = requests.utils.quote(mirror, '').lower()
         # optional quote '' param is to also substitute slashes etc.
 
-    if last_cache == None:
-        cache_dir = '%s/var/cache/setup' % (root)
-    else:
-        cache_dir = last_cache
+    # if last_cache == None:
+        # cache_dir = get_cache_dir()
+    # else:
+        # cache_dir = last_cache
+    cache_dir = get_cache_dir()
 
     downloads = '%s/%s' % (cache_dir, mirror_dir)
 

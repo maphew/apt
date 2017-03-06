@@ -1,3 +1,6 @@
 
-*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
+Upgrade named packages.
 
+        apt upgrade all
+        apt upgrade gdal-filegdb qgis-grass-plugin
+    

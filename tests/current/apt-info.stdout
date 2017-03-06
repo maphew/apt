@@ -1,11 +1,8 @@
 
-*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
-
-
 info - report name, version, category, etc. about the package(s)
-        
+
     B:\> apt info shell
-    
+
     name     : shell
     version  : 1.0.0-13
     sdesc    : "OSGeo4W Command Shell"
@@ -16,6 +13,11 @@ info - report name, version, category, etc. about the package(s)
     zip_size : 3763
     md5      : c38f03d2b7160f891fc36ec776ca4685
     local_zip: d:/temp/o4w-cache/setup/http%3.../shell-1.0.0-13.tar.bz2
-        
-    Note: "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
+    installed: True
+    install_v: 1.0.0-11
+
+    Notes:
+        - "local_zip" is best guess based on current mirror. (We don't record which mirror was in use at the time of package install.)
+        - "version" is from setup.ini, what is available on the mirror server
+        - "install_v" is the version currently installed
     

@@ -1,2 +1,3 @@
-Fetching http://download.osgeo.org/osgeo4w//x86//setup.ini.bz2
-...34%  ...68%  ...100%  
+Fetching http://download.osgeo.org/osgeo4w//x86/setup.ini
+Skipping download - url modified time isn't newer than local file
+C:\Users\muellea\AppData\Local\Temp/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86/setup.ini

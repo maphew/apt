@@ -1638,13 +1638,19 @@ def parse_setup_ini(fname):
     for p in packages:
         # print p
         # print dists[distname][p]['install']
-        d = dists[distname][p]
-        d['name'] = p
 
-        d = set_extended_info(d)
+        # AMR66: error when using distname 'test'
+        # is the dict bad organized with distname as a first key?
+        # what about dists[p][distname]
+        # d = dists[distname][p]
+        d = dists[distname][p] if dists[distname].has_key(p) else None
+        if d:
+            d['name'] = p
 
-        # insert the parsed fields back into parent dict
-        dists[distname][p] = d
+            d = set_extended_info(d)
+
+            # insert the parsed fields back into parent dict
+            dists[distname][p] = d
 
     # # print dists[distname]['gdal'].keys()
     return dists
@@ -1903,8 +1909,9 @@ if __name__ == '__main__':
     #@-<<globals>>
     #@+<<parse command line>>
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
+    # amr66: edited parameter list, added -a/--arch, corrected -c --cache 
     (options, params) = getopt.getopt (sys.argv[1:],
-                      'cdhi:m:r:t:s:xva:',
+                      'c:dhi:m:r:t:s:xva:',
                       ('cache=', 'download', 'help', 'mirror=', 'root=',
                        'ini=', 't=', 'start-menu=', 'no-deps',
                        'debug', 'verbose', 'arch='))
@@ -2034,6 +2041,7 @@ if __name__ == '__main__':
 
     elif command == 'update':
         update()
+        # amr66: skip that too?
         sys.exit(0)
 
     elif command == 'help':

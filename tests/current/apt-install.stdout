@@ -1,8 +1,5 @@
 
-*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
-
-
 Download and install packages, including dependencies
-    
+
         C:\> apt install shell gdal
     

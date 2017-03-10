@@ -1,4 +1,4 @@
--={ 2015-01.Dev }=-
+-={ 0.3-3-dev }=-
 
 apt [OPTION]... COMMAND [PACKAGE]...
 
@@ -7,12 +7,12 @@ Commands:
     ball - print full path name of package archive
     download - download package
     find - package containing file (from installed packages)
+    hashcheck - check md5 sum of local package vs mirror
     help - show help for COMMAND
     info - report name, version, category etc. for specified packages
     install - download and install packages, including dependencies
     list-installed - report installed packages
     listfiles - installed with package X
-    md5 - check md5 sum
     missing - print missing dependencies for X
     new - list available upgrades to currently installed packages
     remove - uninstall packages
@@ -26,9 +26,9 @@ Commands:
 
 Options:
     -d,--download          download only
-    -i,--ini=FILE          use setup.ini [B:/o4w//etc/setup//setup.ini]
+    -i,--ini=FILE          use setup.ini [C:/tmp/OSGEO4W64/etc/setup//setup.ini]
     -m,--mirror=URL        use mirror [http://download.osgeo.org/osgeo4w/]
-    -r,--root=DIR          set osgeo4w root [B:/o4w/]
+    -r,--root=DIR          set osgeo4w root [C:/tmp/OSGEO4W64]
     -t,--t=NAME            set dist name (*curr*, test, prev)
     -x,--no-deps           ignore dependencies
     -s,--start-menu=NAME   set the start menu name (OSGeo4W)

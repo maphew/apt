@@ -1,11 +1,13 @@
 
-*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
-
-
 Print full local path name of package archive
-    
+
     C:\> apt ball shell
-    
+
     shell = d:/temp/o4w-cache/setup/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f/x86
 /release/shell/shell-1.0.0-13.tar.bz2
+
+    FIXME: This should either return a list of archive filenames,
+    or there should be a get_ball(p) which returns 1 filename,
+    or we should rip out all this repetitive code spread across multiple functions,
+    for the purpose of allowing multiple package input. We need a handler for this instead.
     

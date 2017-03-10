@@ -1,11 +1,8 @@
 
-*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
+List files installed with package X. Multiple packages can be specified.
 
-
-List files installed with package X. Multiple packages can be specified. 
-    
         C:\> apt listfiles shell gdal
-        
+
         ----- shell -----
         OSGeo4W.bat
         OSGeo4W.ico

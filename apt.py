@@ -11,7 +11,7 @@
 Examples
 --------
 Typical daily use::
-    
+
     apt update                   (fetch up-to-date setup.ini)
     apt install gdal gdal-python (install packages "gdal" and "gdal-python", and dependencies)
     apt new                      (show possible upgrades)
@@ -128,24 +128,44 @@ def check_env(o4w=''):
 #@+node:maphew.20121111221942.1497: ** check_setup
 def check_setup(installed_db, setup_ini):
     '''Look to see if the installed packages db and setup.ini are available'''
-    for i in (installed_db, setup_ini):
-        if not os.path.isfile(i):
-            sys.stderr.write('error: %s no such file\n' % i)
-            sys.stderr.write('error: set OSGEO4W_ROOT and run "apt setup"\n')
-            sys.exit(2)
+##    for i in (installed_db, setup_ini):
+##        if not os.path.isfile(i):
+##            sys.stderr.write('error: %s no such file\n' % i)
+##            sys.stderr.write('error: set OSGEO4W_ROOT and run "apt setup"\n')
+##            sys.exit(2)
+    # AMR66: above changed, because not compatible with osgeo-setup
+    failed = ""
+    if not os.path.isfile(installed_db):
+        failed = installed_db
+
+    # search for setup.ini:
+    if not os.path.isfile(setup_ini):
+        filename =  '%s/%s'%(bits, 'setup.ini')
+        archive = os.path.join(downloads, filename)
+        # copy it, like update() does
+        if os.path.isfile(archive):
+            shutil.copy(archive, setup_ini)
+        else:
+            failed = archive
+
+    if failed:
+        sys.stderr.write('error: %s no such file\n' % failed)
+        sys.stderr.write('error: set OSGEO4W_ROOT and run "apt setup"\n')
+        sys.exit(2)
+
 #@+node:maphew.20100302221232.1487: ** Commands
 #@+node:maphew.20100223163802.3719: *3* available
 def available(dummy):
     '''Show packages available on the mirror.
-    
+
     Display packages available on the mirror, with installed packages marked ``*``.
     Specify an alternate mirror with ``--mirror=...``
-    
+
     Parameters
     ----------
     dummy : str
         Parameter is not used at present.
-    
+
     Returns
     -------
     list
@@ -725,32 +745,38 @@ def update():
     if not os.path.exists(downloads):
         os.makedirs(downloads)
 
-    bits = 'x86'
-    #bits = 'x86_64'
-    source = '%s/%s/%s' % (mirror, bits, '/setup.ini.bz2')
-    archive = os.path.join(downloads, 'setup.ini.bz2')
+    # AMR66: bits now is an option
+    # bits = 'x86'
+    # bits = 'x86_64'
 
-   # backup cached ini archive
+    # AMR66: changed to uncompressed ini
+    filename =  '%s/%s'%(bits, 'setup.ini')
+    source = '%s/%s' % (mirror, filename)
+    archive = os.path.join(downloads, filename)
+
+    # backup cached ini archive
     if os.path.exists(archive):
         shutil.copy(archive, archive + '.bak')
 
     print('Fetching %s' % source)
     dodo_download(source, archive)
-    print('')
-
-    try:
-        uncompressedData = bz2.BZ2File(archive).read()
-    except:
-       raise IOError('\n*** Error decompressing: %s' % archive)
-
+##    print('')
+##
+##    try:
+##        uncompressedData = bz2.BZ2File(archive).read()
+##    except:
+##       raise IOError('\n*** Error decompressing: %s' % archive)
+##
     # backup existing setup config
     if os.path.exists(setup_ini):
         shutil.copy(setup_ini, setup_bak)
 
-    # save uncompressed ini to setup dir
-    ini = open(setup_ini, 'w')
-    ini.write(uncompressedData)
-    ini.close
+    shutil.copy(archive, setup_ini)
+##
+##    # save uncompressed ini to setup dir
+##    ini = open(setup_ini, 'w')
+##    ini.write(uncompressedData)
+##    ini.close
 
     save_config('last-mirror', mirror)
 #@+node:maphew.20100223163802.3734: *3* upgrade
@@ -1101,24 +1127,32 @@ def get_all_dependencies(packages, nested_deps, parent=None):
 #@+node:maphew.20150501221304.43: *3* get_cache_dir
 def get_cache_dir():
     '''Return path to use for saving downloads.
-    
+
     Precedence order:
         - command line option (-c, --cache)
         - last used cache (read from setup.rc)
         - Public Downloads folder
-        - Osgeo default (%osgeo4w_root%/var/...) 
+        - Osgeo default (%osgeo4w_root%/var/...)
     '''
-    if 'cache_dir' in globals():
+    if 'cache_dir' in globals() and globals()['cache_dir'] is not None:
         return globals()['cache_dir']
-    if 'last_cache' in globals():
+    if 'last_cache' in globals() and globals()['last_cache'] is not None:
         return globals()['last_cache']
-    
-    pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
+    # AMR66: changed, because an exception should be cought
+    try:
+        pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
+    except knownpaths.PathNotFoundException:
+        # AMR66: try to use default tmp from environment,
+        #        this is pretty close to osgeo4w_setup?
+        pubdown = os.environ["TEMP"]
+
     if not os.path.exists(pubdown):
         if debug: print 'Public downloads "%s" not found, using ./var/cache instead'
         cache_dir = '%s/var/cache/setup' % (root)
     else:
-        cache_dir = os.path.join(pubdown, 'OSGeo4W-setup-cache')
+        # cache_dir = os.path.join(pubdown, 'OSGeo4W-setup-cache')
+        # AMR66: changed, pubdown on its own is ok
+        cache_dir = pubdown
     return cache_dir
 #@+node:maphew.20141112222311.3: *3* get_zipfile
 def get_zipfile(packagename):
@@ -1457,13 +1491,13 @@ def parse_setuprc(fname):
         print '-' * 40
     return d
 #@+node:maphew.20141111130056.4: *3* get_info
-def get_info(packagename):    
+def get_info(packagename):
     '''Retrieve details for package X.
 
     Returns dict of information for the package from dict created by parse_setup_ini()
     (category, version, archive name, etc.)
     '''
-    
+
     try:
         d = dists[distname][packagename]
     except KeyError:
@@ -1493,7 +1527,7 @@ def get_info(packagename):
 def set_extended_info(d):
     """set extended information into package-info-dictionary, as used by
     get_info() or parse_setup_ini()
-    
+
     We take compound values in single keys and explode them into their own keys.
 
         {'install': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2 5430991 3b60f036f0d29c401d0927a9ae000f0c'}
@@ -1502,7 +1536,7 @@ def set_extended_info(d):
 
         {'zip_path': 'x86/release/gdal/gdal-1.11.1-4.tar.bz2'}
         {'zip_size':'5430991'}
-        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}    
+        {'md5':'3b60f036f0d29c401d0927a9ae000f0c'}
     """
     try:
         # 'install' and 'source keys have compound values, atomize them
@@ -1604,13 +1638,19 @@ def parse_setup_ini(fname):
     for p in packages:
         # print p
         # print dists[distname][p]['install']
-        d = dists[distname][p]
-        d['name'] = p
 
-        d = set_extended_info(d)
+        # AMR66: error when using distname 'test'
+        # is the dict bad organized with distname as a first key?
+        # what about dists[p][distname]
+        # d = dists[distname][p]
+        d = dists[distname][p] if dists[distname].has_key(p) else None
+        if d:
+            d['name'] = p
 
-        # insert the parsed fields back into parent dict
-        dists[distname][p] = d
+            d = set_extended_info(d)
+
+            # insert the parsed fields back into parent dict
+            dists[distname][p] = d
 
     # # print dists[distname]['gdal'].keys()
     return dists
@@ -1863,16 +1903,18 @@ if __name__ == '__main__':
     distname = 'curr'
     dists = 0
     distnames = ('curr', 'test', 'prev')
+    bits = "x86"
     ## amr66: moved this up, make --root/-r work
     root = ''
     #@-<<globals>>
     #@+<<parse command line>>
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
+    # amr66: edited parameter list, added -a/--arch, corrected -c --cache 
     (options, params) = getopt.getopt (sys.argv[1:],
-                      'cdhi:m:r:t:s:xv',
+                      'c:dhi:m:r:t:s:xva:',
                       ('cache=', 'download', 'help', 'mirror=', 'root=',
                        'ini=', 't=', 'start-menu=', 'no-deps',
-                       'debug', 'verbose'))
+                       'debug', 'verbose', 'arch='))
     # the first parameter is our action,
     # and change `list-installed` to `list_installed`
     if len(params) > 0:
@@ -1892,6 +1934,10 @@ if __name__ == '__main__':
 
         if 0:
             pass
+        # AMR66: new option -a --arch setting "architecture bits"
+        # see update: changed to uncompressed setup.ini
+        elif o == '--arch' or o == '-a':
+            bits = a if a in ['x86', 'x86_64'] else 'x86'
         elif o == '--cache' or o == '-c':
                 cache_dir = a
         elif o == '--download' or o == '-d':
@@ -1990,10 +2036,12 @@ if __name__ == '__main__':
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>
     if command == 'setup':
         setup(OSGEO4W_ROOT)
-        sys.exit(0)
+        # AMR66: removed - setup.rc will not be written if we exit here
+        # sys.exit(0)
 
     elif command == 'update':
         update()
+        # amr66: skip that too?
         sys.exit(0)
 
     elif command == 'help':
@@ -2001,6 +2049,8 @@ if __name__ == '__main__':
 
     else:
         # print 'check_setup reached'
+        # AMR66: osgeo_setup.exe does not hold a copy under setup_ini
+        # we want compatibility, so this must be changed:
         check_setup(installed_db, setup_ini)
 
         #fixme: these setup more globals like dists-which-is-really-installed-list

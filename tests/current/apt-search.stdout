@@ -1,7 +1,5 @@
 
-*** Warning: 'grass71-dev' is missing 'install' entry in setup.ini. This might cause problems.
+ Search available packages list and descriptions for X
 
-
-Search available packages list for X
+        Returns list of package names
     
-    (doesn't search descriptions yet)

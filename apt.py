@@ -1124,6 +1124,36 @@ def get_all_dependencies(packages, nested_deps, parent=None):
             nested_deps = get_all_dependencies(deps, nested_deps,p)
 
     return uniq(nested_deps)
+	
+def get_arch(bits):
+	''' DRAFT, unused. Would rather do this because X86_64 is awkward 
+	to type on command line compared to '64' or '64bit'. Need to use 
+	setuprc first though.
+	
+	What happens if bitness is not declared?
+	Or set to 64 on one run and then 32 the next?
+	What does mainline setup do?
+	...I don't know enough.
+	'''
+	
+	'''Determine CPU architecture to use (X86, X86_64) from `--bits` parameter
+	
+		Precedence (top-most wins):
+			- command line parameter
+			- last setup.rc value
+	'''
+	if bits:
+		if '32' in bits: arch = 'x86'
+		if '64' in bits: arch = 'x86_64'
+	else:
+		try:
+			arch = setuprc['architecture']
+		except KeyError:
+			arch = 'x86'
+	if not ['x86', 'x86_64'] in arch:
+		return None
+	return arch
+	
 #@+node:maphew.20150501221304.43: *3* get_cache_dir
 def get_cache_dir():
     '''Return path to use for saving downloads.

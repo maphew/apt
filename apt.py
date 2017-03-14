@@ -1599,13 +1599,12 @@ def set_extended_info(d):
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 
 def get_setup_arch(setup_ini):
-    '''Determine CPU architecture used in setup.ini. 
-    TODO: Verify it matches the 32/64bit setting (--arch or --bits flag)'''
+    '''Return CPU architecture used in setup.ini'''
     arch = ''
     with open(setup_ini) as f:
         for line in f:
             if "arch:" in line:
-                 arch = line.split(':')[1]
+                 arch = string.strip(line.split(':')[1])
                  break
     f.close()
     return arch
@@ -2099,6 +2098,9 @@ if __name__ == '__main__':
         check_setup(installed_db, setup_ini)
         
         arch = get_setup_arch(setup_ini)
+        if not bits == arch:
+            sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Command line: '%s'\n" % (arch, bits))
+            sys.exit(2)
         
         #fixme: these setup more globals like dists-which-is-really-installed-list
         #that are hard to track later. Should change to "thing = get_thing()"

@@ -82,7 +82,7 @@ Commands:
     help - show help for COMMAND
     info - report name, version, category etc. for specified packages
     install - download and install packages, including dependencies
-    list-installed - report installed packages
+    list - report installed packages
     listfiles - installed with package X
     missing - print missing dependencies for X
     new - list available upgrades to currently installed packages
@@ -1970,6 +1970,8 @@ if __name__ == '__main__':
 
     #command aliases
     uninstall = remove
+    if command == 'list': # don't collide with list() function
+        command = 'list_installed' 
 
     for i in options:
         o = i[0]

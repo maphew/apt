@@ -2009,6 +2009,7 @@ if __name__ == '__main__':
             verbose = True
     #@-<<parse command line>>
     
+    ## BUG? I don't see `o4w=` being used here, but is optional param in function. TODO.
     ## amr66: root is not set, take default env
     OSGEO4W_ROOT = check_env(root) # look for root in environment
     if not root:

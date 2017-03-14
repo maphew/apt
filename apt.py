@@ -106,21 +106,21 @@ Options:
        --debug             display debugging statements (very noisy)
 ''' % {'setup_ini':setup_ini,'mirror':mirror,'root':root}) #As they were just printing as "%(setup_ini)s" etc...
 #@+node:maphew.20121113004545.1577: ** check_env
-## amr66: added parameter o4w, for command line option
 def check_env(o4w=''):
     '''Verify we're running in an Osgeo4W-ready shell'''
-    ## amr66: change root from command line option
+    #From command line:
     if o4w:
         OSGEO4W_ROOT = o4w
         os.environ['OSGEO4W_ROOT'] = o4w
         os.environ['OSGEO4W_ROOT_MSYS'] = OSGEO4W_ROOT # textreplace.exe needs this (post_install)
         OSGEO4W_ROOT = OSGEO4W_ROOT.replace('\\', '/')
+    #From environment:
     elif 'OSGEO4W_ROOT' in os.environ.keys():
         OSGEO4W_ROOT = os.environ['OSGEO4W_ROOT']
-        os.putenv('OSGEO4W_ROOT_MSYS', OSGEO4W_ROOT) # textreplace.exe needs this (post_install)
-        OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/') # convert 2x backslash to foreslash
+        os.putenv('OSGEO4W_ROOT_MSYS', OSGEO4W_ROOT)
+        OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/')
     else:
-       sys.stderr.write('error: Please set OSGEO4W_ROOT\n')
+       sys.stderr.write('error: Please set OSGEO4W_ROOT or use --root=DIR\n')
        sys.exit(2)
 
     return OSGEO4W_ROOT

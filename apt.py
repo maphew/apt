@@ -109,17 +109,16 @@ Options:
 ## amr66: added parameter o4w, for command line option
 def check_env(o4w=''):
     '''Verify we're running in an Osgeo4W-ready shell'''
-    #OSGEO4W_ROOT = ''
-    if 'OSGEO4W_ROOT' in os.environ.keys():
-        OSGEO4W_ROOT = os.environ['OSGEO4W_ROOT']
-        os.putenv('OSGEO4W_ROOT_MSYS', OSGEO4W_ROOT) # textreplace.exe needs this (post_install)
-        OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/') # convert 2x backslash to foreslash
     ## amr66: change root from command line option
-    elif o4w:
+    if o4w:
         OSGEO4W_ROOT = o4w
         os.environ['OSGEO4W_ROOT'] = o4w
         os.environ['OSGEO4W_ROOT_MSYS'] = OSGEO4W_ROOT # textreplace.exe needs this (post_install)
         OSGEO4W_ROOT = OSGEO4W_ROOT.replace('\\', '/')
+    elif 'OSGEO4W_ROOT' in os.environ.keys():
+        OSGEO4W_ROOT = os.environ['OSGEO4W_ROOT']
+        os.putenv('OSGEO4W_ROOT_MSYS', OSGEO4W_ROOT) # textreplace.exe needs this (post_install)
+        OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/') # convert 2x backslash to foreslash
     else:
        sys.stderr.write('error: Please set OSGEO4W_ROOT\n')
        sys.exit(2)
@@ -2009,9 +2008,9 @@ if __name__ == '__main__':
         elif o == '--verbose' or o == '-v':
             verbose = True
     #@-<<parse command line>>
+    
     ## amr66: root is not set, take default env
     OSGEO4W_ROOT = check_env(root) # look for root in environment
-
     if not root:
         root = OSGEO4W_ROOT
 

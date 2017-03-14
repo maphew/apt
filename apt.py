@@ -1599,16 +1599,15 @@ def set_extended_info(d):
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 
 def get_setup_arch(setup_ini):
-    '''DRAFT
-    Determine CPU architecture used in setup.ini. Verify it matches the 32/64bit setting'''
-    arch = None
+    '''Determine CPU architecture used in setup.ini. 
+    TODO: Verify it matches the 32/64bit setting (--arch or --bits flag)'''
+    arch = ''
     with open(setup_ini) as f:
         for line in f:
             if "arch:" in line:
                  arch = line.split(':')[1]
-                 if debug:
-                    print 'raw:', line
-                    print 'arch:', arch
+                 break
+    f.close()
     return arch
 
 def parse_setup_ini(fname):
@@ -2072,7 +2071,6 @@ if __name__ == '__main__':
 
     if debug:
         print '\n---- DEBUG: %s ----' % sys._getframe().f_code.co_name
-        print 'architecture:', arch
         print 'last-mirror:', last_mirror
         print 'last-cache:', last_cache
         print "Using mirror:\t", mirror
@@ -2099,7 +2097,7 @@ if __name__ == '__main__':
         # AMR66: osgeo_setup.exe does not hold a copy under setup_ini
         # we want compatibility, so this must be changed:
         check_setup(installed_db, setup_ini)
-
+        
         arch = get_setup_arch(setup_ini)
         
         #fixme: these setup more globals like dists-which-is-really-installed-list

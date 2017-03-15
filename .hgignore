@@ -3,3 +3,4 @@ syntax: glob
 *.pyc
 *.egg-info/
 docs/build/*
+apt-64.py

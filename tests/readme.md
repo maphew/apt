@@ -15,6 +15,6 @@ Tests for apt.py
 `test list-installed` invokes `apt list-installed`
 etc.
 
-When complete WinMerge is called to compare the folders.
+When complete, WinMerge is called to compare the folders.
 
 

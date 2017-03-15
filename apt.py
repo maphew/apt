@@ -82,7 +82,7 @@ Commands:
     help - show help for COMMAND
     info - report name, version, category etc. for specified packages
     install - download and install packages, including dependencies
-    list-installed - report installed packages
+    list - report installed packages
     listfiles - installed with package X
     missing - print missing dependencies for X
     new - list available upgrades to currently installed packages
@@ -106,22 +106,21 @@ Options:
        --debug             display debugging statements (very noisy)
 ''' % {'setup_ini':setup_ini,'mirror':mirror,'root':root}) #As they were just printing as "%(setup_ini)s" etc...
 #@+node:maphew.20121113004545.1577: ** check_env
-## amr66: added parameter o4w, for command line option
 def check_env(o4w=''):
     '''Verify we're running in an Osgeo4W-ready shell'''
-    #OSGEO4W_ROOT = ''
-    if 'OSGEO4W_ROOT' in os.environ.keys():
-        OSGEO4W_ROOT = os.environ['OSGEO4W_ROOT']
-        os.putenv('OSGEO4W_ROOT_MSYS', OSGEO4W_ROOT) # textreplace.exe needs this (post_install)
-        OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/') # convert 2x backslash to foreslash
-    ## amr66: change root from command line option
-    elif o4w:
+    #From command line:
+    if o4w:
         OSGEO4W_ROOT = o4w
         os.environ['OSGEO4W_ROOT'] = o4w
         os.environ['OSGEO4W_ROOT_MSYS'] = OSGEO4W_ROOT # textreplace.exe needs this (post_install)
         OSGEO4W_ROOT = OSGEO4W_ROOT.replace('\\', '/')
+    #From environment:
+    elif 'OSGEO4W_ROOT' in os.environ.keys():
+        OSGEO4W_ROOT = os.environ['OSGEO4W_ROOT']
+        os.putenv('OSGEO4W_ROOT_MSYS', OSGEO4W_ROOT)
+        OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/')
     else:
-       sys.stderr.write('error: Please set OSGEO4W_ROOT\n')
+       sys.stderr.write('error: Please set OSGEO4W_ROOT or use --root=DIR\n')
        sys.exit(2)
 
     return OSGEO4W_ROOT
@@ -1124,6 +1123,36 @@ def get_all_dependencies(packages, nested_deps, parent=None):
             nested_deps = get_all_dependencies(deps, nested_deps,p)
 
     return uniq(nested_deps)
+	
+def get_arch(bits):
+	''' DRAFT, unused. Would rather do this because X86_64 is awkward 
+	to type on command line compared to '64' or '64bit'. Need to use 
+	setuprc first though.
+	
+	What happens if bitness is not declared?
+	Or set to 64 on one run and then 32 the next?
+	What does mainline setup do?
+	...I don't know enough.
+	'''
+	
+	'''Determine CPU architecture to use (X86, X86_64) from `--bits` parameter
+	
+		Precedence (top-most wins):
+			- command line parameter
+			- last setup.rc value
+	'''
+	if bits:
+		if '32' in bits: arch = 'x86'
+		if '64' in bits: arch = 'x86_64'
+	else:
+		try:
+			arch = setuprc['architecture']
+		except KeyError:
+			arch = 'x86'
+	if not ['x86', 'x86_64'] in arch:
+		return None
+	return arch
+	
 #@+node:maphew.20150501221304.43: *3* get_cache_dir
 def get_cache_dir():
     '''Return path to use for saving downloads.
@@ -1568,6 +1597,18 @@ def set_extended_info(d):
 
     return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
+
+def get_setup_arch(setup_ini):
+    '''Return CPU architecture used in setup.ini'''
+    arch = ''
+    with open(setup_ini) as f:
+        for line in f:
+            if "arch:" in line:
+                 arch = string.strip(line.split(':')[1])
+                 break
+    f.close()
+    return arch
+
 def parse_setup_ini(fname):
     '''Parse setup.ini into package name, description, version, dependencies, etc.
 
@@ -1927,6 +1968,8 @@ if __name__ == '__main__':
 
     #command aliases
     uninstall = remove
+    if command == 'list': # don't collide with list() function
+        command = 'list_installed' 
 
     for i in options:
         o = i[0]
@@ -1965,9 +2008,10 @@ if __name__ == '__main__':
         elif o == '--verbose' or o == '-v':
             verbose = True
     #@-<<parse command line>>
+    
+    ## BUG? I don't see `o4w=` being used here, but is optional param in function. TODO.
     ## amr66: root is not set, take default env
     OSGEO4W_ROOT = check_env(root) # look for root in environment
-
     if not root:
         root = OSGEO4W_ROOT
 
@@ -2052,7 +2096,12 @@ if __name__ == '__main__':
         # AMR66: osgeo_setup.exe does not hold a copy under setup_ini
         # we want compatibility, so this must be changed:
         check_setup(installed_db, setup_ini)
-
+        
+        arch = get_setup_arch(setup_ini)
+        if not bits == arch:
+            sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Command line: '%s'\n" % (arch, bits))
+            sys.exit(2)
+        
         #fixme: these setup more globals like dists-which-is-really-installed-list
         #that are hard to track later. Should change to "thing = get_thing()"
         dists = parse_setup_ini(setup_ini)

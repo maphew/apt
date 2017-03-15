@@ -1124,34 +1124,35 @@ def get_all_dependencies(packages, nested_deps, parent=None):
 
     return uniq(nested_deps)
 	
-def get_arch(bits):
-	''' DRAFT, unused. Would rather do this because X86_64 is awkward 
-	to type on command line compared to '64' or '64bit'. Need to use 
-	setuprc first though.
-	
-	What happens if bitness is not declared?
-	Or set to 64 on one run and then 32 the next?
-	What does mainline setup do?
-	...I don't know enough.
-	'''
-	
-	'''Determine CPU architecture to use (X86, X86_64) from `--bits` parameter
-	
-		Precedence (top-most wins):
-			- command line parameter
-			- last setup.rc value
-	'''
-	if bits:
-		if '32' in bits: arch = 'x86'
-		if '64' in bits: arch = 'x86_64'
-	else:
-		try:
-			arch = setuprc['architecture']
-		except KeyError:
-			arch = 'x86'
-	if not ['x86', 'x86_64'] in arch:
-		return None
-	return arch
+def get_arch(bits=""):
+    ''' DRAFT, unused. Would rather do this because X86_64 is awkward 
+    to type on command line compared to '64' or '64bit'. Need to use 
+    setuprc first though.
+    
+    What happens if bitness is not declared?
+    Or set to 64 on one run and then 32 the next?
+    What does mainline setup do?
+    ...I don't know enough.
+    '''
+    
+    '''Determine CPU architecture to use (X86, X86_64) from `--bits` parameter
+    
+        Precedence (top-most wins):
+            - command line parameter
+            - last setup.rc value
+    '''
+    # AMR66: error encountered - changed, but: we don't need this?
+    if bits:
+        if '32' in bits: arch = 'x86'
+        if '64' in bits: arch = 'x86_64'
+    else:
+        try:
+            arch = setuprc['architecture']
+        except KeyError:
+            arch = 'x86'
+    if not arch in ['x86', 'x86_64']:
+        return None
+    return arch
 	
 #@+node:maphew.20150501221304.43: *3* get_cache_dir
 def get_cache_dir():
@@ -1944,7 +1945,8 @@ if __name__ == '__main__':
     distname = 'curr'
     dists = 0
     distnames = ('curr', 'test', 'prev')
-    bits = "x86"
+    # bits = "x86"
+    bits = ""
     ## amr66: moved this up, make --root/-r work
     root = ''
     #@-<<globals>>
@@ -1955,7 +1957,7 @@ if __name__ == '__main__':
                       'c:dhi:m:r:t:s:xva:',
                       ('cache=', 'download', 'help', 'mirror=', 'root=',
                        'ini=', 't=', 'start-menu=', 'no-deps',
-                       'debug', 'verbose', 'arch='))
+                       'debug', 'verbose', 'arch=', 'bits='))
     # the first parameter is our action,
     # and change `list-installed` to `list_installed`
     if len(params) > 0:
@@ -1979,8 +1981,15 @@ if __name__ == '__main__':
             pass
         # AMR66: new option -a --arch setting "architecture bits"
         # see update: changed to uncompressed setup.ini
-        elif o == '--arch' or o == '-a':
-            bits = a if a in ['x86', 'x86_64'] else 'x86'
+        elif o == '--arch' or o == '-a' or o == '--bits':
+        # AMR66: integrate --bits
+        # changed to lower for X86 or x86 and so on
+            a = a.lower()
+            # if user option is wrong we set empty
+            if o == '--bits':
+                bits = 'x86' if a == '32' else 'x86_64' if a == '64' else ''
+            else:
+                bits = a if a  == 'x86' else 'x86_64' if a == 'x86_64' else ''
         elif o == '--cache' or o == '-c':
                 cache_dir = a
         elif o == '--download' or o == '-d':
@@ -2098,9 +2107,16 @@ if __name__ == '__main__':
         check_setup(installed_db, setup_ini)
         
         arch = get_setup_arch(setup_ini)
+        # AMR66: changed:
+        # set bits to arch in setup_ini, if not set
+        if not bits:
+            bits = arch
+        # is set but missmatched with setup_ini
         if not bits == arch:
             sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Command line: '%s'\n" % (arch, bits))
             sys.exit(2)
+        # AMR66: could be printed with debug only
+        print "Setup: we are in a %s installation"%arch
         
         #fixme: these setup more globals like dists-which-is-really-installed-list
         #that are hard to track later. Should change to "thing = get_thing()"

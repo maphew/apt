@@ -2088,6 +2088,8 @@ if __name__ == '__main__':
     #@+<<run the commands>>
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>
     if command == 'setup':
+        if not bits:
+            bits = 'x86'
         setup(OSGEO4W_ROOT)
         # AMR66: removed - setup.rc will not be written if we exit here
         # sys.exit(0)

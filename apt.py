@@ -2088,16 +2088,27 @@ if __name__ == '__main__':
     #@+<<run the commands>>
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>
     if command == 'setup':
+        # AMR66: setup needs the "bits" flag
         if not bits:
             bits = 'x86'
+        # AMR66: what if setup is called again, but with wrong "bits" flag
+        if os.path.exists(setup_ini):
+            print "Warning! Setup was already done for %s"%OSGEO4W_ROOT
+            arch = get_setup_arch(setup_ini)
+            if arch != bits:
+                sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Command line: '%s'\n" % 
+                                 (arch, bits))
+                sys.exit(2)
+                
         setup(OSGEO4W_ROOT)
+        
         # AMR66: removed - setup.rc will not be written if we exit here
         # sys.exit(0)
-
-    elif command == 'update':
-        update()
-        # amr66: skip that too?
-        sys.exit(0)
+    ## AMR66: moved into else, to have "bits" correctly set
+    # elif command == 'update':
+        # update()
+        # # amr66: skip that too?
+        # sys.exit(0)
 
     elif command == 'help':
         help(params)
@@ -2124,8 +2135,10 @@ if __name__ == '__main__':
         #that are hard to track later. Should change to "thing = get_thing()"
         dists = parse_setup_ini(setup_ini)
         get_installed()
-
-        if command and command in __main__.__dict__:
+        #AMR66: update not working if "bits" is unset
+        if command == 'update':
+            update()
+        elif command and command in __main__.__dict__:
             __main__.__dict__[command] (packages)
         else:
             print '"%s" not understood, please run "apt help"' % command

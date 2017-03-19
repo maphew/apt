@@ -2,14 +2,12 @@ pyinstaller ^
   --distpath=%TEMP%\dev\dist ^
   --workpath=%TEMP%\dev\build ^
   --noconfirm ^
-  --onedir ^
-  apt.py
+  apt-onedir-excludes.spec
 
 pyinstaller ^
   --distpath=%TEMP%\dev\dist ^
   --workpath=%TEMP%\dev\build ^
   --noconfirm ^
-  --onefile ^
-  apt.py
+  apt-onefile-excludes.spec
   
 start %TEMP%\dev

@@ -1,7 +1,12 @@
-=======================================
-    Install new x32 osgeo using apt
-    Install python-core
-=======================================
+==================================================
+Install new x32 osgeo using apt, then python-core
+    
+    apt --root=d:\osgeo32 setup
+    apt --root=d:\osgeo32 install python-core
+    apt --root=d:\osgeo32 list
+    
+    d:\osgeo32\OSGeo4W.bat python --version
+=================================================
 
 C:\apps\win-python-2.7-x64\python-2.7.10.amd64>b:
 

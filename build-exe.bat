@@ -11,3 +11,12 @@ pyinstaller ^
   apt-onefile-excludes.spec
   
 start %TEMP%\dev
+
+@goto :EOF
+
+:: --- Notes ---
+
+Requirements:
+
+osgeo4w: python-core
+pip: requests pyinstaller

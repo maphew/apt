@@ -1,3 +1,7 @@
+setlocal
+set x_appdata=%APPDATA%
+set appdata=D:\temp\appdata
+
 pyinstaller ^
   --distpath=%TEMP%\dev\dist ^
   --workpath=%TEMP%\dev\build ^
@@ -18,6 +22,8 @@ popd
   
 start %TEMP%\dev
 
+set appdata=%x_appdata%
+endlocal
 @goto :EOF
 
 :: --- Notes ---

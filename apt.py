@@ -1598,6 +1598,18 @@ def set_extended_info(d):
     return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 
+def get_script_arch(filename):
+    '''Determine CPU architecture to use from script name.
+            apt-64.py --> X86_64
+            otherwise --> X86
+    '''
+    bitness = os.path.splitext(os.path.basename(filename))[0]
+    if bitness.lower() == 'apt-64':
+        bits = 'x86_64'
+    else:
+        bits = 'x86'
+    return bits
+
 def get_setup_arch(setup_ini):
     '''Return CPU architecture used in setup.ini'''
     arch = ''
@@ -2097,9 +2109,11 @@ if __name__ == '__main__':
         # we want compatibility, so this must be changed:
         check_setup(installed_db, setup_ini)
         
+        bits = get_script_arch(sys.argv[0])
         arch = get_setup_arch(setup_ini)
         if not bits == arch:
-            sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Command line: '%s'\n" % (arch, bits))
+            sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Script: '%s'\n" % (arch, bits))
+            sys.stderr.write("error: Use 'apt-64' for 64bit (x86_64) and 'apt' for 32bit (x86)\n")
             sys.exit(2)
         
         #fixme: these setup more globals like dists-which-is-really-installed-list

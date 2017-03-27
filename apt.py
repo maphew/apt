@@ -750,8 +750,11 @@ def update():
     # AMR66: bits now is an option
     # bits = 'x86'
     # bits = 'x86_64'
-    bits = get_setup_arch(setup_ini)
+    ##print 'CPU Architecture:', bits
 
+    if not command == 'setup':
+        bits = get_setup_arch(setup_ini)
+    
     # AMR66: changed to uncompressed ini
     filename =  '%s/%s'%(bits, 'setup.ini')
     source = '%s/%s' % (mirror, filename)
@@ -1128,34 +1131,14 @@ def get_all_dependencies(packages, nested_deps, parent=None):
 
     return uniq(nested_deps)
 	
-def get_arch(bits):
-	''' DRAFT, unused. Would rather do this because X86_64 is awkward 
-	to type on command line compared to '64' or '64bit'. Need to use 
-	setuprc first though.
-	
-	What happens if bitness is not declared?
-	Or set to 64 on one run and then 32 the next?
-	What does mainline setup do?
-	...I don't know enough.
-	'''
-	
-	'''Determine CPU architecture to use (X86, X86_64) from `--bits` parameter
-	
-		Precedence (top-most wins):
-			- command line parameter
-			- last setup.rc value
-	'''
-	if bits:
-		if '32' in bits: arch = 'x86'
-		if '64' in bits: arch = 'x86_64'
-	else:
-		try:
-			arch = setuprc['architecture']
-		except KeyError:
-			arch = 'x86'
-	if not ['x86', 'x86_64'] in arch:
-		return None
-	return arch
+def get_arch_from_bits(bits):
+    '''Determine CPU architecture to use (X86, X86_64) from --arch parameter.
+       Allows `--arch 32 | 64` as well as longer `--arch x86 | x86_64` '''
+    if '32' in bits: arch = 'x86'
+    if '64' in bits: arch = 'x86_64'
+    if 'x86' in bits: arch = 'x86'
+    if 'x86_64' in bits: arch = 'x86_64'
+    return arch
 	
 #@+node:maphew.20150501221304.43: *3* get_cache_dir
 def get_cache_dir():
@@ -1997,7 +1980,8 @@ if __name__ == '__main__':
         # AMR66: new option -a --arch setting "architecture bits"
         # see update: changed to uncompressed setup.ini
         elif o == '--arch' or o == '-a':
-            bits = a if a in ['x86', 'x86_64'] else 'x86'
+            bits = get_arch_from_bits(a)
+            print 'CPU Architecture:', bits
         elif o == '--cache' or o == '-c':
                 cache_dir = a
         elif o == '--download' or o == '-d':

@@ -710,6 +710,9 @@ def search(pattern):
 #@+node:maphew.20100223163802.3732: *3* setup
 def setup(target):
     '''Create skeleton Osgeo4W folders and setup database environment'''
+    if not bits:
+        sys.stderr.write('\n*** CPU Architecture not defined. Please use `--arch [x86 | x86_64]`\n')
+        sys.exit(2)    
     if not os.path.isdir(root):
         sys.stderr.write('Root dir not found, creating %s\n' % root)
         os.makedirs(root)
@@ -747,6 +750,7 @@ def update():
     # AMR66: bits now is an option
     # bits = 'x86'
     # bits = 'x86_64'
+    bits = get_setup_arch(setup_ini)
 
     # AMR66: changed to uncompressed ini
     filename =  '%s/%s'%(bits, 'setup.ini')
@@ -1956,7 +1960,8 @@ if __name__ == '__main__':
     distname = 'curr'
     dists = 0
     distnames = ('curr', 'test', 'prev')
-    bits = "x86"
+    #bits = "x86"
+    bits = ''
     ## amr66: moved this up, make --root/-r work
     root = ''
     #@-<<globals>>
@@ -2109,12 +2114,12 @@ if __name__ == '__main__':
         # we want compatibility, so this must be changed:
         check_setup(installed_db, setup_ini)
         
-        bits = get_script_arch(sys.argv[0])
+        # bits = get_script_arch(sys.argv[0])
         arch = get_setup_arch(setup_ini)
-        if not bits == arch:
-            sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Script: '%s'\n" % (arch, bits))
-            sys.stderr.write("error: Use 'apt-64' for 64bit (x86_64) and 'apt' for 32bit (x86)\n")
-            sys.exit(2)
+        # if not bits == arch:
+            # sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Script: '%s'\n" % (arch, bits))
+            # sys.stderr.write("error: Use 'apt-64' for 64bit (x86_64) and 'apt' for 32bit (x86)\n")
+            # sys.exit(2)
         
         #fixme: these setup more globals like dists-which-is-really-installed-list
         #that are hard to track later. Should change to "thing = get_thing()"

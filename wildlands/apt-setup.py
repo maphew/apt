@@ -1,7 +1,35 @@
+'''An experimental version of apt that contains only those functions needed to complete Setup
+
+    apt setup [directory] [architecture]
+
+Each function is unchanged from original, though how global variables are assigned has been adjusted. Argparse is not used at all for example.
+
+    B:\code\apt\wildlands>python apt-setup.py %temp%\apt-%random% x86_64
+    Root: C:\Users\Matt\AppData\Local\Temp\apt-23260
+    Bits: x86_64
+    Root dir not found, creating C:\Users\Matt\AppData\Local\Temp\apt-23260
+    creating C:\Users\Matt\AppData\Local\Temp\apt-23260/etc/setup/
+    creating C:\Users\Matt\AppData\Local\Temp\apt-23260/etc/setup//installed.db
+    getting C:\Users\Matt\AppData\Local\Temp\apt-23260/etc/setup//setup.ini
+    Fetching http://download.osgeo.org/osgeo4w//x86_64/setup.ini
+            Server URL Last-modified:       Wed, 29 Mar 2017 10:28:19 GMT
+            DT obj URL Last-modified:       2017-03-29 10:28:19
+            Local cache file modified:      1970-01-01 00:00:00
+    [==================================================] 100% 123,168
+            File timestamp: 2017-03-29 10:28:19
+    Saved D:\Public\Downloads/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64/setup.ini
+
+        Osgeo4w folders and setup config exist; skeleton environment is complete.
+
+        You might try `apt available` and `apt install` next.
+'''
+
 import os
 import sys
 import requests
 import knownpaths
+import shutil
+from datetime import datetime, timedelta
 
 def setup(target):
     '''Create skeleton Osgeo4W folders and setup database environment'''
@@ -227,6 +255,33 @@ def down_stat(downloaded_size, total_size):
 
     if percent == 100:
         print '' #stop linefeed suppression
+
+def url_time_to_datetime(s):
+    ''' Convert "last-modified" string time from a web server header to a python
+        datetime object.
+
+        Assumes the string looks like "Fri, 27 Mar 2015 08:05:42 GMT". There is
+        no attempt to use locale or similar, so the function is'nt very robust.
+    '''
+    return datetime.strptime(s, '%a, %d %b %Y %X %Z')
+
+def datetime_to_unixtime(dt, epoch=datetime(1970,1,1)):
+    ''' Convert a datetime object to unix UTC time (seconds since beginning).
+
+        Adapted from http://stackoverflow.com/questions/8777753/converting-datetime-date-to-utc-timestamp-in-python/
+
+    It wants `from __future__ import division`, but that caused issues in other
+    functions, automatically coverting what used to produce integers into floats
+    (e.g. "50/2"). It seems to be safe to not use it, but leaving this note just
+    in case...
+    '''
+    td = dt - epoch
+    # return td.total_seconds()
+    return (td.microseconds + (td.seconds + td.days * 86400) * 10**6) / 10**6
+        # FIXME: According to official docs, this should only be necessary in
+        # py2.6 and earlier # yet it fails for me in py2.7.4! Is osgeo4w's python
+        # corrupt?
+
 def write_installed ():
     ''' Record installed packages in install.db '''
     file = open (installed_db, 'w')
@@ -234,6 +289,19 @@ def write_installed ():
     file.writelines (map (lambda x: '%s %s 0\n' % (x, installed[0][x]),
                   installed[0].keys ()))
     if file.close ():
+        raise TypeError('urg')
+
+def save_config(fname,values):
+    # '''save settings like last-mirror, last-cache'''
+    # e.g. /etc/setup/last-cache --> d:\downloads\osgeo4w
+    return "save_config() is deprecated. Please rewrite to use write_setuprc()"
+
+    os.chdir(config)
+    pipe = open(fname,'w')
+
+    for i in values:
+        pipe.write (i)
+    if pipe.close ():
         raise TypeError('urg')
 
 # --- globals ---
@@ -260,6 +328,8 @@ mirror_dir = requests.utils.quote(mirror, '').lower()
 cache_dir = get_cache_dir()
 
 downloads = '%s/%s' % (cache_dir, mirror_dir)
+
+debug = True
 
 if __name__ == '__main__':
     setup(root)

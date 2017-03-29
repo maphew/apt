@@ -124,8 +124,13 @@ def write_installed ():
     if file.close ():
         raise TypeError('urg')
 
+# --- globals ---
+command = 'setup'
+
 root_dir = sys.argv[1]
 bits = sys.argv[2]
+print 'Root:', root_dir
+print 'Bits:', bits
 
 root = root_dir
 config = root + '/etc/setup/'

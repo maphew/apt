@@ -1,6 +1,7 @@
 import os
 import sys
 import requests
+import knownpaths
 
 def setup(target):
     '''Create skeleton Osgeo4W folders and setup database environment'''

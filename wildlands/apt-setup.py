@@ -45,6 +45,7 @@ def update():
     # bits = 'x86'
     # bits = 'x86_64'
     ##print 'CPU Architecture:', bits
+    global bits
 
     if not command == 'setup':
         bits = get_setup_arch(setup_ini)
@@ -115,6 +116,117 @@ def get_cache_dir():
         # AMR66: changed, pubdown on its own is ok
         cache_dir = pubdown
     return cache_dir
+
+def do_download(packagename):
+    '''Download package from mirror and save in local cache folder.
+
+    Overwrites existing cached version if md5 sum doesn't match expected from setup.ini.
+
+    Returns `path\to\archive.bz2` on success (file downloaded, or file with correct md5 is present),
+    and http status code if fails.
+    '''
+    p_info = get_info(packagename)
+    # amr66: error with no install-tag, grass71-devel
+    # if not p_info['zip_path']:
+    #     print "*** no download path for package", p
+    #     return ''
+
+    dstFile = p_info['local_zip']
+    srcFile = p_info['mirror_path']
+    cacheDir = os.path.dirname(dstFile)
+
+    if os.path.exists(dstFile)and hashcheck(packagename):
+        print 'Skipping download of %s, exists in cache' % p_info['filename']
+        return
+
+    if debug:
+        print 'do_download():'
+        print '\tsrcFile:\t', srcFile
+        print '\tdstFile:\t', dstFile
+
+    f = dodo_download(srcFile, dstFile)
+
+    return f
+def dodo_download(url, dstFile):
+    ''' Dumbest name for abstracting downloading
+        a file to disk with requests module and progress reporting
+
+        Returns `path\to\archive.bz2` on success, http status code if fails.
+    '''
+    r = requests.head(url)
+    if not r.ok:
+        print 'Problem getting %s\nServer returned "%s"' % (url, r.status_code)
+        return r.status_code
+
+    url_time = url_time_to_datetime(r.headers['last-modified'])
+    if os.path.exists(dstFile):
+        file_time = datetime.utcfromtimestamp(os.path.getmtime(dstFile))
+    else:
+        file_time = datetime(1970, 1, 1)
+    if debug:
+        print '\tServer URL Last-modified:\t', r.headers['last-modified']
+        print '\tDT obj URL Last-modified:\t', url_time
+        print '\tLocal cache file modified:\t', file_time
+
+    if url_time <= file_time:
+        print "Skipping download - url modified time isn't newer than local file"
+        print dstFile
+        return dstFile
+
+    if not os.path.exists(os.path.dirname(dstFile)):
+        os.makedirs(os.path.dirname(dstFile))
+
+    with open(dstFile, 'wb') as f:
+        r = requests.get(url, stream=True)
+        total_length = int(r.headers.get('content-length'))
+        block_size = 1024
+        down_bytes = 0
+        for block in r.iter_content(block_size):
+            down_bytes += len(block)
+            if not block:
+                break
+            f.write(block)
+            down_stat(down_bytes, total_length)
+        if not r.ok:
+            print 'Problem getting %s\nServer returned "%s"' % (srcFile, r.status_code)
+            return r.status_code
+
+    # maintain server's file timestamp
+    tstamp = datetime_to_unixtime(url_time)
+    os.utime(dstFile, (tstamp, tstamp))
+    if debug:
+        print '\tFile timestamp:\t', datetime.utcfromtimestamp(tstamp)
+
+    print 'Saved', dstFile
+    return dstFile
+
+def down_stat(downloaded_size, total_size):
+    ''' Report download progress in bar, percent, and bytes.
+
+        Each bar stroke '=' is approximately 2%
+
+        Adapted from
+            http://stackoverflow.com/questions/51212/how-to-write-a-download-progress-indicator-in-python
+            http://stackoverflow.com/questions/15644964/python-progress-bar-and-downloads
+    '''
+    percent = int(100 * downloaded_size/total_size)
+    bar = int(percent/2)
+
+    if not 'last_percent' in vars(down_stat):
+        down_stat.last_percent=0 #Static var to track percentages so we only print N% once.
+
+    if percent > 100: # filesize usually doesn't correspond to blocksize multiple, so flatten overrun
+        percent = 100
+        down_stat.last_percent=0
+
+    if percent > down_stat.last_percent:
+        msg = '\r[{:<50}] {:>3}% {:,}'.format('=' * bar, percent, downloaded_size)
+        sys.stdout.write(msg)
+        sys.stdout.flush()
+    down_stat.last_percent=percent
+
+    if percent == 100:
+        print '' #stop linefeed suppression
 def write_installed ():
     ''' Record installed packages in install.db '''
     file = open (installed_db, 'w')
@@ -139,7 +251,7 @@ setup_bak = config + '/setup.bak'
 installed_db = config + '/installed.db'
 installed_db_magic = 'INSTALLED.DB 2\n'
 
-last_mirror = ''
+last_mirror = None
 if not 'mirror' in globals():
     mirror = get_mirror()
 # convert mirror url into acceptable folder name

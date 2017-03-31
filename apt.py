@@ -213,19 +213,9 @@ def ball(packages):
         return
 
     for p in packages:
-        #print "\n%s = %s" % (p, get_ball(p))
         d = get_info(p)
         print "\n%s = %s" % (p, d['local_zip'])
-
-        # # won't work, it looks for `distname` and not distname's value, `curr`
-        # print "\n%s = %s" % (p, dists.distname.p.local_zip)
-        # #print dists.curr.shell.local_zip
-
-        # # these are equivalent in output, but near equally messy
-        # # I don't think attrdict will work for this project.
-        # # print dists(distname)(p).local_zip
-        # print dists[distname][p]['local_zip']
-
+    
     return
 #@+node:maphew.20100223163802.3721: *3* download
 def download(packages):
@@ -292,7 +282,7 @@ def info(packages):
     for p in packages:
         d = get_info(p)
         print('')
-        # NB: only prints fields we know about, if something is added
+        # WARNING: only prints fields we know about, if something is added
         # upstream we'll miss it here
         fields = ['name',
             'version',
@@ -481,9 +471,7 @@ def listfiles(packages):
         bin/gdaladdo.exe
         ...etc
     '''
-    #AMR66:
     if isinstance(packages, basestring): packages = [packages]
-    #if type(packages) is str: packages = [packages]
     if not packages:
         help('listfiles')
         sys.stderr.write ('\n*** No packages specified. Use "apt list" to see installed packages.***\n')
@@ -749,11 +737,6 @@ def update():
     
     if not os.path.exists(downloads):
         os.makedirs(downloads)
-
-    # AMR66: bits now is an option
-    # bits = 'x86'
-    # bits = 'x86_64'
-    ##print 'CPU Architecture:', bits
 
     if not command == 'setup':
         bits = get_setup_arch(setup_ini)
@@ -1137,7 +1120,7 @@ def get_all_dependencies(packages, nested_deps, parent=None):
 def get_arch(bits=""):
     '''Determine CPU architecture to use (X86, X86_64) from --arch parameter.
        Allows `--arch 32 | 64` as well as longer `--arch x86 | x86_64` '''
-    # AMR66: error encountered - changed, but: we don't need this?
+    # AMR66: error encountered - changed, but: we don't need this? TODO: remove and test
     if bits:
         if '32' in bits: arch = 'x86'
         if '64' in bits: arch = 'x86_64'
@@ -1164,7 +1147,6 @@ def get_cache_dir():
         return globals()['cache_dir']
     if 'last_cache' in globals() and globals()['last_cache'] is not None:
         return globals()['last_cache']
-    # AMR66: changed, because an exception should be cought
     try:
         pubdown = knownpaths.get_path(getattr(knownpaths.FOLDERID, 'PublicDownloads'))
     except knownpaths.PathNotFoundException:
@@ -1176,8 +1158,6 @@ def get_cache_dir():
         if debug: print 'Public downloads "%s" not found, using ./var/cache instead'
         cache_dir = '%s/var/cache/setup' % (root)
     else:
-        # cache_dir = os.path.join(pubdown, 'OSGeo4W-setup-cache')
-        # AMR66: changed, pubdown on its own is ok
         cache_dir = pubdown
     return cache_dir
 #@+node:maphew.20141112222311.3: *3* get_zipfile
@@ -1923,13 +1903,6 @@ sys.excepthook = exceptionHandler
 if __name__ == '__main__':
     #@+<<globals>>
     #@+node:maphew.20100307230644.3841: ** <<globals>>
-    # #disabled pending argparse/whatever implementation
-    # if sys.argv[1] == 'setup':
-        # OSGEO4W_ROOT = sys.argv[2]
-        # OSGEO4W_ROOT = string.replace(OSGEO4W_ROOT, '\\', '/')
-    # else:
-        # OSGEO4W_ROOT = check_env() # look for root in environment
-    ## amr66: globals
     depend_p = 0
     download_p = 0
     command = ""
@@ -1942,7 +1915,6 @@ if __name__ == '__main__':
     dists = 0
     distnames = ('curr', 'test', 'prev')
     bits = ""
-    ## amr66: moved this up, make --root/-r work
     root = ''
     #@-<<globals>>
     #@+<<parse command line>>
@@ -1964,8 +1936,8 @@ if __name__ == '__main__':
 
     #command aliases
     uninstall = remove
-    if command == 'list': # don't collide with list() function
-        command = 'list_installed' 
+    if command == 'list':
+        command = 'list_installed' # don't collide with list() function
 
     for i in options:
         o = i[0]
@@ -2041,8 +2013,6 @@ if __name__ == '__main__':
 
     #@+<<post-parse globals>>
     #@+node:maphew.20100307230644.3844: ** <<post-parse globals>>
-    #last_mirror = get_config('last-mirror')
-    #last_cache = get_config('last-cache')
 
     setuprc = parse_setuprc(config + '/setup.rc')
     try:
@@ -2059,10 +2029,6 @@ if __name__ == '__main__':
     mirror_dir = requests.utils.quote(mirror, '').lower()
         # optional quote '' param is to also substitute slashes etc.
 
-    # if last_cache == None:
-        # cache_dir = get_cache_dir()
-    # else:
-        # cache_dir = last_cache
     cache_dir = get_cache_dir()
 
     downloads = '%s/%s' % (cache_dir, mirror_dir)

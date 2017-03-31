@@ -39,7 +39,7 @@ References
     Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
     beginning July 2008
 '''
-apt_version = '0.3-3-dev'
+apt_version = '0.4-dev'
 #@-<<docstring>>
 #@+<<imports>>
 #@+node:maphew.20100307230644.3847: ** <<imports>>
@@ -1595,18 +1595,6 @@ def set_extended_info(d):
     return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 
-def get_script_arch(filename):
-    '''Determine CPU architecture to use from script name.
-            apt-64.py --> X86_64
-            otherwise --> X86
-    '''
-    bitness = os.path.splitext(os.path.basename(filename))[0]
-    if bitness.lower() == 'apt-64':
-        bits = 'x86_64'
-    else:
-        bits = 'x86'
-    return bits
-
 def get_setup_arch(setup_ini):
     '''Return CPU architecture used in setup.ini'''
     arch = ''
@@ -2102,14 +2090,8 @@ if __name__ == '__main__':
                                  (arch, bits))
                 sys.exit(2)
                 
-        setup(OSGEO4W_ROOT)
-        
+        setup(OSGEO4W_ROOT)        
         # AMR66: removed - setup.rc will not be written if we exit here
-        # sys.exit(0)
-    ## AMR66: moved into else, to have "bits" correctly set
-    # elif command == 'update':
-        # update()
-        # # amr66: skip that too?
         # sys.exit(0)
 
     elif command == 'help':
@@ -2129,14 +2111,14 @@ if __name__ == '__main__':
         if not bits == arch:
             sys.stderr.write("error: Architecture mismatch! Setup.ini: '%s', Command line: '%s'\n" % (arch, bits))
             sys.exit(2)
-        # AMR66: could be printed with debug only
-        print "Setup: we are in a %s installation"%arch
+        if debug:
+            print "Architecture: we are in an %s installation" % arch
         
         #fixme: these setup more globals like dists-which-is-really-installed-list
         #that are hard to track later. Should change to "thing = get_thing()"
         dists = parse_setup_ini(setup_ini)
         get_installed()
-        #AMR66: update not working if "bits" is unset
+
         if command == 'update':
             update()
         elif command and command in __main__.__dict__:

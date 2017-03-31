@@ -96,6 +96,7 @@ Commands:
     version - print installed version of X
 
 Options:
+    -b,--bits=32/64        use 32 or 64bit package mirror (only used with `apt setup`)
     -d,--download          download only
     -i,--ini=FILE          use setup.ini [%(setup_ini)s]
     -m,--mirror=URL        use mirror [%(mirror)s]
@@ -103,7 +104,7 @@ Options:
     -t,--t=NAME            set dist name (*curr*, test, prev)
     -x,--no-deps           ignore dependencies
     -s,--start-menu=NAME   set the start menu name (OSGeo4W)
-       --debug             display debugging statements (very noisy)
+       --debug             display debugging statements
 ''' % {'setup_ini':setup_ini,'mirror':mirror,'root':root}) #As they were just printing as "%(setup_ini)s" etc...
 #@+node:maphew.20121113004545.1577: ** check_env
 def check_env(o4w=''):
@@ -2120,9 +2121,7 @@ if __name__ == '__main__':
         # we want compatibility, so this must be changed:
         check_setup(installed_db, setup_ini)
         
-        # bits = get_script_arch(sys.argv[0])
         arch = get_setup_arch(setup_ini)
-        # AMR66: changed:
         # set bits to arch in setup_ini, if not set
         if not bits:
             bits = arch

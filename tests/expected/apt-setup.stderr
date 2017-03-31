@@ -1,0 +1,3 @@
+error: `--bits` is required parameter for Setup
+
+*** CPU Architecture not defined. Please use `--bits [32 | 64]`

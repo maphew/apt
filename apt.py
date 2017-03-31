@@ -711,7 +711,7 @@ def search(pattern):
 def setup(target):
     '''Create skeleton Osgeo4W folders and setup database environment'''
     if not bits:
-        sys.stderr.write('\n*** CPU Architecture not defined. Please use `--arch [x86 | x86_64]`\n')
+        sys.stderr.write('\n*** CPU Architecture not defined. Please use `--bits [32 | 64]`\n')
         sys.exit(2)    
     if not os.path.isdir(root):
         sys.stderr.write('Root dir not found, creating %s\n' % root)
@@ -2093,9 +2093,9 @@ if __name__ == '__main__':
     #@+<<run the commands>>
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>
     if command == 'setup':
-        # AMR66: setup needs the "bits" flag
         if not bits:
-            bits = 'x86'
+            sys.stderr.write("error: `--bits` is required parameter for Setup\n")
+            
         # AMR66: what if setup is called again, but with wrong "bits" flag
         if os.path.exists(setup_ini):
             print "Warning! Setup was already done for %s"%OSGEO4W_ROOT

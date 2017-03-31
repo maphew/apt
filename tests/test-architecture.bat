@@ -11,17 +11,17 @@ goto :eof
     
     :: bare setup, no bits
     set _x=setup
-    call apt.bat !_x! "current\apt-!_x!.stdout" 2> "current\apt-!_x!.stderr"
+    call apt.bat !_x! 1> "current\apt-!_x!.stdout" 2> "current\apt-!_x!.stderr"
     rd /s/q "!osgeo4w_root!"
 
     :: 32 bit
     set _x=--bits=32 setup
-    call apt.bat !_x! "current\apt-!_x!.stdout" 2> "current\apt-!_x!.stderr"
+    call apt.bat !_x! 1> "current\apt-!_x!.stdout" 2> "current\apt-!_x!.stderr"
     rd /s/q "!osgeo4w_root!"
     
     :: 64 bit
     set _x=--bits=64 setup
-    call apt.bat !_x! "current\apt-!_x!.stdout" 2> "current\apt-!_x!.stderr"
+    call apt.bat !_x! 1> "current\apt-!_x!.stdout" 2> "current\apt-!_x!.stderr"
     rd /s/q "!osgeo4w_root!"
     goto :eof
 

@@ -96,6 +96,7 @@ Commands:
     version - print installed version of X
 
 Options:
+    -b,--bits=32/64        use 32 or 64bit package mirror (only used with `apt setup`)
     -d,--download          download only
     -i,--ini=FILE          use setup.ini [%(setup_ini)s]
     -m,--mirror=URL        use mirror [%(mirror)s]
@@ -103,7 +104,7 @@ Options:
     -t,--t=NAME            set dist name (*curr*, test, prev)
     -x,--no-deps           ignore dependencies
     -s,--start-menu=NAME   set the start menu name (OSGeo4W)
-       --debug             display debugging statements (very noisy)
+       --debug             display debugging statements
 ''' % {'setup_ini':setup_ini,'mirror':mirror,'root':root}) #As they were just printing as "%(setup_ini)s" etc...
 #@+node:maphew.20121113004545.1577: ** check_env
 def check_env(o4w=''):
@@ -710,6 +711,9 @@ def search(pattern):
 #@+node:maphew.20100223163802.3732: *3* setup
 def setup(target):
     '''Create skeleton Osgeo4W folders and setup database environment'''
+    if not bits:
+        sys.stderr.write('\n*** CPU Architecture not defined. Please use `--bits [32 | 64]`\n')
+        sys.exit(2)    
     if not os.path.isdir(root):
         sys.stderr.write('Root dir not found, creating %s\n' % root)
         os.makedirs(root)
@@ -741,13 +745,19 @@ def update():
         apt --mirror=file:////server/share/...  update
         apt --mirror=file://D:/downloads/cache/...  update
     '''
+    global bits
+    
     if not os.path.exists(downloads):
         os.makedirs(downloads)
 
     # AMR66: bits now is an option
     # bits = 'x86'
     # bits = 'x86_64'
+    ##print 'CPU Architecture:', bits
 
+    if not command == 'setup':
+        bits = get_setup_arch(setup_ini)
+    
     # AMR66: changed to uncompressed ini
     filename =  '%s/%s'%(bits, 'setup.ini')
     source = '%s/%s' % (mirror, filename)
@@ -1125,22 +1135,8 @@ def get_all_dependencies(packages, nested_deps, parent=None):
     return uniq(nested_deps)
 	
 def get_arch(bits=""):
-    ''' DRAFT, unused. Would rather do this because X86_64 is awkward 
-    to type on command line compared to '64' or '64bit'. Need to use 
-    setuprc first though.
-    
-    What happens if bitness is not declared?
-    Or set to 64 on one run and then 32 the next?
-    What does mainline setup do?
-    ...I don't know enough.
-    '''
-    
-    '''Determine CPU architecture to use (X86, X86_64) from `--bits` parameter
-    
-        Precedence (top-most wins):
-            - command line parameter
-            - last setup.rc value
-    '''
+    '''Determine CPU architecture to use (X86, X86_64) from --arch parameter.
+       Allows `--arch 32 | 64` as well as longer `--arch x86 | x86_64` '''
     # AMR66: error encountered - changed, but: we don't need this?
     if bits:
         if '32' in bits: arch = 'x86'
@@ -1599,6 +1595,18 @@ def set_extended_info(d):
     return d
 #@+node:maphew.20100223163802.3754: *3* parse_setup_ini
 
+def get_script_arch(filename):
+    '''Determine CPU architecture to use from script name.
+            apt-64.py --> X86_64
+            otherwise --> X86
+    '''
+    bitness = os.path.splitext(os.path.basename(filename))[0]
+    if bitness.lower() == 'apt-64':
+        bits = 'x86_64'
+    else:
+        bits = 'x86'
+    return bits
+
 def get_setup_arch(setup_ini):
     '''Return CPU architecture used in setup.ini'''
     arch = ''
@@ -1945,19 +1953,17 @@ if __name__ == '__main__':
     distname = 'curr'
     dists = 0
     distnames = ('curr', 'test', 'prev')
-    # bits = "x86"
     bits = ""
     ## amr66: moved this up, make --root/-r work
     root = ''
     #@-<<globals>>
     #@+<<parse command line>>
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
-    # amr66: edited parameter list, added -a/--arch, corrected -c --cache 
     (options, params) = getopt.getopt (sys.argv[1:],
-                      'c:dhi:m:r:t:s:xva:',
+                      'c:dhi:m:r:t:s:xvb:',
                       ('cache=', 'download', 'help', 'mirror=', 'root=',
                        'ini=', 't=', 'start-menu=', 'no-deps',
-                       'debug', 'verbose', 'arch=', 'bits='))
+                       'debug', 'verbose', 'bits='))
     # the first parameter is our action,
     # and change `list-installed` to `list_installed`
     if len(params) > 0:
@@ -1979,17 +1985,13 @@ if __name__ == '__main__':
 
         if 0:
             pass
-        # AMR66: new option -a --arch setting "architecture bits"
-        # see update: changed to uncompressed setup.ini
-        elif o == '--arch' or o == '-a' or o == '--bits':
-        # AMR66: integrate --bits
-        # changed to lower for X86 or x86 and so on
-            a = a.lower()
+
+        elif o == '--bits' or o == '-b':
+            # translate bitness to CPU architecture: 32 --> x86, 64 --> x86_64
             # if user option is wrong we set empty
-            if o == '--bits':
+            a = a.lower()
+            if o == '--bits' or o =='-b':
                 bits = 'x86' if a == '32' else 'x86_64' if a == '64' else ''
-            else:
-                bits = a if a  == 'x86' else 'x86_64' if a == 'x86_64' else ''
         elif o == '--cache' or o == '-c':
                 cache_dir = a
         elif o == '--download' or o == '-d':
@@ -2088,9 +2090,9 @@ if __name__ == '__main__':
     #@+<<run the commands>>
     #@+node:maphew.20100307230644.3843: ** <<run the commands>>
     if command == 'setup':
-        # AMR66: setup needs the "bits" flag
         if not bits:
-            bits = 'x86'
+            sys.stderr.write("error: `--bits` is required parameter for Setup\n")
+            
         # AMR66: what if setup is called again, but with wrong "bits" flag
         if os.path.exists(setup_ini):
             print "Warning! Setup was already done for %s"%OSGEO4W_ROOT
@@ -2120,7 +2122,6 @@ if __name__ == '__main__':
         check_setup(installed_db, setup_ini)
         
         arch = get_setup_arch(setup_ini)
-        # AMR66: changed:
         # set bits to arch in setup_ini, if not set
         if not bits:
             bits = arch

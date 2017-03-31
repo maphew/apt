@@ -1,0 +1,267 @@
+==================================================
+Install new x32 osgeo using apt, then python-core
+    
+    apt --root=d:\osgeo32 setup
+    apt --root=d:\osgeo32 install python-core
+    apt --root=d:\osgeo32 list
+    
+    d:\osgeo32\OSGeo4W.bat python --version
+=================================================
+
+C:\apps\win-python-2.7-x64\python-2.7.10.amd64>b:
+
+B:\>cd code\apt
+
+B:\code\apt>apt --root=d:\osgeo32 setup
+Couldn't open d:\osgeo32/etc/setup//setup.rc, setting empty
+Root dir not found, creating d:\osgeo32
+creating d:\osgeo32/etc/setup/
+creating d:\osgeo32/etc/setup//installed.db
+getting d:\osgeo32/etc/setup//setup.ini
+Fetching http://download.osgeo.org/osgeo4w//x86/setup.ini
+[==================================================] 100% 150,478
+Saved D:\Public\Downloads/http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86/setup.ini
+
+    Osgeo4w folders and setup config exist; skeleton environment is complete.
+
+    You might try `apt available` and `apt install` next.
+
+
+B:\code\apt>apt --root=d:\osgeo32 install python-core
+
+PKGS: Checking install status: python-core
+
+Requirement         Installed   (Available)
+-------------------------------------------
+msvcrt2008          -           (1.0-1)
+msvcrt2010          -           (1.0-1)
+msvcrt              -           (1.0.1-13)
+setup               -           (1.0.7-13)
+shell               -           (1.0.0-15)
+msvcrt2015          -           (1.0-1)
+sqlite3             -           (3.17.0-2)
+python-core         -           (2.7.4-3)
+
+REQS: --- To install: msvcrt2008 msvcrt2010 msvcrt setup shell msvcrt2015 sqlite3 python-core
+
+Preparing to download: msvcrt2008
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: c793605418a4dafd30e923e3ef5d0df2
+        local:  c793605418a4dafd30e923e3ef5d0df2
+Skipping download of msvcrt2008-1.0-1.tar.bz2, exists in cache
+
+msvcrt2008 = D:\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86\release\msvcrt\msv
+crt2008\msvcrt2008-1.0-1.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: c793605418a4dafd30e923e3ef5d0df2
+        local:  c793605418a4dafd30e923e3ef5d0df2
+
+d:\osgeo32>for %f in ("C:\Users\Matt\AppData\Local\Temp") do call set TEMPDRIVE=%~df
+
+d:\osgeo32>call set TEMPDRIVE=C:
+
+d:\osgeo32>cd "C:\Users\Matt\AppData\Local\Temp"
+
+d:\osgeo32>"d:\osgeo32\bin\vcredist_2008_x86.exe" /q
+
+d:\osgeo32>if errorlevel 3010 echo1>"d:\osgeo32\etc\reboot"
+
+d:\osgeo32>del "d:\osgeo32\bin\vcredist_2008_x86.exe"
+Post_install complete, return code 0
+Preparing to download: msvcrt2010
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 8876085eac3d1894f0bf40e387756119
+        local:  8876085eac3d1894f0bf40e387756119
+Skipping download of msvcrt2010-1.0-1.tar.bz2, exists in cache
+
+msvcrt2010 = D:\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86\release\msvcrt\msv
+crt2010\msvcrt2010-1.0-1.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 8876085eac3d1894f0bf40e387756119
+        local:  8876085eac3d1894f0bf40e387756119
+
+d:\osgeo32>for %f in ("C:\Users\Matt\AppData\Local\Temp") do call set TEMPDRIVE=%~df
+
+d:\osgeo32>call set TEMPDRIVE=C:
+
+d:\osgeo32>cd "C:\Users\Matt\AppData\Local\Temp"
+
+d:\osgeo32>"d:\osgeo32\bin\vcredist_2010_x86.exe" /q
+
+d:\osgeo32>if errorlevel 3010 echo1>"d:\osgeo32\etc\reboot"
+
+d:\osgeo32>del "d:\osgeo32\bin\vcredist_2010_x86.exe"
+Post_install complete, return code 0
+Preparing to download: msvcrt
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 3bcce4d189ca069e65f0bbc5420c9d8a
+        local:  3bcce4d189ca069e65f0bbc5420c9d8a
+Skipping download of msvcrt-1.0.1-13.tar.bz2, exists in cache
+
+msvcrt = D:\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86\release\msvcrt\msvcrt-
+1.0.1-13.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 3bcce4d189ca069e65f0bbc5420c9d8a
+        local:  3bcce4d189ca069e65f0bbc5420c9d8a
+Preparing to download: setup
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: f0b66295463f470c2d164ff7fa164c78
+        local:  f0b66295463f470c2d164ff7fa164c78
+Skipping download of setup-1.0.7-13.tar.bz2, exists in cache
+
+setup = D:\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86\release\setup\setup-1.0
+.7-13.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: f0b66295463f470c2d164ff7fa164c78
+        local:  f0b66295463f470c2d164ff7fa164c78
+
+d:\osgeo32>nircmd shortcut "d:\osgeo32\bin\nircmd.exe" "C:\ProgramData\Microsoft\Windows\Start Menu\
+Programs\OSGeo4W" "Setup" "exec hide ~qd:\osgeo32\bin\setup.bat~q -R ~qd:\osgeo32~q" "d:\osgeo32\OSG
+eo4W.ico"
+
+d:\osgeo32>textreplace -std -t bin/setup.bat
+
+d:\osgeo32>textreplace -std -t bin/setup-test.bat
+Post_install complete, return code 0
+Preparing to download: shell
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 9c92b49745e2af12420e7e8bbaf378e0
+        local:  9c92b49745e2af12420e7e8bbaf378e0
+Skipping download of shell-1.0.0-15.tar.bz2, exists in cache
+
+shell = D:\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86\release\shell\shell-1.0
+.0-15.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 9c92b49745e2af12420e7e8bbaf378e0
+        local:  9c92b49745e2af12420e7e8bbaf378e0
+
+d:\osgeo32>mkdir "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W"
+A subdirectory or file C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W already exists.
+
+d:\osgeo32>xxmklink "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W\OSGeo4W.lnk" "d:\o
+sgeo32\OSGeo4W.bat" " " \ "OSGeo for Windows command shell" 1 "d:\osgeo32\OSGeo4W.ico"
+
+XXMkLink     ver 1.00    (c)2005 Copyright  Pixelab, Inc.
+
+The shortut created as follows
+
+Shortcut path:     C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W\OSGeo4W.lnk
+Target object:     d:\osgeo32\OSGeo4W.bat
+Arguments;
+Working Directory: \
+Description:       OSGeo for Windows command shell
+Display Mode:      Normal Window (1)
+Icon file:         d:\osgeo32\OSGeo4W.ico
+
+
+d:\osgeo32>mkdir ""
+The filename, directory name, or volume label syntax is incorrect.
+
+d:\osgeo32>xxmklink "\OSGeo4W.lnk" "d:\osgeo32\OSGeo4W.bat" " " \ "OSGeo for Windows command shell"
+1 "d:\osgeo32\OSGeo4W.ico"
+
+XXMkLink     ver 1.00    (c)2005 Copyright  Pixelab, Inc.
+
+The shortut created as follows
+
+Shortcut path:     d:\OSGeo4W.lnk
+Target object:     d:\osgeo32\OSGeo4W.bat
+Arguments;
+Working Directory: \
+Description:       OSGeo for Windows command shell
+Display Mode:      Normal Window (1)
+Icon file:         d:\osgeo32\OSGeo4W.ico
+
+Post_install complete, return code 0
+Preparing to download: msvcrt2015
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 62cd0a6015094f60b7646b5be8b52dc6
+        local:  62cd0a6015094f60b7646b5be8b52dc6
+Skipping download of msvcrt2015-1.0-1.tar.bz2, exists in cache
+
+msvcrt2015 = D:\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86\release\msvcrt\msv
+crt2015\msvcrt2015-1.0-1.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 62cd0a6015094f60b7646b5be8b52dc6
+        local:  62cd0a6015094f60b7646b5be8b52dc6
+
+d:\osgeo32>for %f in ("C:\Users\Matt\AppData\Local\Temp") do call set TEMPDRIVE=%~df
+
+d:\osgeo32>call set TEMPDRIVE=C:
+
+d:\osgeo32>cd "C:\Users\Matt\AppData\Local\Temp"
+
+d:\osgeo32>"d:\osgeo32\bin\vcredist_2015_x86.exe" /q
+
+d:\osgeo32>if errorlevel 3010 echo1>"d:\osgeo32\etc\reboot"
+
+d:\osgeo32>del "d:\osgeo32\bin\vcredist_2015_x86.exe"
+d:\osgeo32\bin\vcredist_2015_x86.exe
+Access is denied.
+Post_install complete, return code 0
+Preparing to download: sqlite3
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 794628058feb5ef358dfe17dc04e4825
+        local:  794628058feb5ef358dfe17dc04e4825
+Skipping download of sqlite3-3.17.0-2.tar.bz2, exists in cache
+
+sqlite3 = D:\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86\release\sqlite3\sqlit
+e3-3.17.0-2.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 794628058feb5ef358dfe17dc04e4825
+        local:  794628058feb5ef358dfe17dc04e4825
+Preparing to download: python-core
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: e212dea81e83a0ab5caeaa5cd3c53145
+        local:  e212dea81e83a0ab5caeaa5cd3c53145
+Skipping download of python-core-2.7.4-3.tar.bz2, exists in cache
+
+python-core = D:\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86\release\python\py
+thon-core\python-core-2.7.4-3.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: e212dea81e83a0ab5caeaa5cd3c53145
+        local:  e212dea81e83a0ab5caeaa5cd3c53145
+
+d:\osgeo32>call "d:\osgeo32\bin\make-bat-for-py.bat"
+
+    Generating .bat files for all .py files in d:\osgeo32\bin
+
+Post_install complete, return code 0
+
+B:\code\apt>apt --root=d:\osgeo32 list
+Package             Version
+------------------  ----------
+msvcrt              1.0.1-13
+msvcrt2008          1.0-1
+msvcrt2010          1.0-1
+msvcrt2015          1.0-1
+python-core         2.7.4-3
+setup               1.0.7-13
+shell               1.0.0-15
+sqlite3             3.17.0-2
+
+B:\code\apt>d:\osgeo32\OSGeo4W.bat python --version
+
+OSGEO4W home is d:\osgeo32\
+
+Python 2.7.4
+B:\code\apt>which python
+d:\osgeo32\bin\python.exe
+
+B:\code\apt>

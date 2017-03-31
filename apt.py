@@ -1952,19 +1952,17 @@ if __name__ == '__main__':
     distname = 'curr'
     dists = 0
     distnames = ('curr', 'test', 'prev')
-    # bits = "x86"
     bits = ""
     ## amr66: moved this up, make --root/-r work
     root = ''
     #@-<<globals>>
     #@+<<parse command line>>
     #@+node:maphew.20100307230644.3842: ** <<parse command line>>
-    # amr66: edited parameter list, added -a/--arch, corrected -c --cache 
     (options, params) = getopt.getopt (sys.argv[1:],
-                      'c:dhi:m:r:t:s:xva:',
+                      'c:dhi:m:r:t:s:xvb:',
                       ('cache=', 'download', 'help', 'mirror=', 'root=',
                        'ini=', 't=', 'start-menu=', 'no-deps',
-                       'debug', 'verbose', 'arch=', 'bits='))
+                       'debug', 'verbose', 'bits='))
     # the first parameter is our action,
     # and change `list-installed` to `list_installed`
     if len(params) > 0:
@@ -1986,17 +1984,13 @@ if __name__ == '__main__':
 
         if 0:
             pass
-        # AMR66: new option -a --arch setting "architecture bits"
-        # see update: changed to uncompressed setup.ini
-        elif o == '--arch' or o == '-a' or o == '--bits':
-        # AMR66: integrate --bits
-        # changed to lower for X86 or x86 and so on
-            a = a.lower()
+
+        elif o == '--bits' or o == '-b':
+            # translate bitness to CPU architecture: 32 --> x86, 64 --> x86_64
             # if user option is wrong we set empty
-            if o == '--bits':
+            a = a.lower()
+            if o == '--bits' or o =='-b':
                 bits = 'x86' if a == '32' else 'x86_64' if a == '64' else ''
-            else:
-                bits = a if a  == 'x86' else 'x86_64' if a == 'x86_64' else ''
         elif o == '--cache' or o == '-c':
                 cache_dir = a
         elif o == '--download' or o == '-d':

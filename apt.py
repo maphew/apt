@@ -744,6 +744,8 @@ def update():
         apt --mirror=file:////server/share/...  update
         apt --mirror=file://D:/downloads/cache/...  update
     '''
+    global bits
+    
     if not os.path.exists(downloads):
         os.makedirs(downloads)
 

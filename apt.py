@@ -39,7 +39,7 @@ References
     Modified by Matt.Wilkie@gov.yk.ca for OSGeo4W,
     beginning July 2008
 '''
-apt_version = '0.4-dev'
+apt_version = '0.4'
 #@-<<docstring>>
 #@+<<imports>>
 #@+node:maphew.20100307230644.3847: ** <<imports>>

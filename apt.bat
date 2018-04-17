@@ -1,1 +1,1 @@
-@python "apt.py" %*  
+@python "%~dp0\apt.py" %*  

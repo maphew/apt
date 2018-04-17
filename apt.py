@@ -57,6 +57,7 @@ import hashlib
 import requests
 import subprocess
 import shlex
+import stat
 import locale
 import knownpaths # for fetching Windows special folders
 from pkg_resources import parse_version # for version comparing
@@ -1023,7 +1024,7 @@ def do_install(packagename):
         filename = dists[distname][packagename]['local_zip']
         filename = get_zipfile(packagename)
     except KeyError as e:
-        pass
+        print('***', e)
 
     if not os.path.exists(filename):
         sys.exit('Local archive %s not found' % filename)
@@ -1032,7 +1033,23 @@ def do_install(packagename):
     os.chdir (root)
     pipe = tarfile.open(filename,'r')
     lst = pipe.getnames()
-    pipe.extractall()
+    
+    #pipe.extractall() # doesn't overwrite read-only files, Issue #59
+    # https://stackoverflow.com/questions/7237475/overwrite-existing-read-only-files-when-using-pythons-tarfile
+    # https://stackoverflow.com/questions/4829043/how-to-remove-read-only-attrib-directory-with-python-in-windows/4829285
+    # Py docs say `extractall` is preferred over `extract` as it handles
+    # more conditions, so at some future point we may want to rework this.
+    for f in pipe:
+        try:
+            pipe.extract(f)
+        except IOError as e:
+            print 'Handling %s' % e
+            os.chmod(f.name, stat.S_IWRITE)
+            os.remove(f.name)
+            pipe.extract(f)
+        finally:
+            os.chmod(f.name, f.mode)
+    
     pipe.close()
     if pipe.close():
         raise Exception('urg')

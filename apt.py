@@ -1066,7 +1066,8 @@ def do_uninstall(packagename):
         elif not os.path.isdir(file):
             try:
                 os.remove(file)
-            except WindowsError:
+            except (WindowsError, IOError) as err:
+                print(err)
                 os.chmod(file, 0777) # remove readonly flag and try again
                 os.remove(file)
             else:

@@ -125,3 +125,163 @@ Resources
  - https://trac.osgeo.org/osgeo4w/wiki/SetupDevelopment
  - http://cygwin.com/setup.html
 
+## dev environment c.2022
+_DRAFT. This project has been starred a couple of times recently, so I figured it's worth doing a bit of work to figure out how much of it still relevant/useful. ;-)_
+
+~~~
+conda create -n apt27 python=2.7
+conda activate apt27
+pip install -r requirements.txt
+~~~
+
+Testing setup:
+~~~
+python .\apt.py --root=c:\temp\apt --bits=64 setup
+python .\apt.py --root=c:\temp\apt --bits=64 install iconv
+~~~
+
+~~~
+PKGS: Checking install status: iconv
+
+Requirement         Installed   (Available)
+-------------------------------------------
+msvcrt2008          -           (1.0.0-1)
+msvcrt2010          -           (1.0.0-2)
+msvcrt              -           (1.0.3-1)
+setup               -           (1.0.7-16)
+shell               -           (1.0.2-4)
+iconv               -           (1.14-1)
+
+REQS: --- To install: msvcrt2008 msvcrt2010 msvcrt setup shell iconv
+
+Preparing to download: msvcrt2008
+[==================================================] 100% 4,968,079
+Saved C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\msvcrt\msvcrt2008\msvcrt2008-1.0.0-1.tar.bz2   
+
+msvcrt2008 = C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\msvcrt\msvcrt2008\msvcrt2008-1.0.0-1.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 432ad651a1c401513912749cc90dca66
+        local:  432ad651a1c401513912749cc90dca66
+
+CMD c:\temp\apt
+» for %f in ("C:\Users\Matt\AppData\Local\Temp") do call set TEMPDRIVE=%~df 
+
+CMD c:\temp\apt
+» call set TEMPDRIVE=C: 
+
+CMD c:\temp\apt
+» cd C:\Users\Matt\AppData\Local\Temp 
+
+CMD C:\Users\Matt\AppData\Local\Temp
+» "c:\temp\apt\bin\vcredist-2008-sp1-x64.exe" /q 
+~~~
+
+Can appear frozen at this point. Look for UAC popup asking for permissions to continue install.
+
+~~~
+CMD C:\Users\Matt\AppData\Local\Temp
+» if errorlevel 3010 echo1>"c:\temp\apt\etc\reboot" 
+
+CMD C:\Users\Matt\AppData\Local\Temp
+» del "c:\temp\apt\bin\vcredist-2008-sp1-x64.exe" 
+Post_install complete, return code 0
+Preparing to download: msvcrt2010
+[==================================================] 100% 5,683,309
+Saved C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\msvcrt\msvcrt2010\msvcrt2010-1.0.0-2.tar.bz2   
+
+msvcrt2010 = C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\msvcrt\msvcrt2010\msvcrt2010-1.0.0-2.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 4909547dec4eb6db922912858b5802a5
+        local:  4909547dec4eb6db922912858b5802a5
+
+CMD c:\temp\apt
+» for %f in ("C:\Users\Matt\AppData\Local\Temp") do call set TEMPDRIVE=%~df 
+
+CMD c:\temp\apt
+» call set TEMPDRIVE=C: 
+
+CMD c:\temp\apt
+» cd C:\Users\Matt\AppData\Local\Temp 
+
+CMD C:\Users\Matt\AppData\Local\Temp
+» "c:\temp\apt\bin\vcredist-2010-x64.exe" /q /norestart 
+
+CMD C:\Users\Matt\AppData\Local\Temp
+» if errorlevel 3010 echo1>"c:\temp\apt\etc\reboot" 
+
+CMD C:\Users\Matt\AppData\Local\Temp
+» del "c:\temp\apt\bin\vcredist-2010-x64.exe" 
+Post_install complete, return code 0
+Preparing to download: msvcrt
+[==================================================] 100% 792,156
+Saved C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\msvcrt\msvcrt-1.0.3-1.tar.bz2
+
+msvcrt = C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\msvcrt\msvcrt-1.0.3-1.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        remote: 55a5b8b9a4204eefbc8eae075bd4a78f
+        local:  55a5b8b9a4204eefbc8eae075bd4a78f
+Preparing to download: setup
+[==================================================] 100% 393,958
+Saved C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\setup\setup-1.0.7-16.tar.bz2
+
+setup = C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\setup\setup-1.0.7-16.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: dd8477c124d48144c2671e1aca766f5c
+        local:  dd8477c124d48144c2671e1aca766f5c
+
+CMD c:\temp\apt
+» nircmd shortcut "c:\temp\apt\bin\nircmd.exe" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W" "Setup" "exec hide ~qc:\temp\apt\bin\setup.bat~q" "c:\temp\apt\OSGeo4W.ico"
+
+CMD c:\temp\apt
+» textreplace -std -t bin/setup.bat 
+
+CMD c:\temp\apt
+» textreplace -std -t bin/setup-test.bat 
+Post_install complete, return code 0
+Preparing to download: shell
+[==================================================] 100% 3,011
+Saved C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\shell\shell-1.0.2-4.tar.bz2
+
+shell = C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\shell\shell-1.0.2-4.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: 5b42d3e5c946bccaa1313ee768fd5694
+        local:  5b42d3e5c946bccaa1313ee768fd5694
+mkdir was unexpected at this time.
+
+CMD c:\temp\apt
+» if not ==0 mkdir "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\OSGeo4W"
+Post_install complete, return code 255
+Preparing to download: iconv
+[==================================================] 100% 704,559
+Saved C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\iconv\iconv-1.14-1.tar.bz2
+
+iconv = C:\Users\Public\Downloads\http%3a%2f%2fdownload.osgeo.org%2fosgeo4w%2f\x86_64\release\iconv\iconv-1.14-1.tar.bz2
+--- Verifying local file's md5 hash matches mirror
+        True
+        remote: d5e71014388f54f131bf197d50740f96
+        local:  d5e71014388f54f131bf197d50740f96
+
+(apt) PS C:\Users\Matt\code\apt> 
+~~~
+
+Wow. It still works, mostly. :)
+Start menu items don't seem to be there, but manually running running `c:\temp\apt\Osgeo4W.bat` yields:
+
+```
+o-help for a list of available commands
+CMD C:\temp\apt
+» o-help
+                   -={ OSGeo4W Shell Commands }=-
+  dllupdate                               nircmd
+  nircmdc                                 osgeo4w-setup
+  textreplace                             xxmklink
+  o-help                                  o4w_env
+  setup-test                              setup
+
+CMD C:\temp\apt
+»
+```

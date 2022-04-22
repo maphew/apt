@@ -744,7 +744,7 @@ def update():
     
     # AMR66: changed to uncompressed ini
     filename =  '%s/%s'%(bits, 'setup.ini')
-    source = '%s/%s' % (mirror, filename)
+    source = '%s/v2/%s' % (mirror, filename)
     archive = os.path.join(downloads, filename)
 
     # backup cached ini archive

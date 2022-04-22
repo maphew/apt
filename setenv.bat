@@ -2,6 +2,7 @@
 @echo.=== Setting environment for (%~dp0) ===
 @path=%path%;%~dp0\scripts
 @echo.
+@set osgeo4w_root=C:\OSGeo4W
 @REM @set gdal_cachemax=30%%
 @REM @set GDAL_TIFF_INTERNAL_MASK=NO
 @REM @set gdal

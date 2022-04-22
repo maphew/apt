@@ -744,7 +744,7 @@ def update():
     
     # AMR66: changed to uncompressed ini
     filename =  '%s/%s'%(bits, 'setup.ini')
-    source = '%s/v2/%s' % (mirror, filename)
+    source = '%s/%s' % (mirror, filename)
     archive = os.path.join(downloads, filename)
 
     # backup cached ini archive
@@ -1275,7 +1275,7 @@ def get_menu_links(bat):
 #@+node:maphew.20100223163802.3751: *3* get_mirror
 def get_mirror():
     if last_mirror == None:
-        mirror = 'http://download.osgeo.org/osgeo4w/'
+        mirror = 'http://download.osgeo.org/osgeo4w/v2'
     else:
         mirror = last_mirror
     return mirror

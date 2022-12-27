@@ -1,5 +1,5 @@
 docopt==0.6.2
-setuptools==44.0.0.post20200106
+setuptools>=65.5.1
 click==7.1.2
 requests==2.27.1
 clint==0.5.1
